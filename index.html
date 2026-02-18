@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OWASP BLT - Bug Logging Tool: A gamified, crowd-sourced QA and vulnerability disclosure platform">
+    <meta name="keywords" content="OWASP, BLT, bug bounty, security, vulnerability, bug tracking">
+    <title>OWASP BLT - Bug Logging Tool</title>
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/src/assets/css/main.css" as="style">
+    <link rel="preload" href="/src/assets/js/main.js" as="script">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/assets/css/main.css">
+    
+    <!-- HTMX for dynamic interactions -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+    
+    <!-- Main application script -->
+    <script src="/src/assets/js/main.js" type="module" defer></script>
+</head>
+<body>
+    <!-- Header Component -->
+    <header class="header" role="banner">
+        <div class="container">
+            <nav class="nav" role="navigation" aria-label="Main navigation">
+                <div class="nav-brand">
+                    <a href="/" class="logo">
+                        <span class="logo-text">OWASP BLT</span>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/src/pages/report-bug.html" class="nav-link">Report Bug</a></li>
+                    <li><a href="/src/pages/leaderboard.html" class="nav-link">Leaderboard</a></li>
+                    <li><a href="/src/pages/projects.html" class="nav-link">Projects</a></li>
+                    <li><a href="/src/pages/about.html" class="nav-link">About</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" id="loginBtn">Login</button>
+                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" role="main">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Bug Logging Made Simple, Rewarding, and Fun</h1>
+                    <p class="hero-subtitle">
+                        Join the global community of security researchers, developers, and testers. 
+                        Report bugs, earn rewards, and help make the internet more secure.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/src/pages/report-bug.html" class="btn btn-primary btn-lg">Report a Bug</a>
+                        <a href="/src/pages/about.html" class="btn btn-outline btn-lg">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Why Choose BLT?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🐛</div>
+                        <h3 class="feature-title">Easy Bug Reporting</h3>
+                        <p class="feature-description">
+                            Report bugs and vulnerabilities with our intuitive interface. 
+                            From simple UI bugs to critical security issues.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <h3 class="feature-title">Gamification & Rewards</h3>
+                        <p class="feature-description">
+                            Earn points, badges, and climb the leaderboard. 
+                            Get rewarded for your contributions to internet security.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3 class="feature-title">Bug Bounties</h3>
+                        <p class="feature-description">
+                            Participate in bug bounty programs and earn real rewards. 
+                            Companies can launch their own bounty programs.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌍</div>
+                        <h3 class="feature-title">Global Community</h3>
+                        <p class="feature-description">
+                            Join thousands of security researchers and developers worldwide. 
+                            Collaborate, learn, and grow together.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section (Dynamic content loaded via HTMX) -->
+        <section class="stats">
+            <div class="container">
+                <h2 class="section-title">Our Impact</h2>
+                <div class="stats-grid" 
+                     hx-get="/api/stats" 
+                     hx-trigger="load"
+                     hx-swap="innerHTML">
+                    <!-- Stats will be loaded dynamically -->
+                    <div class="stat-card">
+                        <div class="stat-value">Loading...</div>
+                        <div class="stat-label">Bugs Reported</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">Loading...</div>
+                        <div class="stat-label">Active Researchers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">Loading...</div>
+                        <div class="stat-label">Rewards Distributed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">Loading...</div>
+                        <div class="stat-label">Projects Protected</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <div class="cta-content">
+                    <h2 class="cta-title">Ready to Get Started?</h2>
+                    <p class="cta-subtitle">
+                        Join the OWASP BLT community today and start making a difference.
+                    </p>
+                    <div class="cta-actions">
+                        <button class="btn btn-primary btn-lg" id="ctaSignupBtn">Create Account</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3 class="footer-title">OWASP BLT</h3>
+                    <p class="footer-description">
+                        An open-source, community-driven bug logging and vulnerability disclosure platform.
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="/src/pages/about.html">About</a></li>
+                        <li><a href="/src/pages/docs.html">Documentation</a></li>
+                        <li><a href="https://github.com/OWASP-BLT/BLT-Next">GitHub</a></li>
+                        <li><a href="/src/pages/contribute.html">Contribute</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Community</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://owasp.org">OWASP</a></li>
+                        <li><a href="/src/pages/leaderboard.html">Leaderboard</a></li>
+                        <li><a href="/src/pages/projects.html">Projects</a></li>
+                        <li><a href="/src/pages/contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="/src/pages/privacy.html">Privacy Policy</a></li>
+                        <li><a href="/src/pages/terms.html">Terms of Service</a></li>
+                        <li><a href="https://github.com/OWASP-BLT/BLT-Next/blob/main/LICENSE">License</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (loaded as needed) -->
+    <div id="authModal" class="modal" style="display: none;">
+        <!-- Modal content loaded dynamically -->
+    </div>
+</body>
+</html>

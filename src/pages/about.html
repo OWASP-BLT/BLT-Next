@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - OWASP BLT</title>
+    <link rel="stylesheet" href="/src/assets/css/main.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+    <script src="/src/assets/js/main.js" type="module" defer></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="nav-brand">
+                    <a href="/" class="logo">
+                        <span class="logo-text">OWASP BLT</span>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/src/pages/report-bug.html" class="nav-link">Report Bug</a></li>
+                    <li><a href="/src/pages/leaderboard.html" class="nav-link">Leaderboard</a></li>
+                    <li><a href="/src/pages/projects.html" class="nav-link">Projects</a></li>
+                    <li><a href="/src/pages/about.html" class="nav-link">About</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="btn btn-secondary" id="loginBtn">Login</button>
+                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero" style="padding: 2rem 0;">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">About OWASP BLT</h1>
+                    <p class="hero-subtitle">
+                        Making bug reporting accessible, rewarding, and fun for everyone
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container" style="padding: 3rem 0;">
+            <div style="max-width: 900px; margin: 0 auto;">
+                <h2>What is BLT?</h2>
+                <p>
+                    OWASP BLT (Bug Logging Tool) is an open-source, community-driven platform designed to make 
+                    reporting, tracking, and fixing software bugs and vulnerabilities easy and collaborative. 
+                    We combine gamification, bug bounties, and a vibrant community to create a better, more 
+                    secure internet.
+                </p>
+
+                <h2 style="margin-top: 3rem;">Our Mission</h2>
+                <p>
+                    To empower security researchers, developers, and organizations worldwide with the tools and 
+                    incentives needed to identify and fix security vulnerabilities, making the internet a safer 
+                    place for everyone.
+                </p>
+
+                <h2 style="margin-top: 3rem;">Key Features</h2>
+                <div class="features-grid" style="margin-top: 2rem;">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3 class="feature-title">Gamification</h3>
+                        <p class="feature-description">
+                            Earn points, badges, and climb leaderboards. Every bug you report contributes 
+                            to your reputation in the security community.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💎</div>
+                        <h3 class="feature-title">Bug Bounties</h3>
+                        <p class="feature-description">
+                            Participate in bug bounty programs and earn real rewards for your discoveries. 
+                            Organizations can launch their own programs.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤝</div>
+                        <h3 class="feature-title">Community-Driven</h3>
+                        <p class="feature-description">
+                            Join a global community of security researchers, developers, and ethical hackers 
+                            collaborating to improve security.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔓</div>
+                        <h3 class="feature-title">Open Source</h3>
+                        <p class="feature-description">
+                            Fully open source and transparent. Contribute to the project, customize for 
+                            your needs, and help improve the platform.
+                        </p>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 3rem;">Technology Stack</h2>
+                <p>
+                    BLT-Next represents a complete architectural overhaul, moving from a Django monolith to 
+                    a modern, performant static frontend with edge computing:
+                </p>
+                <ul style="margin-left: 2rem; margin-bottom: 2rem;">
+                    <li><strong>Frontend:</strong> HTML5, CSS3, Vanilla JavaScript, HTMX</li>
+                    <li><strong>Hosting:</strong> GitHub Pages (Global CDN)</li>
+                    <li><strong>Backend:</strong> Cloudflare Python Workers (Edge Computing)</li>
+                    <li><strong>Performance:</strong> Sub-200ms global response times</li>
+                    <li><strong>Architecture:</strong> Progressive enhancement, zero build step</li>
+                </ul>
+
+                <h2 style="margin-top: 3rem;">The OWASP Foundation</h2>
+                <p>
+                    BLT is a project of the OWASP Foundation, a nonprofit organization dedicated to improving 
+                    software security. OWASP operates as a community of security professionals who develop 
+                    freely available tools, documentation, and standards.
+                </p>
+
+                <h2 style="margin-top: 3rem;">Get Involved</h2>
+                <p>
+                    We're always looking for contributors! Whether you're a developer, security researcher, 
+                    designer, or documentation writer, there's a place for you in our community.
+                </p>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <a href="https://github.com/OWASP-BLT/BLT-Next" class="btn btn-primary">
+                        View on GitHub
+                    </a>
+                    <a href="/src/pages/report-bug.html" class="btn btn-outline">
+                        Report Your First Bug
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="authModal" class="modal" style="display: none;"></div>
+</body>
+</html>

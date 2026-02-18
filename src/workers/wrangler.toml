@@ -1,0 +1,52 @@
+# Cloudflare Workers Configuration for BLT-Next
+
+name = "blt-api"
+main = "src/workers/main.py"
+compatibility_date = "2024-01-01"
+
+# Python support
+[build]
+command = ""
+
+# Environment variables (set these in Cloudflare dashboard)
+# [vars]
+# ENVIRONMENT = "production"
+
+# Secrets (set via wrangler secret put)
+# - JWT_SECRET
+# - DATABASE_URL
+# - ENCRYPTION_KEY
+
+# KV Namespaces for caching
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "your-kv-namespace-id"
+
+# D1 Database
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "blt-database"
+# database_id = "your-d1-database-id"
+
+# Rate limiting
+[routes]
+pattern = "*/api/*"
+zone_name = "your-domain.com"
+
+# Development
+[env.development]
+name = "blt-api-dev"
+
+# Production
+[env.production]
+name = "blt-api-prod"
+route = "https://api.owaspblt.org/*"
+
+# Triggers
+[triggers]
+crons = []
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1

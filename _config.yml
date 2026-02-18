@@ -1,0 +1,25 @@
+# _config.yml for GitHub Pages
+
+title: OWASP BLT
+description: A gamified, crowd-sourced QA and vulnerability disclosure platform
+url: https://owasp-blt.github.io
+baseurl: /BLT-Next
+
+# Build settings
+markdown: kramdown
+theme: null
+
+# Exclude files from GitHub Pages build
+exclude:
+  - .git
+  - .github
+  - README.md
+  - LICENSE
+  - node_modules
+  - .gitignore
+  - docs/architecture
+  - src/workers
+
+# Include specific files
+include:
+  - src
