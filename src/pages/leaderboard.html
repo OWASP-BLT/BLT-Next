@@ -7,39 +7,103 @@
     <title>Leaderboard - OWASP BLT</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="preload" href="../assets/js/main.js?v=blt-1.0.2" as="script">
     <link rel="stylesheet" href="../assets/css/main.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#E10101',
+                            dark: '#BC0000',
+                        },
+                        secondary: '#64748b',
+                        owasp: '#000000',
+                        gray: {
+                            200: '#E5E5E5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Theme Initialization Script -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' ||
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
     <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-    <script src="../assets/js/main.js" type="module" defer></script>
+    <script src="../assets/js/main.js?v=blt-1.0.2" defer></script>
 </head>
 
 <body>
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <div class="nav-brand">
-                    <a href="/" class="logo">
-                        <span class="logo-text">OWASP BLT</span>
+    <header
+        class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700"
+        role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex items-center justify-between py-5" role="navigation" aria-label="Main navigation">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center">
+                        <img src="../assets/images/owasp-blt-logo.svg" alt="OWASP BLT Logo" class="h-10 w-auto">
                     </a>
                 </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.html" class="nav-link">Home</a></li>
-                    <li><a href="report-bug.html" class="nav-link">Report Bug</a></li>
-                    <li><a href="leaderboard.html" class="nav-link">Leaderboard</a></li>
-                    <li><a href="projects.html" class="nav-link">Projects</a></li>
-                    <li><a href="about.html" class="nav-link">About</a></li>
+                <ul class="hidden md:flex space-x-8 items-center list-none">
+                    <li><a href="../index.html"
+                            class="text-gray-700 dark:text-gray-300 font-medium hover:text-primary transition-colors">Home</a>
+                    </li>
+                    <li><a href="report-bug.html"
+                            class="text-gray-700 dark:text-gray-300 font-medium hover:text-primary transition-colors">Report
+                            Bug</a></li>
+                    <li><a href="leaderboard.html"
+                            class="text-gray-700 dark:text-gray-300 font-medium hover:text-primary transition-colors">Leaderboard</a>
+                    </li>
+                    <li><a href="projects.html"
+                            class="text-gray-700 dark:text-gray-300 font-medium hover:text-primary transition-colors">Projects</a>
+                    </li>
+                    <li><a href="about.html"
+                            class="text-gray-700 dark:text-gray-300 font-medium hover:text-primary transition-colors">About</a>
+                    </li>
                 </ul>
-                <div class="nav-actions">
-                    <button class="btn btn-secondary" id="loginBtn">Login</button>
-                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle"
+                        class="p-2 text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors focus:outline-none"
+                        aria-label="Toggle dark mode">
+                        <svg id="sunIcon" class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd"
+                                d="M10 18a.8.8 0 01-.8-.8V16.7a.8.8 0 111.6 0v.5a.8.8 0 01-.8.8zm8-8a.8.8 0 01-.8.8h-.5a.8.8 0 110-1.6h.5a.8.8 0 01.8.8zM10 2a.8.8 0 01.8.8v.5a.8.8 0 11-1.6 0V2.8a.8.8 0 01.8-.8zm-8 8a.8.8 0 01.8-.8h.5a.8.8 0 110 1.6H2.8a.8.8 0 01-.8-.8zm14.5 4.5a.8.8 0 010 1.1l-.4.4a.8.8 0 11-1.1-1.1l.4-.4a.8.8 0 011.1 0zm-11-11a.8.8 0 010 1.1l-.4.4a.8.8 0 11-1.1-1.1l.4-.4a.8.8 0 011.1 0zM16.7 3.3a.8.8 0 010 1.1l-.4.4a.8.8 0 11-1.1-1.1l.4-.4a.8.8 0 011.1 0zm-11 11a.8.8 0 010 1.1l-.4.4a.8.8 0 11-1.1-1.1l.4-.4a.8.8 0 011.1 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <svg id="moonIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                        </svg>
+                    </button>
+                    <button
+                        class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-900 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-md font-medium transition-colors"
+                        id="loginBtn">Login</button>
+                    <button
+                        class="px-4 py-2 text-white bg-primary hover:bg-primary-dark rounded-md font-medium transition-colors"
+                        id="signupBtn">Sign Up</button>
                 </div>
             </nav>
         </div>
     </header>
 
     <main class="main">
-        <section class="container" style="padding: 3rem 0;">
-            <h1 class="section-title">Leaderboard</h1>
-            <p class="text-center" style="color: var(--color-gray-600); margin-bottom: 3rem;">
+        <section class="container pt-32 pb-12">
+            <h1 class="text-4xl font-bold text-center mb-4 dark:text-white">Leaderboard</h1>
+            <p class="text-center text-gray-600 dark:text-gray-400 mb-12">
                 Top security researchers making the internet safer
             </p>
 
@@ -54,9 +118,9 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-bottom">
+    <footer class="footer py-12 bg-gray-900 border-t border-gray-800 dark:border-slate-700">
+        <div class="container mx-auto px-4">
+            <div class="text-center text-gray-400">
                 <p>&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
             </div>
         </div>
@@ -73,6 +137,11 @@
             border: 1px solid var(--color-gray-200);
         }
 
+        .dark .leaderboard-table {
+            background: #24303F;
+            border-color: #2E3A47;
+        }
+
         .leaderboard-row {
             display: grid;
             grid-template-columns: 80px 1fr 120px 120px;
@@ -81,8 +150,16 @@
             transition: background-color 0.15s;
         }
 
+        .dark .leaderboard-row {
+            border-bottom-color: #2E3A47;
+        }
+
         .leaderboard-row:hover {
             background-color: var(--color-gray-50);
+        }
+
+        .dark .leaderboard-row:hover {
+            background-color: #2E3A47;
         }
 
         .leaderboard-row:last-child {
@@ -92,6 +169,11 @@
         .leaderboard-header {
             background-color: var(--color-gray-100);
             font-weight: 600;
+        }
+
+        .dark .leaderboard-header {
+            background-color: #1A222C;
+            color: white;
         }
 
         .rank {
@@ -105,9 +187,17 @@
             color: var(--color-gray-900);
         }
 
+        .dark .username {
+            color: white;
+        }
+
         .stat {
             text-align: right;
             color: var(--color-gray-700);
+        }
+
+        .dark .stat {
+            color: #AEB7C0;
         }
     </style>
 </body>

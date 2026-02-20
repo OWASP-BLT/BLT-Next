@@ -1,12 +1,9 @@
 /**
  * OWASP BLT - Main Application Module
- * 
- * Lightweight vanilla JS with progressive enhancement
- * Handles authentication, navigation, and dynamic features
  */
-
 // ===================================
-// Configuration
+// Configuration    
+// Configuration    
 // ===================================
 const CONFIG = {
     // API endpoint - should be set to your Cloudflare Worker URL
@@ -442,6 +439,38 @@ function setupEventHandlers() {
         }
     });
 
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+
+    function updateThemeIcons() {
+        if (!sunIcon || !moonIcon) return;
+        if (document.documentElement.classList.contains('dark')) {
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        } else {
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
+    }
+
+    if (themeToggle) {
+        // Initial icon state
+        updateThemeIcons();
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcons();
+
+            // Re-emit theme change for other components
+            if (window.bltApp && window.bltApp.state) {
+                window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
+            }
+        });
+    }
+
     // Close modal on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -483,14 +512,23 @@ function updateUIForAuth() {
 // Initialization
 // ===================================
 async function init() {
-    console.log('🚀 BLT initialized');
+    // Setup event handlers immediately so UI is responsive
+    try {
+        setupEventHandlers();
+    } catch (error) {
+        // Silently fail or log sparingly in production
+    }
 
-    // Check authentication status
-    await auth.checkAuth();
-    updateUIForAuth();
+    // Check authentication status in background
+    try {
+        await auth.checkAuth();
+        updateUIForAuth();
+    } catch (error) {
+        // Auth check failure is handled by UI state
+    }
 
-    // Setup event handlers
-    setupEventHandlers();
+    // Update state to ready
+    state.emit('app:ready');
 
     // Add CSS animations
     if (!document.getElementById('blt-animations')) {

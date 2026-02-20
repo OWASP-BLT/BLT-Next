@@ -77,6 +77,20 @@
     --z-tooltip: 1060;
 }
 
+/* --- Dark Mode Variables --- */
+.dark {
+    --color-white: #0f172a;
+    --color-black: #ffffff;
+    --color-gray-50: #1e293b;
+    --color-gray-100: #1e293b;
+    --color-gray-200: #334155;
+    --color-gray-300: #94a3b8;
+    --color-gray-600: #94a3b8;
+    --color-gray-700: #94a3b8;
+    --color-gray-800: #cbd5e1;
+    --color-gray-900: #ffffff;
+}
+
 /* --- Reset & Base Styles --- */
 *, *::before, *::after {
     box-sizing: border-box;
