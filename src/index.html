@@ -1,45 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="OWASP BLT - Bug Logging Tool: A gamified, crowd-sourced QA and vulnerability disclosure platform">
+    <meta name="description"
+        content="OWASP BLT - Bug Logging Tool: A gamified, crowd-sourced QA and vulnerability disclosure platform">
     <meta name="keywords" content="OWASP, BLT, bug bounty, security, vulnerability, bug tracking">
     <title>OWASP BLT - Bug Logging Tool</title>
-    
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
     <!-- Preload critical assets -->
-    <link rel="preload" href="/src/assets/css/main.css" as="style">
-    <link rel="preload" href="/src/assets/js/main.js" as="script">
-    
+    <link rel="preload" href="assets/css/main.css" as="style">
+    <link rel="preload" href="assets/js/main.js" as="script">
+
     <!-- Styles -->
-    <link rel="stylesheet" href="/src/assets/css/main.css">
-    
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#E10101',
+                            dark: '#BC0000',
+                        },
+                        secondary: '#64748b',
+                        owasp: '#000000',
+                        gray: {
+                            200: '#E5E5E5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <!-- HTMX for dynamic interactions -->
     <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-    
+
     <!-- Main application script -->
-    <script src="/src/assets/js/main.js" type="module" defer></script>
+    <script src="assets/js/main.js" type="module" defer></script>
 </head>
+
 <body>
     <!-- Header Component -->
-    <header class="header" role="banner">
-        <div class="container">
-            <nav class="nav" role="navigation" aria-label="Main navigation">
-                <div class="nav-brand">
-                    <a href="/" class="logo">
-                        <span class="logo-text">OWASP BLT</span>
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200" role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex items-center justify-between py-4" role="navigation" aria-label="Main navigation">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center text-xl font-bold text-primary">
+                        <span>OWASP BLT</span>
                     </a>
                 </div>
-                <ul class="nav-menu">
-                    <li><a href="/" class="nav-link">Home</a></li>
-                    <li><a href="/src/pages/report-bug.html" class="nav-link">Report Bug</a></li>
-                    <li><a href="/src/pages/leaderboard.html" class="nav-link">Leaderboard</a></li>
-                    <li><a href="/src/pages/projects.html" class="nav-link">Projects</a></li>
-                    <li><a href="/src/pages/about.html" class="nav-link">About</a></li>
+                <ul class="hidden md:flex space-x-8 items-center list-none">
+                    <li><a href="/" class="text-gray-700 font-medium hover:text-primary transition-colors">Home</a></li>
+                    <li><a href="pages/report-bug.html"
+                            class="text-gray-700 font-medium hover:text-primary transition-colors">Report Bug</a></li>
+                    <li><a href="pages/leaderboard.html"
+                            class="text-gray-700 font-medium hover:text-primary transition-colors">Leaderboard</a></li>
+                    <li><a href="pages/projects.html"
+                            class="text-gray-700 font-medium hover:text-primary transition-colors">Projects</a></li>
+                    <li><a href="pages/about.html"
+                            class="text-gray-700 font-medium hover:text-primary transition-colors">About</a></li>
                 </ul>
-                <div class="nav-actions">
-                    <button class="btn btn-secondary" id="loginBtn">Login</button>
-                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+                <div class="flex space-x-4">
+                    <button
+                        class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md font-medium transition-colors"
+                        id="loginBtn">Login</button>
+                    <button
+                        class="px-4 py-2 text-white bg-primary hover:bg-primary-dark rounded-md font-medium transition-colors"
+                        id="signupBtn">Sign Up</button>
                 </div>
             </nav>
         </div>
@@ -48,17 +85,26 @@
     <!-- Main Content -->
     <main class="main" role="main">
         <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1 class="hero-title">Bug Logging Made Simple, Rewarding, and Fun</h1>
-                    <p class="hero-subtitle">
-                        Join the global community of security researchers, developers, and testers. 
+        <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">
+                        Bug Logging Made <span class="text-primary">Simple</span>, Rewarding, and <span
+                            class="text-primary">Fun</span>
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-10 leading-relaxed">
+                        Join the global community of security researchers, developers, and testers.
                         Report bugs, earn rewards, and help make the internet more secure.
                     </p>
-                    <div class="hero-actions">
-                        <a href="/src/pages/report-bug.html" class="btn btn-primary btn-lg">Report a Bug</a>
-                        <a href="/src/pages/about.html" class="btn btn-outline btn-lg">Learn More</a>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="pages/report-bug.html"
+                            class="px-8 py-4 text-white bg-primary hover:bg-primary-dark rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-primary/25">
+                            Report a Bug
+                        </a>
+                        <a href="pages/about.html"
+                            class="px-8 py-4 text-primary bg-transparent border-2 border-primary hover:bg-primary hover:text-white rounded-lg font-bold text-lg transition-all transform hover:scale-105">
+                            Learn More
+                        </a>
                     </div>
                 </div>
             </div>
@@ -73,7 +119,7 @@
                         <div class="feature-icon">🐛</div>
                         <h3 class="feature-title">Easy Bug Reporting</h3>
                         <p class="feature-description">
-                            Report bugs and vulnerabilities with our intuitive interface. 
+                            Report bugs and vulnerabilities with our intuitive interface.
                             From simple UI bugs to critical security issues.
                         </p>
                     </div>
@@ -81,7 +127,7 @@
                         <div class="feature-icon">🏆</div>
                         <h3 class="feature-title">Gamification & Rewards</h3>
                         <p class="feature-description">
-                            Earn points, badges, and climb the leaderboard. 
+                            Earn points, badges, and climb the leaderboard.
                             Get rewarded for your contributions to internet security.
                         </p>
                     </div>
@@ -89,7 +135,7 @@
                         <div class="feature-icon">💰</div>
                         <h3 class="feature-title">Bug Bounties</h3>
                         <p class="feature-description">
-                            Participate in bug bounty programs and earn real rewards. 
+                            Participate in bug bounty programs and earn real rewards.
                             Companies can launch their own bounty programs.
                         </p>
                     </div>
@@ -97,7 +143,7 @@
                         <div class="feature-icon">🌍</div>
                         <h3 class="feature-title">Global Community</h3>
                         <p class="feature-description">
-                            Join thousands of security researchers and developers worldwide. 
+                            Join thousands of security researchers and developers worldwide.
                             Collaborate, learn, and grow together.
                         </p>
                     </div>
@@ -109,10 +155,7 @@
         <section class="stats">
             <div class="container">
                 <h2 class="section-title">Our Impact</h2>
-                <div class="stats-grid" 
-                     hx-get="/api/stats" 
-                     hx-trigger="load"
-                     hx-swap="innerHTML">
+                <div class="stats-grid" hx-get="/api/stats" hx-trigger="load" hx-swap="innerHTML">
                     <!-- Stats will be loaded dynamically -->
                     <div class="stat-card">
                         <div class="stat-value">Loading...</div>
@@ -163,26 +206,26 @@
                 <div class="footer-section">
                     <h3 class="footer-title">Quick Links</h3>
                     <ul class="footer-links">
-                        <li><a href="/src/pages/about.html">About</a></li>
-                        <li><a href="/src/pages/docs.html">Documentation</a></li>
+                        <li><a href="pages/about.html">About</a></li>
+                        <li><a href="pages/docs.html">Documentation</a></li>
                         <li><a href="https://github.com/OWASP-BLT/BLT-Next">GitHub</a></li>
-                        <li><a href="/src/pages/contribute.html">Contribute</a></li>
+                        <li><a href="pages/contribute.html">Contribute</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h3 class="footer-title">Community</h3>
                     <ul class="footer-links">
                         <li><a href="https://owasp.org">OWASP</a></li>
-                        <li><a href="/src/pages/leaderboard.html">Leaderboard</a></li>
-                        <li><a href="/src/pages/projects.html">Projects</a></li>
-                        <li><a href="/src/pages/contact.html">Contact</a></li>
+                        <li><a href="pages/leaderboard.html">Leaderboard</a></li>
+                        <li><a href="pages/projects.html">Projects</a></li>
+                        <li><a href="pages/contact.html">Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h3 class="footer-title">Legal</h3>
                     <ul class="footer-links">
-                        <li><a href="/src/pages/privacy.html">Privacy Policy</a></li>
-                        <li><a href="/src/pages/terms.html">Terms of Service</a></li>
+                        <li><a href="pages/privacy.html">Privacy Policy</a></li>
+                        <li><a href="pages/terms.html">Terms of Service</a></li>
                         <li><a href="https://github.com/OWASP-BLT/BLT-Next/blob/main/LICENSE">License</a></li>
                     </ul>
                 </div>
@@ -198,4 +241,5 @@
         <!-- Modal content loaded dynamically -->
     </div>
 </body>
+
 </html>

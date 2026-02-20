@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report a Bug - OWASP BLT</title>
-    <link rel="stylesheet" href="/src/assets/css/main.css">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../assets/css/main.css">
     <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-    <script src="/src/assets/js/main.js" type="module" defer></script>
+    <script src="../assets/js/main.js" type="module" defer></script>
 </head>
+
 <body>
     <header class="header">
         <div class="container">
@@ -18,11 +22,11 @@
                     </a>
                 </div>
                 <ul class="nav-menu">
-                    <li><a href="/" class="nav-link">Home</a></li>
-                    <li><a href="/src/pages/report-bug.html" class="nav-link">Report Bug</a></li>
-                    <li><a href="/src/pages/leaderboard.html" class="nav-link">Leaderboard</a></li>
-                    <li><a href="/src/pages/projects.html" class="nav-link">Projects</a></li>
-                    <li><a href="/src/pages/about.html" class="nav-link">About</a></li>
+                    <li><a href="../index.html" class="nav-link">Home</a></li>
+                    <li><a href="report-bug.html" class="nav-link">Report Bug</a></li>
+                    <li><a href="leaderboard.html" class="nav-link">Leaderboard</a></li>
+                    <li><a href="projects.html" class="nav-link">Projects</a></li>
+                    <li><a href="about.html" class="nav-link">About</a></li>
                 </ul>
                 <div class="nav-actions">
                     <button class="btn btn-secondary" id="loginBtn">Login</button>
@@ -40,45 +44,30 @@
             </p>
 
             <div style="max-width: 800px; margin: 0 auto;">
-                <form 
-                    id="bugReportForm"
-                    hx-post="/api/bugs"
-                    hx-swap="outerHTML"
+                <form id="bugReportForm" hx-post="/api/bugs" hx-swap="outerHTML"
                     style="background: white; padding: 2rem; border-radius: 0.5rem; border: 1px solid var(--color-gray-200);">
-                    
+
                     <div style="margin-bottom: 1.5rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Bug Title *
                         </label>
-                        <input 
-                            type="text" 
-                            name="title" 
-                            required
-                            placeholder="Brief description of the bug"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;"
-                        />
+                        <input type="text" name="title" required placeholder="Brief description of the bug"
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;" />
                     </div>
 
                     <div style="margin-bottom: 1.5rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Project/URL *
                         </label>
-                        <input 
-                            type="url" 
-                            name="url" 
-                            required
-                            placeholder="https://example.com"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;"
-                        />
+                        <input type="url" name="url" required placeholder="https://example.com"
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;" />
                     </div>
 
                     <div style="margin-bottom: 1.5rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Severity *
                         </label>
-                        <select 
-                            name="severity"
-                            required
+                        <select name="severity" required
                             style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;">
                             <option value="">Select severity</option>
                             <option value="critical">Critical</option>
@@ -93,9 +82,7 @@
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Bug Type *
                         </label>
-                        <select 
-                            name="type"
-                            required
+                        <select name="type" required
                             style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;">
                             <option value="">Select type</option>
                             <option value="security">Security Vulnerability</option>
@@ -110,38 +97,25 @@
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Description *
                         </label>
-                        <textarea 
-                            name="description"
-                            required
-                            rows="6"
+                        <textarea name="description" required rows="6"
                             placeholder="Detailed description of the bug, steps to reproduce, and impact"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem; resize: vertical;"
-                        ></textarea>
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem; resize: vertical;"></textarea>
                     </div>
 
                     <div style="margin-bottom: 1.5rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Steps to Reproduce
                         </label>
-                        <textarea 
-                            name="steps"
-                            rows="4"
-                            placeholder="1. Go to...&#10;2. Click on...&#10;3. Observe..."
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem; resize: vertical;"
-                        ></textarea>
+                        <textarea name="steps" rows="4" placeholder="1. Go to...&#10;2. Click on...&#10;3. Observe..."
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem; resize: vertical;"></textarea>
                     </div>
 
                     <div style="margin-bottom: 2rem;">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Proof of Concept / Screenshots
                         </label>
-                        <input 
-                            type="file"
-                            name="attachments"
-                            multiple
-                            accept="image/*,.pdf"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem;"
-                        />
+                        <input type="file" name="attachments" multiple accept="image/*,.pdf"
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem;" />
                     </div>
 
                     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
@@ -163,4 +137,5 @@
 
     <div id="authModal" class="modal" style="display: none;"></div>
 </body>
+
 </html>

@@ -12,8 +12,8 @@ const CONFIG = {
     // API endpoint - should be set to your Cloudflare Worker URL
     // For production, use absolute URL like: 'https://api.owaspblt.org'
     // For local development with worker: 'http://localhost:8787'
-    API_BASE_URL: window.location.hostname === 'localhost' 
-        ? 'http://localhost:8787' 
+    API_BASE_URL: window.location.hostname === 'localhost'
+        ? 'http://localhost:8787'
         : 'https://api.owaspblt.org', // TODO: Replace with your actual worker URL
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
     ENABLE_ANALYTICS: true,
@@ -79,7 +79,7 @@ class APIClient {
 
         try {
             const response = await fetch(url, { ...defaultOptions, ...options });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -101,7 +101,7 @@ class APIClient {
         }
 
         const data = await this.request(endpoint, { method: 'GET' });
-        
+
         if (useCache) {
             this.cache.set(endpoint, {
                 data,
@@ -151,13 +151,13 @@ class AuthModule {
     async login(email, password) {
         try {
             const response = await this.api.post('/auth/login', { email, password });
-            
+
             if (response.token) {
                 localStorage.setItem('authToken', response.token);
                 this.state.setUser(response.user);
                 return { success: true, user: response.user };
             }
-            
+
             return { success: false, error: 'Invalid credentials' };
         } catch (error) {
             return { success: false, error: error.message };
@@ -167,13 +167,13 @@ class AuthModule {
     async signup(userData) {
         try {
             const response = await this.api.post('/auth/signup', userData);
-            
+
             if (response.token) {
                 localStorage.setItem('authToken', response.token);
                 this.state.setUser(response.user);
                 return { success: true, user: response.user };
             }
-            
+
             return { success: false, error: 'Signup failed' };
         } catch (error) {
             return { success: false, error: error.message };
@@ -224,7 +224,7 @@ class UIComponents {
         if (modal) {
             modal.innerHTML = content;
             modal.style.display = 'flex';
-            
+
             // Close modal on backdrop click
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -385,7 +385,7 @@ function setupEventHandlers() {
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
             UIComponents.showModal(UIComponents.createLoginForm());
-            
+
             // Setup form submission
             const form = document.getElementById('loginForm');
             if (form) {
@@ -394,7 +394,7 @@ function setupEventHandlers() {
                     const formData = new FormData(form);
                     const email = formData.get('email');
                     const password = formData.get('password');
-                    
+
                     const result = await auth.login(email, password);
                     if (result.success) {
                         UIComponents.hideModal();
@@ -415,7 +415,7 @@ function setupEventHandlers() {
         if (btn) {
             btn.addEventListener('click', () => {
                 UIComponents.showModal(UIComponents.createSignupForm());
-                
+
                 // Setup form submission
                 const form = document.getElementById('signupForm');
                 if (form) {
@@ -427,7 +427,7 @@ function setupEventHandlers() {
                             email: formData.get('email'),
                             password: formData.get('password'),
                         };
-                        
+
                         const result = await auth.signup(userData);
                         if (result.success) {
                             UIComponents.hideModal();
@@ -457,13 +457,13 @@ function updateUIForAuth() {
     const user = state.getUser();
     const loginBtn = document.getElementById('loginBtn');
     const signupBtn = document.getElementById('signupBtn');
-    
+
     if (user && state.isAuthenticated) {
         // Update buttons to show user menu
         if (loginBtn) {
             loginBtn.textContent = user.username;
             loginBtn.onclick = () => {
-                window.location.href = '/src/pages/profile.html';
+                window.location.href = '/pages/profile.html';
             };
         }
         if (signupBtn) {
@@ -484,14 +484,14 @@ function updateUIForAuth() {
 // ===================================
 async function init() {
     console.log('🚀 BLT initialized');
-    
+
     // Check authentication status
     await auth.checkAuth();
     updateUIForAuth();
-    
+
     // Setup event handlers
     setupEventHandlers();
-    
+
     // Add CSS animations
     if (!document.getElementById('blt-animations')) {
         const style = document.createElement('style');

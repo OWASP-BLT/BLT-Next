@@ -8,102 +8,70 @@ BLT-Next is the next-generation architecture for OWASP BLT (Bug Logging Tool), m
 
 ## ✨ Key Features
 
-- **⚡ Sub-200ms Global Response Times**: Optimized static assets served via GitHub Pages CDN
-- **🎯 Progressive Enhancement**: Core functionality works without JavaScript, enhanced with HTMX
-- **📦 Modular Architecture**: Clean separation of concerns with reusable components
-- **🔒 Secure by Default**: Cloudflare Workers handle authentication and sensitive operations
-- **🌍 Global CDN**: GitHub Pages provides worldwide distribution
-- **💪 Maintainable**: Vanilla JS, modern CSS, and clear structure for easy contributions
+- **⚡ Sub-200ms Global Response Times**: Optimized static assets served via Cloudflare
+- **🎯 Progressive Enhancement**: Core functionality enhanced with HTMX and Tailwind CSS
+- **📦 Modular Architecture**: Clean separation of concerns with reusable Python handlers
+- **🔒 Secure by Default**: Cloudflare Workers handle authentication and D1 peristence
+- **🌍 Global Edge Runtime**: Python Workers running everywhere on Cloudflare's network
+- **💪 Maintainable**: Zero-build frontend using Tailwind CDN and Vanilla JS
 
 ## 🏗️ Architecture
 
-### Frontend (GitHub Pages)
-- **Static Assets**: HTML, CSS, JavaScript served via GitHub Pages
-- **Framework**: Vanilla JS + HTMX for dynamic interactions
-- **Styling**: Custom CSS framework (no dependencies)
-- **Build**: Zero build step - works out of the box
+### Frontend (Cloudflare Assets)
+- **Static Assets**: HTML, CSS, JavaScript served via Cloudflare Workers Assets
+- **CSS Framework**: Tailwind CSS (via CDN) for modern, responsive design
+- **Interactions**: HTMX for seamless dynamic updates without page reloads
 
 ### Backend (Cloudflare Python Workers)
-- **API Endpoints**: Python workers handle dynamic features
-- **Authentication**: Secure token-based auth
-- **Database**: Integration with Cloudflare D1 or external DB
+- **API Endpoints**: Python workers handle dynamic features and database interactions
+- **Database**: Cloudflare D1 (SQL) for low-latency edge storage
 - **Performance**: Edge computing for sub-200ms responses
 
 ## 📁 Project Structure
 
 ```
 BLT-Next/
-├── index.html                  # Main landing page
-├── src/
+├── src/                        # Static Assets (Frontend Root)
+│   ├── index.html              # Main landing page
 │   ├── assets/
-│   │   ├── css/
-│   │   │   └── main.css       # Custom CSS framework
 │   │   ├── js/
 │   │   │   └── main.js        # Main application logic
-│   │   └── images/
-│   ├── components/            # Reusable HTML components
-│   ├── pages/                 # Static pages
-│   │   ├── report-bug.html
-│   │   ├── leaderboard.html
-│   │   ├── projects.html
-│   │   └── about.html
-│   └── workers/               # Cloudflare Workers
-│       └── main.py            # Main API worker
+│   └── pages/                 # Static pages
+├── workers/                    # Cloudflare Workers (Backend)
+│   └── main.py                # Unified API worker
 ├── docs/                      # Documentation
-├── _config.yml               # GitHub Pages config
-└── .github/
-    └── workflows/
-        └── pages.yml         # GitHub Pages deployment
+├── package.json               # Scripts for dev and database
+├── wrangler.toml              # Infrastructure as code
+└── schema.sql                 # Unified D1 database schema
 ```
 
 ## 🚦 Getting Started
 
-### Prerequisites
+### Quick Start
 
-- Git
-- Modern web browser
-- (Optional) Python 3.11+ for local worker development
-- (Optional) Node.js for running a local server
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/OWASP-BLT/BLT-Next.git
+    cd BLT-Next
+    ```
 
-### Local Development
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/OWASP-BLT/BLT-Next.git
-   cd BLT-Next
-   ```
+3.  **Initialize local database**
+    ```bash
+    npm run db:init
+    ```
 
-2. **Serve locally**
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   
-   # Or using Node.js
-   npx http-server -p 8000
-   ```
+4.  **Start development server**
+    ```bash
+    npm run dev
+    ```
+    This serves both the frontend and the backend API at `http://localhost:8787` using `wrangler`.
 
-3. **Open in browser**
-   ```
-   http://localhost:8000
-   ```
-
-### Cloudflare Workers Setup
-
-1. **Install Wrangler CLI**
-   ```bash
-   npm install -g wrangler
-   ```
-
-2. **Configure Worker**
-   ```bash
-   cd src/workers
-   wrangler init
-   ```
-
-3. **Deploy Worker**
-   ```bash
-   wrangler deploy
-   ```
+For more details on setting up Cloudflare Workers or custom configurations, please see our [Contributing Guide](CONTRIBUTING.md).
 
 4. **Update API endpoint** in `src/assets/js/main.js`:
    ```javascript
@@ -179,7 +147,7 @@ We welcome contributions! Here's how to get started:
 - [Architecture Overview](docs/architecture.md)
 - [API Documentation](docs/api.md)
 - [Deployment Guide](docs/deployment.md)
-- [Contributing Guide](docs/contributing.md)
+- [Contributing Guide](CONTRIBUTING.md)
 
 ## 🔒 Security
 

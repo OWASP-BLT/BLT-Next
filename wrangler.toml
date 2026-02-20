@@ -1,8 +1,13 @@
 # Cloudflare Workers Configuration for BLT-Next
 
 name = "blt-api"
-main = "src/workers/main.py"
-compatibility_date = "2024-01-01"
+main = "workers/main.py"
+compatibility_date = "2024-04-03"
+compatibility_flags = [ "python_workers" ]
+
+[assets]
+directory = "src"
+binding = "ASSETS"
 
 # Python support
 [build]
@@ -22,14 +27,13 @@ command = ""
 # binding = "CACHE"
 # id = "your-kv-namespace-id"
 
-# D1 Database
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "blt-database"
-# database_id = "your-d1-database-id"
+[[d1_databases]]
+binding = "DB"
+database_name = "blt-database"
+database_id = "00000000-0000-0000-0000-000000000000" # Placeholder ID
 
 # Rate limiting
-[routes]
+[[routes]]
 pattern = "*/api/*"
 zone_name = "your-domain.com"
 

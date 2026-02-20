@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects - OWASP BLT</title>
-    <link rel="stylesheet" href="/src/assets/css/main.css">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../assets/css/main.css">
     <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-    <script src="/src/assets/js/main.js" type="module" defer></script>
+    <script src="../assets/js/main.js" type="module" defer></script>
 </head>
+
 <body>
     <header class="header">
         <div class="container">
@@ -18,11 +22,11 @@
                     </a>
                 </div>
                 <ul class="nav-menu">
-                    <li><a href="/" class="nav-link">Home</a></li>
-                    <li><a href="/src/pages/report-bug.html" class="nav-link">Report Bug</a></li>
-                    <li><a href="/src/pages/leaderboard.html" class="nav-link">Leaderboard</a></li>
-                    <li><a href="/src/pages/projects.html" class="nav-link">Projects</a></li>
-                    <li><a href="/src/pages/about.html" class="nav-link">About</a></li>
+                    <li><a href="../index.html" class="nav-link">Home</a></li>
+                    <li><a href="report-bug.html" class="nav-link">Report Bug</a></li>
+                    <li><a href="leaderboard.html" class="nav-link">Leaderboard</a></li>
+                    <li><a href="projects.html" class="nav-link">Projects</a></li>
+                    <li><a href="about.html" class="nav-link">About</a></li>
                 </ul>
                 <div class="nav-actions">
                     <button class="btn btn-secondary" id="loginBtn">Login</button>
@@ -41,12 +45,8 @@
 
             <div style="max-width: 1100px; margin: 0 auto;">
                 <!-- Project Grid -->
-                <div 
-                    hx-get="/api/projects"
-                    hx-trigger="load"
-                    hx-swap="innerHTML"
-                    class="projects-grid">
-                    
+                <div hx-get="/api/projects" hx-trigger="load" hx-swap="innerHTML" class="projects-grid">
+
                     <!-- Loading State -->
                     <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
                         <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
@@ -55,7 +55,8 @@
                 </div>
 
                 <!-- Create Project CTA -->
-                <div style="margin-top: 3rem; padding: 2rem; background: var(--color-gray-50); border-radius: 0.5rem; text-align: center;">
+                <div
+                    style="margin-top: 3rem; padding: 2rem; background: var(--color-gray-50); border-radius: 0.5rem; text-align: center;">
                     <h3 style="margin-bottom: 1rem;">Launch Your Bug Bounty Program</h3>
                     <p style="color: var(--color-gray-600); margin-bottom: 1.5rem;">
                         Protect your applications with crowdsourced security testing from our global community
@@ -170,4 +171,5 @@
         }
     </style>
 </body>
+
 </html>
