@@ -379,10 +379,15 @@ async def route_request(request, env):
             print(f"Handler Error: {e}")
             raise e
     
-    # Fallback to static assets
+    # Handle root and static assets
     if hasattr(env, 'ASSETS'):
         try:
-            return await env.ASSETS.fetch(request)
+            # If path is root, fetch index.html
+            fetch_url = request.url
+            if path == '/':
+                fetch_url = str(url).replace(path, '/index.html')
+            
+            return await env.ASSETS.fetch(fetch_url)
         except Exception as e:
             print(f"Assets Error: {e}")
     
