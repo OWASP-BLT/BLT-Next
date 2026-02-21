@@ -45,10 +45,7 @@
   <header class="sticky top-0 z-50 bg-white border-b border-[#E5E5E5]" role="banner">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
-        <a href="/" class="flex items-center gap-2 font-bold text-lg text-red-600 hover:text-red-700 transition-colors">
-          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-          <span>OWASP BLT</span>
-        </a>
+        <img src="./assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
         <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
           <li><a href="/" class="px-3 py-2 text-sm font-medium text-red-600 rounded-md bg-red-50">Home</a></li>
           <li><a href="pages/report-bug.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Report Bug</a></li>
@@ -223,9 +220,7 @@
     <div class="max-w-7xl mx-auto">
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
         <div>
-          <div class="flex items-center gap-2 font-bold text-base text-red-600 mb-3">
-            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> OWASP BLT
-          </div>
+           <img src="./assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
           <p class="text-sm text-gray-500 leading-relaxed">An open-source, community-driven bug logging and vulnerability disclosure platform.</p>
         </div>
         <div>
@@ -266,33 +261,6 @@
       </div>
     </div>
   </footer>
-
-  <!-- Auth Modal -->
-  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden" role="dialog" aria-modal="true">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-[#E5E5E5]">
-        <h2 class="text-base font-semibold text-gray-900" id="modalTitle">Sign In</h2>
-        <button id="closeModal" class="text-gray-400 hover:text-gray-700 transition-colors" aria-label="Close">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="p-6" id="modalContent"></div>
-    </div>
-  </div>
-
-  <script>
-    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-      document.getElementById('mobileMenu').classList.toggle('hidden');
-    });
-    const modal = document.getElementById('authModal');
-    const modalTitle = document.getElementById('modalTitle');
-    document.getElementById('loginBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Sign In'; modal.classList.remove('hidden'); });
-    document.getElementById('signupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; modal.classList.remove('hidden'); });
-    document.getElementById('ctaSignupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; modal.classList.remove('hidden'); });
-    document.getElementById('closeModal')?.addEventListener('click', () => modal.classList.add('hidden'));
-    modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
-  </script>
-
 </body>
 
 </html>

@@ -214,9 +214,7 @@
   <!-- ===== FOOTER ===== -->
   <footer class="border-t border-[#E5E5E5] py-10 px-4 sm:px-6 lg:px-8 bg-gray-50" role="contentinfo">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-2 font-bold text-sm text-red-600">
-        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> OWASP BLT
-      </div>
+      <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
       <p class="text-xs text-gray-400">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
       <div class="flex items-center gap-4">
         <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 hover:text-red-600 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
@@ -224,29 +222,6 @@
       </div>
     </div>
   </footer>
-
-  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden" role="dialog" aria-modal="true">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-[#E5E5E5]">
-        <h2 class="text-base font-semibold text-gray-900" id="modalTitle">Sign In</h2>
-        <button id="closeModal" class="text-gray-400 hover:text-gray-700 transition-colors" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-      </div>
-      <div class="p-6" id="modalContent"></div>
-    </div>
-  </div>
-
-  <script>
-    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-      document.getElementById('mobileMenu').classList.toggle('hidden');
-    });
-    const modal = document.getElementById('authModal');
-    const modalTitle = document.getElementById('modalTitle');
-    document.getElementById('loginBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Sign In'; modal.classList.remove('hidden'); });
-    document.getElementById('signupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; modal.classList.remove('hidden'); });
-    document.getElementById('closeModal')?.addEventListener('click', () => modal.classList.add('hidden'));
-    modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
-  </script>
-
 </body>
 
 </html>
