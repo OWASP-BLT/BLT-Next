@@ -272,17 +272,11 @@ async def handle_leaderboard(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     try:
-        results = await env.DB.prepare("""
-            SELECT
-                l.rank,
-                COALESCE(u.username, 'Unknown') AS username,
-                l.points,
-                l.bugs_verified AS bugs
-            FROM leaderboard l
-            LEFT JOIN users u ON u.id = l.user_id
-            ORDER BY l.points DESC
-            LIMIT 10
-        """).all()
+        results = await env.DB.prepare(
+            '''SELECT rank, ('User #' || user_id) AS username, points, bugs_verified AS bugs
+            FROM leaderboard
+            ORDER BY points DESC
+            LIMIT 10''').all()
         leaderboard = results.results
         
         # Return HTML table for HTMX
