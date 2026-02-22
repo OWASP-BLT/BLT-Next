@@ -35,5 +35,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "optionalDependencies": {
+    "@cloudflare/workerd-darwin-arm64": "^1.20260228.0"
   }
 }
