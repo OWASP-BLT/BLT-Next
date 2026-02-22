@@ -2,140 +2,309 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report a Bug - OWASP BLT</title>
-    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/x-icon" href="../favicon.ico">
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-    <script src="../assets/js/main.js" type="module" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report a Bug &mdash; OWASP BLT</title>
+  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+  <script src="../assets/js/main.js" type="module" defer></script>
+  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
 </head>
 
-<body>
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <div class="nav-brand">
-                    <a href="/" class="logo">
-                        <span class="logo-text">OWASP BLT</span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.html" class="nav-link">Home</a></li>
-                    <li><a href="report-bug.html" class="nav-link">Report Bug</a></li>
-                    <li><a href="leaderboard.html" class="nav-link">Leaderboard</a></li>
-                    <li><a href="projects.html" class="nav-link">Projects</a></li>
-                    <li><a href="about.html" class="nav-link">About</a></li>
-                </ul>
-                <div class="nav-actions">
-                    <button class="btn btn-secondary" id="loginBtn">Login</button>
-                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
-                </div>
-            </nav>
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="sticky top-0 z-50 bg-white border-b border-[#E5E5E5]" role="banner">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
+        <a href="../index.html" class="flex items-center gap-2 font-bold text-lg text-red-600 hover:text-red-700 transition-colors">
+            <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
+        </a>
+        <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
+          <li><a href="../index.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Home</a></li>
+          <li><a href="report-bug.html" class="px-3 py-2 text-sm font-medium text-red-600 rounded-md bg-red-50">Report Bug</a></li>
+          <li><a href="leaderboard.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Leaderboard</a></li>
+          <li><a href="projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Projects</a></li>
+          <li><a href="about.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">About</a></li>
+        </ul>
+        <div class="hidden md:flex items-center gap-3">
+          <button id="loginBtn" class="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="signupBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
-    </header>
-
-    <main class="main">
-        <section class="container" style="padding: 3rem 0;">
-            <h1 class="section-title">Report a Bug</h1>
-            <p class="text-center" style="color: var(--color-gray-600); margin-bottom: 3rem;">
-                Help make the internet more secure by reporting bugs and vulnerabilities
-            </p>
-
-            <div style="max-width: 800px; margin: 0 auto;">
-                <form id="bugReportForm" hx-post="/api/bugs" hx-swap="outerHTML"
-                    style="background: white; padding: 2rem; border-radius: 0.5rem; border: 1px solid var(--color-gray-200);">
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Bug Title *
-                        </label>
-                        <input type="text" name="title" required placeholder="Brief description of the bug"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;" />
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Project/URL *
-                        </label>
-                        <input type="url" name="url" required placeholder="https://example.com"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;" />
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Severity *
-                        </label>
-                        <select name="severity" required
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;">
-                            <option value="">Select severity</option>
-                            <option value="critical">Critical</option>
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
-                            <option value="low">Low</option>
-                            <option value="info">Informational</option>
-                        </select>
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Bug Type *
-                        </label>
-                        <select name="type" required
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem;">
-                            <option value="">Select type</option>
-                            <option value="security">Security Vulnerability</option>
-                            <option value="functional">Functional Bug</option>
-                            <option value="ui">UI/UX Issue</option>
-                            <option value="performance">Performance Issue</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Description *
-                        </label>
-                        <textarea name="description" required rows="6"
-                            placeholder="Detailed description of the bug, steps to reproduce, and impact"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem; resize: vertical;"></textarea>
-                    </div>
-
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Steps to Reproduce
-                        </label>
-                        <textarea name="steps" rows="4" placeholder="1. Go to...&#10;2. Click on...&#10;3. Observe..."
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem; font-size: 1rem; resize: vertical;"></textarea>
-                    </div>
-
-                    <div style="margin-bottom: 2rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Proof of Concept / Screenshots
-                        </label>
-                        <input type="file" name="attachments" multiple accept="image/*,.pdf"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-gray-300); border-radius: 0.375rem;" />
-                    </div>
-
-                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                        <a href="/" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Submit Bug Report</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-bottom">
-                <p>&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
-            </div>
+        <button class="md:hidden p-2 text-gray-600 rounded-md hover:bg-gray-100" id="mobileMenuBtn" aria-label="Open menu">
+          <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
+        </button>
+      </nav>
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-[#E5E5E5]">
+        <ul class="flex flex-col gap-1 pt-3 list-none m-0 p-0">
+          <li><a href="../index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">Home</a></li>
+          <li><a href="report-bug.html" class="block px-3 py-2 text-sm font-medium text-red-600 rounded-md bg-red-50">Report Bug</a></li>
+          <li><a href="leaderboard.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">Leaderboard</a></li>
+          <li><a href="projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">Projects</a></li>
+          <li><a href="about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">About</a></li>
+        </ul>
+        <div class="flex gap-3 mt-3">
+          <button class="flex-1 px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
-    </footer>
+      </div>
+    </div>
+  </header>
 
-    <div id="authModal" class="modal" style="display: none;"></div>
+  <main role="main">
+
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E5E5] bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+          <a href="../index.html" class="hover:text-red-600 transition-colors">Home</a>
+          <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>
+          <span class="text-gray-600">Report a Bug</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">Report a Bug</h1>
+        <p class="text-gray-500 text-sm">Help make the internet more secure by reporting bugs and vulnerabilities.</p>
+      </div>
+    </section>
+
+    <!-- ===== FORM ===== -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+
+          <!-- Main form -->
+          <div>
+            <form id="bugReportForm" hx-post="/api/bugs" hx-swap="outerHTML" class="space-y-6" novalidate>
+
+              <!-- Title -->
+              <div>
+                <label for="bugTitle" class="block text-sm font-medium text-gray-900 mb-1.5">
+                  Bug Title <span class="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="bugTitle"
+                  name="title"
+                  required
+                  placeholder="e.g. XSS vulnerability in login form"
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 transition-colors"
+                >
+              </div>
+
+              <!-- URL -->
+              <div>
+                <label for="bugUrl" class="block text-sm font-medium text-gray-900 mb-1.5">
+                  Affected URL / Project <span class="text-red-600">*</span>
+                </label>
+                <div class="relative">
+                  <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs" aria-hidden="true"></i>
+                  <input
+                    type="url"
+                    id="bugUrl"
+                    name="url"
+                    required
+                    placeholder="https://example.com/vulnerable-page"
+                    class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 transition-colors"
+                  >
+                </div>
+              </div>
+
+              <!-- Severity & Type -->
+              <div class="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label for="bugSeverity" class="block text-sm font-medium text-gray-900 mb-1.5">
+                    Severity <span class="text-red-600">*</span>
+                  </label>
+                  <select
+                    id="bugSeverity"
+                    name="severity"
+                    required
+                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 bg-white text-gray-900 transition-colors appearance-none"
+                  >
+                    <option value="" disabled selected>Select severity</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                    <option value="info">Informational</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="bugType" class="block text-sm font-medium text-gray-900 mb-1.5">
+                    Bug Type <span class="text-red-600">*</span>
+                  </label>
+                  <select
+                    id="bugType"
+                    name="type"
+                    required
+                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 bg-white text-gray-900 transition-colors appearance-none"
+                  >
+                    <option value="" disabled selected>Select type</option>
+                    <option value="security">Security Vulnerability</option>
+                    <option value="functional">Functional Bug</option>
+                    <option value="ui">UI / UX Issue</option>
+                    <option value="performance">Performance Issue</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label for="bugDescription" class="block text-sm font-medium text-gray-900 mb-1.5">
+                  Description <span class="text-red-600">*</span>
+                </label>
+                <textarea
+                  id="bugDescription"
+                  name="description"
+                  required
+                  rows="5"
+                  placeholder="Describe the bug in detail — what it is, where it occurs, and what the impact is."
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 resize-vertical transition-colors"
+                ></textarea>
+              </div>
+
+              <!-- Steps to Reproduce -->
+              <div>
+                <label for="bugSteps" class="block text-sm font-medium text-gray-900 mb-1.5">
+                  Steps to Reproduce
+                </label>
+                <textarea
+                  id="bugSteps"
+                  name="steps"
+                  rows="4"
+                  placeholder="1. Navigate to...&#10;2. Click on...&#10;3. Observe..."
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 resize-vertical transition-colors"
+                ></textarea>
+              </div>
+
+              <!-- Attachments -->
+              <div>
+                <label for="bugFiles" class="block text-sm font-medium text-gray-900 mb-1.5">
+                  Screenshots / Proof of Concept
+                </label>
+                <label for="bugFiles" class="flex flex-col items-center justify-center w-full px-4 py-6 border border-dashed border-gray-300 rounded-md cursor-pointer hover:border-red-600 hover:bg-red-50 transition-colors">
+                  <i class="fa-solid fa-cloud-arrow-up text-gray-400 text-xl mb-2" aria-hidden="true"></i>
+                  <span class="text-sm text-gray-500">Drag files here or <span class="text-red-600 font-medium">click to browse</span></span>
+                  <span class="text-xs text-gray-400 mt-1">PNG, JPG, GIF, PDF — max 10MB each</span>
+                  <input type="file" id="bugFiles" name="attachments" multiple accept="image/*,.pdf" class="hidden">
+                </label>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center justify-end gap-3 pt-2">
+                <a href="../index.html" class="px-5 py-2.5 text-sm font-medium text-gray-600 border border-[#E5E5E5] rounded-md hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                  Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                  <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                  Submit Bug Report
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="space-y-4">
+
+            <!-- Tips -->
+            <div class="border border-[#E5E5E5] rounded-lg p-5">
+              <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-red-600 text-sm" aria-hidden="true"></i>
+                Reporting Tips
+              </h3>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-2.5 text-xs text-gray-500 leading-relaxed">
+                  <i class="fa-solid fa-check text-red-600 mt-0.5 shrink-0" aria-hidden="true"></i>
+                  Be specific — include the exact URL or page where the bug appears.
+                </li>
+                <li class="flex items-start gap-2.5 text-xs text-gray-500 leading-relaxed">
+                  <i class="fa-solid fa-check text-red-600 mt-0.5 shrink-0" aria-hidden="true"></i>
+                  Include clear steps to reproduce so maintainers can verify the issue.
+                </li>
+                <li class="flex items-start gap-2.5 text-xs text-gray-500 leading-relaxed">
+                  <i class="fa-solid fa-check text-red-600 mt-0.5 shrink-0" aria-hidden="true"></i>
+                  Attach screenshots or screen recordings for visual bugs.
+                </li>
+                <li class="flex items-start gap-2.5 text-xs text-gray-500 leading-relaxed">
+                  <i class="fa-solid fa-check text-red-600 mt-0.5 shrink-0" aria-hidden="true"></i>
+                  For security vulnerabilities, describe potential impact and attack vector.
+                </li>
+              </ul>
+            </div>
+
+            <!-- Severity guide -->
+            <div class="border border-[#E5E5E5] rounded-lg p-5">
+              <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm" aria-hidden="true"></i>
+                Severity Guide
+              </h3>
+              <ul class="space-y-2.5">
+                <li class="flex items-center gap-2.5">
+                  <span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-red-100 text-red-700 text-center">Critical</span>
+                  <span class="text-xs text-gray-500">System compromise, data breach</span>
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-orange-100 text-orange-700 text-center">High</span>
+                  <span class="text-xs text-gray-500">Significant data exposure</span>
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-yellow-100 text-yellow-700 text-center">Medium</span>
+                  <span class="text-xs text-gray-500">Limited impact, partial access</span>
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-green-100 text-green-700 text-center">Low</span>
+                  <span class="text-xs text-gray-500">Minimal impact on users</span>
+                </li>
+                <li class="flex items-center gap-2.5">
+                  <span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600 text-center">Info</span>
+                  <span class="text-xs text-gray-500">Best practice suggestion</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Rewards note -->
+            <div class="border border-[#E5E5E5] bg-red-50 rounded-lg p-5">
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-trophy text-red-600 mt-0.5" aria-hidden="true"></i>
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-1">Earn Rewards</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">Valid bug reports earn points, badges, and may qualify for monetary rewards from bug bounty programs.</p>
+                </div>
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-[#E5E5E5] py-10 px-4 sm:px-6 lg:px-8 bg-gray-50" role="contentinfo">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
+      <p class="text-xs text-gray-400">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 hover:text-red-600 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
+        <a href="https://owasp.org" class="text-gray-400 hover:text-red-600 transition-colors" aria-label="OWASP"><i class="fa-solid fa-globe text-base" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </footer>
+
 </body>
 
 </html>

@@ -2,114 +2,225 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard - OWASP BLT</title>
-    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/x-icon" href="../favicon.ico">
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-    <script src="../assets/js/main.js" type="module" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard &mdash; OWASP BLT</title>
+  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+  <script src="../assets/js/main.js" type="module" defer></script>
+  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
 </head>
 
-<body>
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <div class="nav-brand">
-                    <a href="/" class="logo">
-                        <span class="logo-text">OWASP BLT</span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.html" class="nav-link">Home</a></li>
-                    <li><a href="report-bug.html" class="nav-link">Report Bug</a></li>
-                    <li><a href="leaderboard.html" class="nav-link">Leaderboard</a></li>
-                    <li><a href="projects.html" class="nav-link">Projects</a></li>
-                    <li><a href="about.html" class="nav-link">About</a></li>
-                </ul>
-                <div class="nav-actions">
-                    <button class="btn btn-secondary" id="loginBtn">Login</button>
-                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
-                </div>
-            </nav>
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="sticky top-0 z-50 bg-white border-b border-[#E5E5E5]" role="banner">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
+        <a href="../index.html" class="flex items-center gap-2 font-bold text-lg text-red-600 hover:text-red-700 transition-colors">
+            <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
+        </a>
+        <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
+          <li><a href="../index.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Home</a></li>
+          <li><a href="report-bug.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Report Bug</a></li>
+          <li><a href="leaderboard.html" class="px-3 py-2 text-sm font-medium text-red-600 rounded-md bg-red-50">Leaderboard</a></li>
+          <li><a href="projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">Projects</a></li>
+          <li><a href="about.html" class="px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:text-red-600 hover:bg-red-50 transition-colors">About</a></li>
+        </ul>
+        <div class="hidden md:flex items-center gap-3">
+          <button id="loginBtn" class="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="signupBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
-    </header>
-
-    <main class="main">
-        <section class="container" style="padding: 3rem 0;">
-            <h1 class="section-title">Leaderboard</h1>
-            <p class="text-center" style="color: var(--color-gray-600); margin-bottom: 3rem;">
-                Top security researchers making the internet safer
-            </p>
-
-            <div hx-get="/api/leaderboard" hx-trigger="load" hx-swap="innerHTML"
-                style="max-width: 900px; margin: 0 auto;">
-
-                <div style="text-align: center; padding: 3rem;">
-                    <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
-                    <p style="color: var(--color-gray-500);">Loading leaderboard...</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-bottom">
-                <p>&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
-            </div>
+        <button class="md:hidden p-2 text-gray-600 rounded-md hover:bg-gray-100" id="mobileMenuBtn" aria-label="Open menu">
+          <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
+        </button>
+      </nav>
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-[#E5E5E5]">
+        <ul class="flex flex-col gap-1 pt-3 list-none m-0 p-0">
+          <li><a href="../index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">Home</a></li>
+          <li><a href="report-bug.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">Report Bug</a></li>
+          <li><a href="leaderboard.html" class="block px-3 py-2 text-sm font-medium text-red-600 rounded-md bg-red-50">Leaderboard</a></li>
+          <li><a href="projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">Projects</a></li>
+          <li><a href="about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-red-50 hover:text-red-600">About</a></li>
+        </ul>
+        <div class="flex gap-3 mt-3">
+          <button class="flex-1 px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
-    </footer>
+      </div>
+    </div>
+  </header>
 
-    <div id="authModal" class="modal" style="display: none;"></div>
+  <main role="main">
 
-    <style>
-        .leaderboard-table {
-            width: 100%;
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            border: 1px solid var(--color-gray-200);
-        }
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E5E5] bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+          <a href="../index.html" class="hover:text-red-600 transition-colors">Home</a>
+          <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>
+          <span class="text-gray-600">Leaderboard</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">Leaderboard</h1>
+        <p class="text-gray-500 text-sm">Top security researchers making the internet safer.</p>
+      </div>
+    </section>
 
-        .leaderboard-row {
-            display: grid;
-            grid-template-columns: 80px 1fr 120px 120px;
-            padding: 1.25rem;
-            border-bottom: 1px solid var(--color-gray-200);
-            transition: background-color 0.15s;
-        }
+    <!-- ===== LEADERBOARD TABLE ===== -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto">
 
-        .leaderboard-row:hover {
-            background-color: var(--color-gray-50);
-        }
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-md">All Time</button>
+            <button class="px-3 py-1.5 text-xs font-medium text-gray-600 border border-[#E5E5E5] rounded-md hover:border-red-600 hover:text-red-600 transition-colors">This Month</button>
+            <button class="px-3 py-1.5 text-xs font-medium text-gray-600 border border-[#E5E5E5] rounded-md hover:border-red-600 hover:text-red-600 transition-colors">This Week</button>
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" aria-hidden="true"></i>
+            <input type="search" placeholder="Search researcher..." class="pl-8 pr-4 py-1.5 text-xs border border-[#E5E5E5] rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 w-48">
+          </div>
+        </div>
 
-        .leaderboard-row:last-child {
-            border-bottom: none;
-        }
+        <!-- Table -->
+        <div class="border border-[#E5E5E5] rounded-lg overflow-hidden">
 
-        .leaderboard-header {
-            background-color: var(--color-gray-100);
-            font-weight: 600;
-        }
+          <!-- Table header -->
+          <div class="grid grid-cols-[48px_1fr_88px_88px_88px] gap-4 px-4 py-3 bg-gray-50 border-b border-[#E5E5E5]">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">#</div>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Researcher</div>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Bugs</div>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Points</div>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Rewards</div>
+          </div>
 
-        .rank {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--color-primary);
-        }
+          <!-- Loaded via HTMX -->
+          <div hx-get="/api/leaderboard" hx-trigger="load" hx-swap="innerHTML">
 
-        .username {
-            font-weight: 600;
-            color: var(--color-gray-900);
-        }
+            <!-- Placeholder rows while loading -->
+            <div class="divide-y divide-[#E5E5E5]">
+              <!-- Row 1 -->
+              <div class="grid grid-cols-[48px_1fr_88px_88px_88px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors">
+                <div class="flex items-center">
+                  <span class="text-base font-bold text-red-600">1</span>
+                  <i class="fa-solid fa-crown text-yellow-400 text-xs ml-1" aria-hidden="true"></i>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs font-semibold text-red-600">JD</div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">john_dev</div>
+                    <div class="text-xs text-gray-400">Security Researcher</div>
+                  </div>
+                </div>
+                <div class="text-sm font-medium text-gray-700 text-right">142</div>
+                <div class="text-sm font-medium text-red-600 text-right">8,420</div>
+                <div class="text-sm font-medium text-gray-700 text-right">$1,200</div>
+              </div>
+              <!-- Row 2 -->
+              <div class="grid grid-cols-[48px_1fr_88px_88px_88px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors">
+                <div class="text-base font-bold text-gray-400">2</div>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-500">AS</div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">alice_sec</div>
+                    <div class="text-xs text-gray-400">Bug Hunter</div>
+                  </div>
+                </div>
+                <div class="text-sm font-medium text-gray-700 text-right">118</div>
+                <div class="text-sm font-medium text-red-600 text-right">7,150</div>
+                <div class="text-sm font-medium text-gray-700 text-right">$980</div>
+              </div>
+              <!-- Row 3 -->
+              <div class="grid grid-cols-[48px_1fr_88px_88px_88px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors">
+                <div class="text-base font-bold text-gray-400">3</div>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-500">RK</div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">r_khan</div>
+                    <div class="text-xs text-gray-400">Ethical Hacker</div>
+                  </div>
+                </div>
+                <div class="text-sm font-medium text-gray-700 text-right">97</div>
+                <div class="text-sm font-medium text-red-600 text-right">5,890</div>
+                <div class="text-sm font-medium text-gray-700 text-right">$720</div>
+              </div>
+              <!-- Row 4 -->
+              <div class="grid grid-cols-[48px_1fr_88px_88px_88px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors">
+                <div class="text-base font-bold text-gray-400">4</div>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-500">MP</div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">m_patel</div>
+                    <div class="text-xs text-gray-400">Security Engineer</div>
+                  </div>
+                </div>
+                <div class="text-sm font-medium text-gray-700 text-right">84</div>
+                <div class="text-sm font-medium text-red-600 text-right">4,640</div>
+                <div class="text-sm font-medium text-gray-700 text-right">$550</div>
+              </div>
+              <!-- Row 5 -->
+              <div class="grid grid-cols-[48px_1fr_88px_88px_88px] gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors">
+                <div class="text-base font-bold text-gray-400">5</div>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-500">LT</div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">l_torres</div>
+                    <div class="text-xs text-gray-400">Penetration Tester</div>
+                  </div>
+                </div>
+                <div class="text-sm font-medium text-gray-700 text-right">72</div>
+                <div class="text-sm font-medium text-red-600 text-right">3,920</div>
+                <div class="text-sm font-medium text-gray-700 text-right">$430</div>
+              </div>
+            </div>
 
-        .stat {
-            text-align: right;
-            color: var(--color-gray-700);
-        }
-    </style>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+          <p class="text-xs text-gray-400">Showing 1&ndash;10 of 3,500+ researchers</p>
+          <div class="flex items-center gap-1">
+            <button class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors" disabled aria-label="Previous">
+              <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+            <button class="w-7 h-7 text-xs font-medium text-white bg-red-600 rounded-md">1</button>
+            <button class="w-7 h-7 text-xs font-medium text-gray-600 border border-[#E5E5E5] rounded-md hover:border-red-600 hover:text-red-600 transition-colors">2</button>
+            <button class="w-7 h-7 text-xs font-medium text-gray-600 border border-[#E5E5E5] rounded-md hover:border-red-600 hover:text-red-600 transition-colors">3</button>
+            <button class="p-2 text-gray-600 hover:text-red-600 transition-colors" aria-label="Next">
+              <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-[#E5E5E5] py-10 px-4 sm:px-6 lg:px-8 bg-gray-50" role="contentinfo">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
+      <p class="text-xs text-gray-400">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 hover:text-red-600 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
+        <a href="https://owasp.org" class="text-gray-400 hover:text-red-600 transition-colors" aria-label="OWASP"><i class="fa-solid fa-globe text-base" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </footer>
 </body>
 
 </html>
