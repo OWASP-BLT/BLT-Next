@@ -215,6 +215,7 @@ a:hover {
 }
 
 .btn-primary:hover {
+    color: var(--color-white);
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-dark);
 }
