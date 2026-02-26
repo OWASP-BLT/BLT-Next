@@ -222,21 +222,10 @@
     </div>
   </footer>
   <script>
-    // Theme toggle
-    (function() {
-      const h = document.documentElement;
-      const s = localStorage.getItem('theme');
-      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
-    })();
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('themeToggle')?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      });
       document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
         document.getElementById('mobileMenu').classList.toggle('hidden');
       });
-      
     });
   </script>
 </body>
