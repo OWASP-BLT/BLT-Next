@@ -377,6 +377,17 @@ class UIComponents {
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
+    // Apply stored or system theme preference early
+    (function() {
+        const h = document.documentElement;
+        const s = localStorage.getItem('theme');
+        if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            h.classList.add('dark');
+        } else {
+            h.classList.remove('dark');
+        }
+    })();
+
     // Login button
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
