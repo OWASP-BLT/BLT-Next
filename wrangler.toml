@@ -16,7 +16,7 @@ command = ""
 # Environment variables (set these in Cloudflare dashboard)
 # [vars]
 # ENVIRONMENT = "production"
-
+ALLOWED_ORIGIN="http://localhost"
 # Secrets (set via wrangler secret put)
 # - JWT_SECRET
 # - DATABASE_URL
