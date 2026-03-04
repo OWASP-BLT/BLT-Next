@@ -16,6 +16,19 @@ const CONFIG = {
     ENABLE_ANALYTICS: true,
 };
 
+function applyThemePreference() {
+    try {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const shouldUseDark = stored ? stored === 'dark' : prefersDark;
+        document.documentElement.classList.toggle('dark', shouldUseDark);
+    } catch (error) {
+        // Ignore storage access issues and keep default theme.
+    }
+}
+
+applyThemePreference();
+
 // ===================================
 // State Management
 // ===================================
@@ -441,28 +454,10 @@ function setupEventHandlers() {
 
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
-
-    function updateThemeIcons() {
-        if (!sunIcon || !moonIcon) return;
-        if (document.documentElement.classList.contains('dark')) {
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
-        }
-    }
-
     if (themeToggle) {
-        // Initial icon state
-        updateThemeIcons();
-
         themeToggle.addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcons();
 
             // Re-emit theme change for other components
             if (window.bltApp && window.bltApp.state) {
