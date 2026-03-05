@@ -44,8 +44,8 @@
             <i class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
             <i class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
           </button>
-          <button id="loginBtn" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button id="signupBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button id="loginBtn" onclick="window.location.href='pages/login.html'" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="signupBtn" onclick="window.location.href='pages/signup.html'" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
         <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" id="mobileMenuBtn" aria-label="Open menu">
           <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
@@ -60,8 +60,8 @@
           <li><a href="pages/about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
         </ul>
         <div class="flex gap-3 mt-3">
-          <button class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button onclick="window.location.href='pages/login.html'" class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button onclick="window.location.href='pages/signup.html'" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
       </div>
     </div>
@@ -197,7 +197,7 @@
       <div class="max-w-2xl mx-auto text-center">
         <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-4">Ready to get started?</h2>
         <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8">Join OWASP BLT and start making the internet a safer place today.</p>
-        <button id="ctaSignupBtn" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors shadow-sm">
+        <button onclick="window.location.href='pages/login.html'" id="ctaSignupBtn" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors shadow-sm">
           <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Create Free Account
         </button>
       </div>

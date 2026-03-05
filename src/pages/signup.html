@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #1c1c1c;
+            padding: 40px;
+            width: 350px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+            text-align: center;
+        }
+
+        h2 {
+            color: orange;
+            margin-bottom: 20px;
+        }
+
+        input {
+            margin: 8px 0;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid orange;
+            border-radius: 6px;
+            background: #111;
+            color: white;
+        }
+
+        input:focus {
+            border-color: #ff8c00;
+            box-shadow: 0 0 5px #ff8c00;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 6px;
+            background: orange;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #ff8c00;
+        }
+
+        a {
+            display: block;
+            margin-top: 15px;
+            color: orange;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Sign Up</h2>
+        <input type="text" placeholder="Username" required>
+        <input type="email" placeholder="Email" required>
+        <input type="password" placeholder="Password" required>
+        <button type="submit">Create Account</button>
+        <a href="login.html">Already have an account? Login</a>
+    </div>
+</body>
+
+</html>
