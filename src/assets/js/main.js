@@ -78,7 +78,16 @@ class APIClient {
             const response = await fetch(url, { ...defaultOptions, ...options });
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                let errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.error) {
+                        errorMsg = errorData.error;
+                    }
+                } catch (e) {
+                    // Not a JSON error, keep generic message
+                }
+                throw new Error(errorMsg);
             }
 
             const data = await response.json();
@@ -155,7 +164,7 @@ class AuthModule {
                 return { success: true, user: response.user };
             }
 
-            return { success: false, error: 'Invalid credentials' };
+            return { success: false, error: response.error || 'Invalid credentials' };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -171,7 +180,7 @@ class AuthModule {
                 return { success: true, user: response.user };
             }
 
-            return { success: false, error: 'Signup failed' };
+            return { success: false, error: response.error || 'Signup failed' };
         } catch (error) {
             return { success: false, error: error.message };
         }
