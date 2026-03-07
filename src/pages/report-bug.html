@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -20,48 +21,85 @@
   </script>
   <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
   <script src="../assets/js/main.js" type="module" defer></script>
-  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+  </style>
 </head>
 
 <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased transition-colors">
 
   <!-- ===== NAVBAR ===== -->
-  <header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-800 transition-colors" role="banner">
+  <header
+    class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-800 transition-colors"
+    role="banner">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
         <a href="../index.html" class="flex items-center">
           <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
         </a>
         <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
-          <li><a href="../index.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
-          <li><a href="report-bug.html" class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">Report Bug</a></li>
-          <li><a href="leaderboard.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
-          <li><a href="projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
-          <li><a href="about.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
+          <li><a href="../index.html"
+              class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a>
+          </li>
+          <li><a href="report-bug.html"
+              class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">Report
+              Bug</a></li>
+          <li><a href="leaderboard.html"
+              class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a>
+          </li>
+          <li><a href="projects.html"
+              class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a>
+          </li>
+          <li><a href="about.html"
+              class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a>
+          </li>
         </ul>
         <div class="hidden md:flex items-center gap-2">
-          <button id="themeToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
+          <button id="themeToggle"
+            class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle theme">
             <i class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
             <i class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
           </button>
-          <button id="loginBtn" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button id="signupBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button id="loginBtn"
+            class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="signupBtn"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign
+            Up</button>
         </div>
-        <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" id="mobileMenuBtn" aria-label="Open menu">
+        <button
+          class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+          id="mobileMenuBtn" aria-label="Open menu">
           <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
         </button>
       </nav>
-      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-[#E5E5E5] dark:border-gray-800 dark:bg-gray-900">
+      <div id="mobileMenu"
+        class="hidden md:hidden pb-4 border-t border-[#E5E5E5] dark:border-gray-800 dark:bg-gray-900">
         <ul class="flex flex-col gap-1 pt-3 list-none m-0 p-0">
-          <li><a href="../index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
-          <li><a href="report-bug.html" class="block px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">Report Bug</a></li>
-          <li><a href="leaderboard.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
-          <li><a href="projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
-          <li><a href="about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
+          <li><a href="../index.html"
+              class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a>
+          </li>
+          <li><a href="report-bug.html"
+              class="block px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">Report
+              Bug</a></li>
+          <li><a href="leaderboard.html"
+              class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a>
+          </li>
+          <li><a href="projects.html"
+              class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a>
+          </li>
+          <li><a href="about.html"
+              class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a>
+          </li>
         </ul>
         <div class="flex gap-3 mt-3">
-          <button class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button
+            class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button
+            class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign
+            Up</button>
         </div>
       </div>
     </div>
@@ -70,7 +108,8 @@
   <main role="main">
 
     <!-- PAGE HEADER -->
-    <section class="py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E5E5] dark:border-gray-800 bg-gray-50 dark:bg-gray-900 transition-colors">
+    <section
+      class="py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E5E5] dark:border-gray-800 bg-gray-50 dark:bg-gray-900 transition-colors">
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mb-4">
           <a href="../index.html" class="hover:text-red-600 dark:hover:text-red-400 transition-colors">Home</a>
@@ -78,7 +117,8 @@
           <span class="text-gray-600 dark:text-gray-400">Report a Bug</span>
         </div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-2">Report a Bug</h1>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Help make the internet more secure by reporting bugs and vulnerabilities.</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Help make the internet more secure by reporting bugs and
+          vulnerabilities.</p>
       </div>
     </section>
 
@@ -92,23 +132,31 @@
             <form id="bugReportForm" hx-post="/api/bugs" hx-swap="outerHTML" class="space-y-6" novalidate>
 
               <div>
-                <label for="bugTitle" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Bug Title <span class="text-red-600">*</span></label>
-                <input type="text" id="bugTitle" name="title" required placeholder="e.g. XSS vulnerability in login form"
+                <label for="bugTitle" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Bug
+                  Title <span class="text-red-600">*</span></label>
+                <input type="text" id="bugTitle" name="title" required
+                  placeholder="e.g. XSS vulnerability in login form"
                   class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors">
+                <p id="bugTitleError" class="mt-1.5 text-xs text-red-600 hidden">Please enter a bug title.</p>
               </div>
 
               <div>
-                <label for="bugUrl" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Affected URL / Project <span class="text-red-600">*</span></label>
+                <label for="bugUrl" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Affected
+                  URL / Project <span class="text-red-600">*</span></label>
                 <div class="relative">
-                  <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs" aria-hidden="true"></i>
+                  <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs"
+                    aria-hidden="true"></i>
                   <input type="url" id="bugUrl" name="url" required placeholder="https://example.com/vulnerable-page"
                     class="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors">
                 </div>
+                <p id="bugUrlError" class="mt-1.5 text-xs text-red-600 hidden">Please enter a valid URL.</p>
               </div>
 
               <div class="grid sm:grid-cols-2 gap-5">
                 <div>
-                  <label for="bugSeverity" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Severity <span class="text-red-600">*</span></label>
+                  <label for="bugSeverity"
+                    class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Severity <span
+                      class="text-red-600">*</span></label>
                   <select id="bugSeverity" name="severity" required
                     class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-colors appearance-none">
                     <option value="" disabled selected>Select severity</option>
@@ -118,9 +166,12 @@
                     <option value="low">Low</option>
                     <option value="info">Informational</option>
                   </select>
+                  <p id="bugSeverityError" class="mt-1.5 text-xs text-red-600 hidden">Please select a severity level.
+                  </p>
                 </div>
                 <div>
-                  <label for="bugType" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Bug Type <span class="text-red-600">*</span></label>
+                  <label for="bugType" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Bug
+                    Type <span class="text-red-600">*</span></label>
                   <select id="bugType" name="type" required
                     class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-colors appearance-none">
                     <option value="" disabled selected>Select type</option>
@@ -130,36 +181,51 @@
                     <option value="performance">Performance Issue</option>
                     <option value="other">Other</option>
                   </select>
+                  <p id="bugTypeError" class="mt-1.5 text-xs text-red-600 hidden">Please select a bug type.</p>
                 </div>
               </div>
 
               <div>
-                <label for="bugDescription" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Description <span class="text-red-600">*</span></label>
+                <label for="bugDescription"
+                  class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Description <span
+                    class="text-red-600">*</span></label>
                 <textarea id="bugDescription" name="description" required rows="5"
                   placeholder="Describe the bug in detail — what it is, where it occurs, and what the impact is."
                   class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-vertical transition-colors"></textarea>
+                <p id="bugDescriptionError" class="mt-1.5 text-xs text-red-600 hidden">Please provide a description of
+                  the bug.</p>
               </div>
 
               <div>
-                <label for="bugSteps" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Steps to Reproduce</label>
-                <textarea id="bugSteps" name="steps" rows="4"
+                <label for="bugSteps" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Steps to
+                  Reproduce <span class="text-red-600">*</span></label>
+                <textarea id="bugSteps" name="steps" required rows="4"
                   placeholder="1. Navigate to...&#10;2. Click on...&#10;3. Observe..."
                   class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-vertical transition-colors"></textarea>
+                <p id="bugStepsError" class="mt-1.5 text-xs text-red-600 hidden">Please enter the steps to reproduce.
+                </p>
               </div>
 
               <div>
-                <label for="bugFiles" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Screenshots / Proof of Concept</label>
-                <label for="bugFiles" class="flex flex-col items-center justify-center w-full px-4 py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
-                  <i class="fa-solid fa-cloud-arrow-up text-gray-400 dark:text-gray-500 text-xl mb-2" aria-hidden="true"></i>
-                  <span class="text-sm text-gray-500 dark:text-gray-400">Drag files here or <span class="text-red-600 dark:text-red-400 font-medium">click to browse</span></span>
+                <label for="bugFiles"
+                  class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Screenshots / Proof of
+                  Concept</label>
+                <label for="bugFiles"
+                  class="flex flex-col items-center justify-center w-full px-4 py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
+                  <i class="fa-solid fa-cloud-arrow-up text-gray-400 dark:text-gray-500 text-xl mb-2"
+                    aria-hidden="true"></i>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">Drag files here or <span
+                      class="text-red-600 dark:text-red-400 font-medium">click to browse</span></span>
                   <span class="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, GIF, PDF — max 10MB each</span>
                   <input type="file" id="bugFiles" name="attachments" multiple accept="image/*,.pdf" class="hidden">
                 </label>
               </div>
 
               <div class="flex items-center justify-end gap-3 pt-2">
-                <a href="../index.html" class="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-[#E5E5E5] dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Cancel</a>
-                <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                <a href="../index.html"
+                  class="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-[#E5E5E5] dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Cancel</a>
+                <button type="submit" id="submitBtn"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit Bug Report
                 </button>
               </div>
@@ -171,7 +237,8 @@
           <aside class="space-y-4">
             <div class="border border-[#E5E5E5] dark:border-gray-700 rounded-lg p-5 dark:bg-gray-800/50">
               <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-circle-info text-red-600 dark:text-red-400 text-sm" aria-hidden="true"></i> Reporting Tips
+                <i class="fa-solid fa-circle-info text-red-600 dark:text-red-400 text-sm" aria-hidden="true"></i>
+                Reporting Tips
               </h3>
               <ul class="space-y-3">
                 <li class="flex items-start gap-2.5 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
@@ -194,14 +261,25 @@
             </div>
             <div class="border border-[#E5E5E5] dark:border-gray-700 rounded-lg p-5 dark:bg-gray-800/50">
               <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-triangle-exclamation text-red-600 dark:text-red-400 text-sm" aria-hidden="true"></i> Severity Guide
+                <i class="fa-solid fa-triangle-exclamation text-red-600 dark:text-red-400 text-sm"
+                  aria-hidden="true"></i> Severity Guide
               </h3>
               <ul class="space-y-2.5">
-                <li class="flex items-center gap-2.5"><span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-center">Critical</span><span class="text-xs text-gray-500 dark:text-gray-400">System compromise, data breach</span></li>
-                <li class="flex items-center gap-2.5"><span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 text-center">High</span><span class="text-xs text-gray-500 dark:text-gray-400">Significant data exposure</span></li>
-                <li class="flex items-center gap-2.5"><span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-center">Medium</span><span class="text-xs text-gray-500 dark:text-gray-400">Limited impact, partial access</span></li>
-                <li class="flex items-center gap-2.5"><span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-center">Low</span><span class="text-xs text-gray-500 dark:text-gray-400">Minimal impact on users</span></li>
-                <li class="flex items-center gap-2.5"><span class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-center">Info</span><span class="text-xs text-gray-500 dark:text-gray-400">Best practice suggestion</span></li>
+                <li class="flex items-center gap-2.5"><span
+                    class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-center">Critical</span><span
+                    class="text-xs text-gray-500 dark:text-gray-400">System compromise, data breach</span></li>
+                <li class="flex items-center gap-2.5"><span
+                    class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 text-center">High</span><span
+                    class="text-xs text-gray-500 dark:text-gray-400">Significant data exposure</span></li>
+                <li class="flex items-center gap-2.5"><span
+                    class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-center">Medium</span><span
+                    class="text-xs text-gray-500 dark:text-gray-400">Limited impact, partial access</span></li>
+                <li class="flex items-center gap-2.5"><span
+                    class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-center">Low</span><span
+                    class="text-xs text-gray-500 dark:text-gray-400">Minimal impact on users</span></li>
+                <li class="flex items-center gap-2.5"><span
+                    class="w-16 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-center">Info</span><span
+                    class="text-xs text-gray-500 dark:text-gray-400">Best practice suggestion</span></li>
               </ul>
             </div>
             <div class="border border-[#E5E5E5] dark:border-gray-700 bg-red-50 dark:bg-red-950/40 rounded-lg p-5">
@@ -209,7 +287,8 @@
                 <i class="fa-solid fa-trophy text-red-600 dark:text-red-400 mt-0.5" aria-hidden="true"></i>
                 <div>
                   <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Earn Rewards</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Valid bug reports earn points, badges, and may qualify for monetary rewards from bug bounty programs.</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Valid bug reports earn points,
+                    badges, and may qualify for monetary rewards from bug bounty programs.</p>
                 </div>
               </div>
             </div>
@@ -222,24 +301,30 @@
   </main>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="border-t border-[#E5E5E5] dark:border-gray-800 py-10 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors" role="contentinfo">
+  <footer
+    class="border-t border-[#E5E5E5] dark:border-gray-800 py-10 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors"
+    role="contentinfo">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
       <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
       <p class="text-xs text-gray-400 dark:text-gray-500">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
       <div class="flex items-center gap-4">
-        <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
-        <a href="https://owasp.org" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="OWASP"><i class="fa-solid fa-globe text-base" aria-hidden="true"></i></a>
+        <a href="https://github.com/OWASP-BLT/BLT-Next"
+          class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
+        <a href="https://owasp.org"
+          class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          aria-label="OWASP"><i class="fa-solid fa-globe text-base" aria-hidden="true"></i></a>
       </div>
       <p id="footer-last-updated" class="mt-4 text-center text-xs text-gray-400"></p>
     </div>
   </footer>
   <script>
-    // Theme toggle
-    (function() {
-      const h = document.documentElement;
-      const s = localStorage.getItem('theme');
-      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
-    })();
+      // Theme toggle
+      (function () {
+        const h = document.documentElement;
+        const s = localStorage.getItem('theme');
+        if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
+      })();
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('themeToggle')?.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
@@ -248,8 +333,89 @@
       document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
         document.getElementById('mobileMenu').classList.toggle('hidden');
       });
-      
+
+      // Form validation
+      const bugForm = document.getElementById('bugReportForm');
+      if (bugForm) {
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Function to update submit button state
+        const updateSubmitButtonState = () => {
+          const requiredFields = Array.from(bugForm.querySelectorAll('[required]'));
+          const allValid = requiredFields.every(field => {
+            return field.value.trim() !== "" && field.checkValidity();
+          });
+
+          if (submitBtn) {
+            submitBtn.disabled = !allValid;
+          }
+        };
+
+        // Validation function 
+        const validateField = (input) => {
+          const errorMsg = document.getElementById(`${input.id}Error`);
+          // Use browser's native validity check but handle trim for text inputs
+          const isValueEmpty = typeof input.value === 'string' && input.value.trim() === "";
+          const isInvalid = !input.checkValidity() || (input.hasAttribute('required') && isValueEmpty);
+
+          if (isInvalid) {
+            errorMsg?.classList.remove('hidden');
+            input.classList.add('border-red-600', 'ring-1', 'ring-red-600');
+            input.setAttribute('aria-invalid', 'true');
+            return false;
+          } else {
+            errorMsg?.classList.add('hidden');
+            input.classList.remove('border-red-600', 'ring-1', 'ring-red-600');
+            input.removeAttribute('aria-invalid');
+            return true;
+          }
+        };
+
+        bugForm.addEventListener('submit', function (e) {
+          let isValid = true;
+          let firstErrorField = null;
+
+          // Check all required fields
+          const requiredFields = bugForm.querySelectorAll('[required]');
+          requiredFields.forEach(field => {
+            if (!validateField(field)) {
+              isValid = false;
+              if (!firstErrorField) firstErrorField = field;
+            }
+          });
+
+          if (!isValid) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (firstErrorField) {
+              firstErrorField.focus();
+              // Smooth scroll to the field if it's not visible
+              firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        });
+
+        // Real-time validation / Clear errors on input
+        bugForm.querySelectorAll('input, select, textarea').forEach(input => {
+          const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
+          input.addEventListener(eventType, function () {
+            validateField(this);
+            updateSubmitButtonState();
+          });
+        });
+
+        // Initial check
+        updateSubmitButtonState();
+
+        // Special handling for HTMX to prevent request if invalid
+        bugForm.addEventListener('htmx:confirm', function (e) {
+          if (!bugForm.checkValidity()) {
+            // e.preventDefault();
+          }
+        });
+      }
     });
   </script>
 </body>
+
 </html>
