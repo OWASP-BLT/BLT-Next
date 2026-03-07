@@ -513,6 +513,7 @@ function updateUIForAuth() {
 // ===================================
 function updateFooterLastUpdated() {
     const el = document.getElementById('footer-last-updated');
+    document.body.addEventListener("htmx:afterSwap", updateFooterLastUpdated);
     if (!el) return;
 
     const lastModified = new Date(document.lastModified);

@@ -195,17 +195,8 @@
   </main>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="border-t border-[#E5E5E5] dark:border-gray-800 py-10 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors" role="contentinfo">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
-      <p class="text-xs text-gray-400 dark:text-gray-500">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
-      <div class="flex items-center gap-4">
-        <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
-        <a href="https://owasp.org" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="OWASP"><i class="fa-solid fa-globe text-base" aria-hidden="true"></i></a>
-      </div>
-      <p id="footer-last-updated" class="mt-4 text-center text-xs text-gray-400"></p>
-    </div>
-  </footer>
+  <div hx-get="../components/footer.html"  hx-trigger="load" hx-swap="outerHTML"> </div>
+  
   <script>
     // Theme toggle
     (function() {
