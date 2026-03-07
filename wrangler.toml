@@ -21,6 +21,7 @@ command = ""
 # - JWT_SECRET
 # - DATABASE_URL
 # - ENCRYPTION_KEY
+# - SENDGRID_WEBHOOK_KEY  (SendGrid Event Webhook verification key – see Mail Settings → Event Webhooks)
 
 # KV Namespaces for caching
 # [[kv_namespaces]]
