@@ -325,30 +325,123 @@ async def handle_bugs_list(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     if request.method == 'POST':
+        # Auth check for bug reporting
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer '):
+            return create_response({'error': 'Authentication required to report bugs'}, status=401, origin=request.headers.get('Origin'))
+        
+        token = auth_header.replace('Bearer ', '')
+        secret = getattr(env, 'JWT_SECRET', JWT_SECRET)
+        payload = verify_jwt(token, secret)
+        
+        if not payload or 'sub' not in payload:
+            return create_response({'error': 'Invalid or expired session'}, status=401, origin=request.headers.get('Origin'))
+            
         try:
+            reporter_id = int(payload['sub'])
             body = await request.json()
             title = body.title
             description = body.description
-            severity = body.severity
+            severity = getattr(body, 'severity', 'medium')
+            url_val = getattr(body, 'url', None)
+            bug_type = getattr(body, 'type', 'other')
+            steps = getattr(body, 'steps', None)
             
             await env.DB.prepare(
-                "INSERT INTO bugs (title, description, severity, status) VALUES (?, ?, ?, ?)"
-            ).bind(title, description, severity, 'open').run()
+                "INSERT INTO bugs (title, description, severity, status, url, bug_type, steps_to_reproduce, reporter_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            ).bind(title, description, severity, 'open', url_val, bug_type, steps, reporter_id).run()
 
+            # For HTMX submission
             html = """
                 <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
                     <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
                     <p>Thank you for contributing to OWASP BLT. Our team will review your report shortly.</p>
-                    <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
+                    <a href="/pages/dashboard.html" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Go to Dashboard</a>
                 </div>
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
+            err_info = traceback.format_exc()
+            console.log(f"Bug Submission Error: {err_info}")
             return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
 
+    # GET case (list all bugs)
     try:
         results = await env.DB.prepare("SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20").all()
-        return create_response({'bugs': results.results}, origin=request.headers.get('Origin'))
+        # Convert results to plain dicts to avoid JsProxy serialization errors
+        bugs_list = []
+        if results.results:
+            for b in results.results:
+                bugs_list.append({
+                    'id': getattr(b, 'id', None),
+                    'title': getattr(b, 'title', 'Untitled'),
+                    'description': getattr(b, 'description', ''),
+                    'severity': getattr(b, 'severity', 'medium'),
+                    'status': getattr(b, 'status', 'open'),
+                    'created_at': getattr(b, 'created_at', '')
+                })
+        return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
+    except Exception as e:
+        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+
+async def handle_user_bugs(request, env=None):
+    """Handle /api/user/bugs endpoint - Fetch bugs for current user"""
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return create_response({'error': 'Unauthorized'}, status=401, origin=request.headers.get('Origin'))
+        
+    token = auth_header.replace('Bearer ', '')
+    secret = getattr(env, 'JWT_SECRET', JWT_SECRET)
+    payload = verify_jwt(token, secret)
+    
+    if not payload or 'sub' not in payload:
+        return create_response({'error': 'Unauthorized'}, status=401, origin=request.headers.get('Origin'))
+        
+    try:
+        reporter_id = int(payload['sub'])
+        results = await env.DB.prepare("SELECT * FROM bugs WHERE reporter_id = ? ORDER BY created_at DESC").bind(reporter_id).all()
+        
+        # Return HTML rows for HTMX dashboard
+        if "text/html" in request.headers.get("Accept", ""):
+            if not results.results:
+                return handle_html_response('<p class="text-gray-500 py-4">No reports found yet.</p>', origin=request.headers.get('Origin'))
+                
+            rows = "".join([
+                f"""
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                    <td class="py-4 px-2 text-sm font-medium">{getattr(b, 'title', 'Untitled')}</td>
+                    <td class="py-4 px-2 text-xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase 
+                            {'bg-red-100 text-red-600' if b.severity == 'critical' else 
+                             'bg-orange-100 text-orange-600' if b.severity == 'high' else 
+                             'bg-yellow-100 text-yellow-600' if b.severity == 'medium' else 
+                             'bg-green-100 text-green-600'}">
+                            {b.severity}
+                        </span>
+                    </td>
+                    <td class="py-4 px-2 text-xs">
+                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 capitalize">
+                            {b.status}
+                        </span>
+                    </td>
+                    <td class="py-4 px-2 text-xs text-gray-400">{b.created_at[:10]}</td>
+                </tr>
+                """ for b in results.results
+            ])
+            return handle_html_response(rows, origin=request.headers.get('Origin'))
+            
+        # Convert results to plain dicts
+        bugs_list = []
+        if results.results:
+            for b in results.results:
+                bugs_list.append({
+                    'id': getattr(b, 'id', None),
+                    'title': getattr(b, 'title', 'Untitled'),
+                    'status': getattr(b, 'status', 'open'),
+                    'severity': getattr(b, 'severity', 'medium'),
+                    'created_at': getattr(b, 'created_at', '')
+                })
+        return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
     except Exception as e:
         return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
 
@@ -437,6 +530,7 @@ ROUTES = {
         '/api/stats': handle_stats,
         '/api/auth/me': handle_auth_me,
         '/api/bugs': handle_bugs_list,
+        '/api/user/bugs': handle_user_bugs,
         '/api/leaderboard': handle_leaderboard,
         '/api/projects': handle_projects,
     },
