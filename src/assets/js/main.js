@@ -216,29 +216,6 @@ const auth = new AuthModule(api, state);
 // UI Components
 // ===================================
 class UIComponents {
-    static showModal(content) {
-        const modal = document.getElementById('authModal');
-        if (modal) {
-            modal.innerHTML = content;
-            modal.style.display = 'flex';
-
-            // Close modal on backdrop click
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.hideModal();
-                }
-            });
-        }
-    }
-
-    static hideModal() {
-        const modal = document.getElementById('authModal');
-        if (modal) {
-            modal.style.display = 'none';
-            modal.innerHTML = '';
-        }
-    }
-
     static showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -263,182 +240,12 @@ class UIComponents {
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
-
-    static createLoginForm() {
-        return `
-            <div class="modal-content">
-                <h2 style="margin-bottom: 1.5rem;">Login to BLT</h2>
-                <form id="loginForm">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Email
-                        </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Password
-                        </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <button 
-                            type="submit" 
-                            class="btn btn-primary"
-                            style="flex: 1;"
-                        >
-                            Login
-                        </button>
-                        <button 
-                            type="button" 
-                            class="btn btn-secondary"
-                            onclick="window.uiComponents.hideModal()"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-    }
-
-    static createSignupForm() {
-        return `
-            <div class="modal-content">
-                <h2 style="margin-bottom: 1.5rem;">Create Account</h2>
-                <form id="signupForm">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Username
-                        </label>
-                        <input 
-                            type="text" 
-                            name="username" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Email
-                        </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Password
-                        </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
-                            minlength="8"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <button 
-                            type="submit" 
-                            class="btn btn-primary"
-                            style="flex: 1;"
-                        >
-                            Sign Up
-                        </button>
-                        <button 
-                            type="button" 
-                            class="btn btn-secondary"
-                            onclick="window.uiComponents.hideModal()"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-    }
 }
 
 // ===================================
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
-    // Login button
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
-
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    // Signup buttons
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
-
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
-
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
-                }
-            });
-        }
-    });
-
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
@@ -470,13 +277,6 @@ function setupEventHandlers() {
             }
         });
     }
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            UIComponents.hideModal();
-        }
-    });
 }
 
 // ===================================
