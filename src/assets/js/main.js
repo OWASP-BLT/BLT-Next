@@ -377,104 +377,101 @@ class UIComponents {
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
-    // Login button
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
-
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = !mobileMenu.classList.contains('hidden');
+            mobileMenu.classList.toggle('hidden');
+            // Update aria attributes and icon
+            mobileMenuBtn.setAttribute('aria-expanded', String(!isOpen));
+            mobileMenuBtn.setAttribute('aria-label', isOpen ? 'Open menu' : 'Close menu');
+            // Toggle between hamburger and close icon
+            const icon = mobileMenuBtn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars', isOpen);
+                icon.classList.toggle('fa-xmark', !isOpen);
             }
+        });
+
+        // Close mobile menu when a nav link is clicked
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                mobileMenuBtn.setAttribute('aria-label', 'Open menu');
+                const icon = mobileMenuBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-xmark');
+                }
+            });
         });
     }
 
-    // Signup buttons
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
+    // Auth modal helpers
+    const modal = document.getElementById('authModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const closeModal = document.getElementById('closeModal');
 
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
-
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
-                }
-            });
-        }
-    });
-
-    // Theme Toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
-
-    function updateThemeIcons() {
-        if (!sunIcon || !moonIcon) return;
-        if (document.documentElement.classList.contains('dark')) {
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
+    function openAuthModal(title) {
+        if (modal && modalTitle) {
+            modalTitle.textContent = title;
+            modal.classList.remove('hidden');
         }
     }
 
-    if (themeToggle) {
-        // Initial icon state
-        updateThemeIcons();
+    function closeAuthModal() {
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
 
-        themeToggle.addEventListener('click', () => {
+    // Login buttons (desktop + mobile)
+    document.querySelectorAll('[data-auth="login"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            openAuthModal('Sign In');
+            // Close mobile menu if open
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+        });
+    });
+
+    // Signup buttons (desktop + mobile + CTA)
+    document.querySelectorAll('[data-auth="signup"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            openAuthModal('Create Account');
+            // Close mobile menu if open
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+        });
+    });
+
+    // Close modal
+    if (closeModal) {
+        closeModal.addEventListener('click', closeAuthModal);
+    }
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeAuthModal();
+        });
+    }
+
+    // Theme toggle (all instances — desktop and mobile)
+    document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcons();
 
-            // Re-emit theme change for other components
             if (window.bltApp && window.bltApp.state) {
                 window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
             }
         });
-    }
+    });
 
     // Close modal on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            UIComponents.hideModal();
+            closeAuthModal();
         }
     });
 }
@@ -484,27 +481,24 @@ function setupEventHandlers() {
 // ===================================
 function updateUIForAuth() {
     const user = state.getUser();
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
+    const loginBtns = document.querySelectorAll('[data-auth="login"]');
+    const signupBtns = document.querySelectorAll('[data-auth="signup"]');
 
     if (user && state.isAuthenticated) {
-        // Update buttons to show user menu
-        if (loginBtn) {
-            loginBtn.textContent = user.username;
-            loginBtn.onclick = () => {
+        loginBtns.forEach(btn => {
+            btn.textContent = user.username;
+            btn.onclick = () => {
                 window.location.href = '/pages/profile.html';
             };
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Logout';
-            signupBtn.classList.remove('btn-primary');
-            signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async () => {
+        });
+        signupBtns.forEach(btn => {
+            btn.textContent = 'Logout';
+            btn.onclick = async () => {
                 await auth.logout();
                 UIComponents.showNotification('Logged out successfully', 'success');
                 updateUIForAuth();
             };
-        }
+        });
     }
 }
 
