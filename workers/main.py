@@ -220,7 +220,11 @@ async def handle_auth_login(request, env=None):
             }
             token = generate_jwt(payload, secret)
             
-            await env.DB.prepare("UPDATE users SET last_login = ? WHERE id = ?").bind(datetime.now().isoformat(), result.id).run()
+            # Best-effort audit update; don't let it block a valid login
+            try:
+                await env.DB.prepare("UPDATE users SET last_login = ? WHERE id = ?").bind(datetime.now().isoformat(), result.id).run()
+            except Exception as audit_err:
+                console.log(f"Audit Log Error: {str(audit_err)}")
             
             return create_response({
                 'success': True,
@@ -237,12 +241,13 @@ async def handle_auth_login(request, env=None):
         err_info = traceback.format_exc()
         console.log(f"Login Error: {err_info}")
         
+        is_debug = env and getattr(env, 'DEBUG', False)
         response_data = {
             'success': False,
-            'error': str(e)
+            'error': str(e) if is_debug else "An unexpected error occurred during login"
         }
         
-        if env and getattr(env, 'DEBUG', False):
+        if is_debug:
             response_data['traceback'] = err_info
             
         return create_response(response_data, status=400, origin=request.headers.get('Origin'))
@@ -297,12 +302,13 @@ async def handle_auth_signup(request, env=None):
         err_info = traceback.format_exc()
         console.log(f"Signup Error: {err_info}")
         
+        is_debug = env and getattr(env, 'DEBUG', False)
         response_data = {
             'success': False,
-            'error': str(e)
+            'error': str(e) if is_debug else "An unexpected error occurred during registration"
         }
         
-        if env and getattr(env, 'DEBUG', False):
+        if is_debug:
             response_data['traceback'] = err_info
             
         return create_response(response_data, status=400, origin=request.headers.get('Origin'))
@@ -391,8 +397,11 @@ async def handle_bugs_list(request, env=None):
             err_info = traceback.format_exc()
             console.log(f"Bug Submission Error: {err_info}")
             
-            response_data = {'error': str(e)}
-            if env and getattr(env, 'DEBUG', False):
+            is_debug = env and getattr(env, 'DEBUG', False)
+            response_data = {
+                'error': str(e) if is_debug else "An unexpected error occurred while submitting the report"
+            }
+            if is_debug:
                 response_data['traceback'] = err_info
                 
             return create_response(response_data, status=500, origin=request.headers.get('Origin'))
@@ -612,12 +621,13 @@ async def on_fetch(request, env):
     except Exception as e:
         err_info = traceback.format_exc()
         
+        is_debug = env and getattr(env, 'DEBUG', False)
         response_data = {
             'error': 'Internal server error',
-            'message': str(e)
+            'message': str(e) if is_debug else "A server-side error occurred"
         }
         
-        if env and getattr(env, 'DEBUG', False):
+        if is_debug:
             response_data['traceback'] = err_info
             
         return create_response(response_data, status=500, origin=request.headers.get('Origin'))
