@@ -8,8 +8,3 @@ CREATE TABLE IF NOT EXISTS projects (
     bugs INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
--- Insert sample projects
-INSERT OR IGNORE INTO projects (id, name, type, reward, bugs) VALUES
-(1, 'Acme Corp', 'Web Application', '$500', 48),
-(2, 'ShopSafe', 'E-Commerce Platform', '$1,000', 73),
-(3, 'MedVault', 'Healthcare SaaS', '$5,000', 21);
