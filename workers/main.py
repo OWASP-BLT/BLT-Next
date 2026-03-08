@@ -88,8 +88,10 @@ def verify_password(stored_password, provided_password):
         if ':' in stored_password:
             salt, hash_val = stored_password.split(':')
             dk = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt.encode(), 100000)
-            return dk.hex() == hash_val
-        return hashlib.sha256(provided_password.encode()).hexdigest() == stored_password
+            return hmac.compare_digest(dk.hex(), hash_val)
+        # Legacy fallback
+        provided_hash = hashlib.sha256(provided_password.encode()).hexdigest()
+        return hmac.compare_digest(provided_hash, stored_password)
     except Exception:
         return False
 
@@ -359,6 +361,8 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
+            err_info = traceback.format_exc()
+            console.log(f"Bug Submission Error: {err_info}")
             return create_response({'error': 'Failed to process request'}, status=500, origin=request.headers.get('Origin'))
 
     # GET case (list all bugs)
