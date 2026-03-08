@@ -41,8 +41,8 @@
         </ul>
         <div class="hidden md:flex items-center gap-2">
           <button id="themeToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
-            <i class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
-            <i class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
+            <i id="sunIcon" class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
+            <i id="moonIcon" class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
           </button>
           <button id="loginBtn" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
           <button id="signupBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
@@ -59,6 +59,12 @@
           <li><a href="pages/projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
           <li><a href="pages/about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
         </ul>
+        <div class="flex justify-center mt-3">
+        <button id="themeToggleMobile" class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
+        <i id="sunIconMobile" class="fa-solid fa-sun dark:hidden text-sm"></i>
+        <i id="moonIconMobile" class="fa-solid fa-moon hidden dark:block text-sm"></i>
+        </button>
+     </div>
         <div class="flex gap-3 mt-3">
           <button class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
           <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
