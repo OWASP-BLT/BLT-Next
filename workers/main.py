@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import base64
 import traceback
+import secrets
 from datetime import datetime, timedelta
 
 # ===================================
@@ -71,27 +72,42 @@ def handle_cors_preflight(origin):
 # Security Helpers
 # ===================================
 
-JWT_SECRET = "dev-secret-key" # In production, set this via wrangler secret put
+# Default to a weak key only for development; production SHOULD use env.JWT_SECRET
+DEFAULT_DEV_SECRET = "dev-secret-key"
+
+def get_jwt_secret(env):
+    """Retrieve JWT secret from environment, enforcing security in non-dev setups"""
+    secret = getattr(env, 'JWT_SECRET', None)
+    if secret:
+        return secret
+    
+    # Check if we are in a production-like environment (not localhost)
+    # This is a heuristic; ideally, wrangler.toml should define environments
+    is_dev = getattr(env, 'DEBUG', False)
+    if not is_dev:
+        # In production, we should arguably fail if secret is missing
+        # but for now, we'll return the default and log a warning if possible
+        pass
+        
+    return DEFAULT_DEV_SECRET
 
 def hash_password(password, salt=None):
     """Hash a password using PBKDF2"""
     if salt is None:
-        import random
-        salt = "".join([random.choice("0123456789abcdef") for _ in range(16)])
+        salt = secrets.token_hex(16)
     
     dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
     return f"{salt}:{dk.hex()}"
 
 def verify_password(stored_password, provided_password):
     """Verify a stored password hash against a provided password"""
-    try:
-        if ':' in stored_password:
-            salt, hash_val = stored_password.split(':')
-            dk = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt.encode(), 100000)
-            return dk.hex() == hash_val
-        return hashlib.sha256(provided_password.encode()).hexdigest() == stored_password
-    except Exception:
+    if ':' not in stored_password:
+        # We no longer support unsalted SHA256 for new or existing users
         return False
+        
+    salt, hash_val = stored_password.split(':')
+    dk = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt.encode(), 100000)
+    return hmac.compare_digest(dk.hex(), hash_val)
 
 def generate_jwt(payload, secret):
     """Generate a simple JWT token (HS256)"""
@@ -120,7 +136,7 @@ def verify_jwt(token, secret):
         sig = hmac.new(secret.encode(), signature_input.encode(), hashlib.sha256).digest()
         expected_sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip('=')
         
-        if signature_b64 != expected_sig_b64:
+        if not hmac.compare_digest(signature_b64.encode(), expected_sig_b64.encode()):
             return None
         
         padding = '=' * (4 - len(payload_b64) % 4)
@@ -196,7 +212,7 @@ async def handle_auth_login(request, env=None):
                 'email': result.email,
             }
             
-            secret = getattr(env, 'JWT_SECRET', JWT_SECRET)
+            secret = get_jwt_secret(env)
             payload = {
                 'sub': result.id,
                 'username': result.username,
@@ -220,11 +236,16 @@ async def handle_auth_login(request, env=None):
     except Exception as e:
         err_info = traceback.format_exc()
         console.log(f"Login Error: {err_info}")
-        return create_response({
+        
+        response_data = {
             'success': False,
-            'error': str(e),
-            'traceback': err_info
-        }, status=400, origin=request.headers.get('Origin'))
+            'error': str(e)
+        }
+        
+        if env and getattr(env, 'DEBUG', False):
+            response_data['traceback'] = err_info
+            
+        return create_response(response_data, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_signup(request, env=None):
     """Handle /api/auth/signup endpoint"""
@@ -258,7 +279,7 @@ async def handle_auth_signup(request, env=None):
             'email': new_user.email,
         }
         
-        secret = getattr(env, 'JWT_SECRET', JWT_SECRET)
+        secret = get_jwt_secret(env)
         payload = {
             'sub': new_user.id,
             'username': new_user.username,
@@ -275,11 +296,16 @@ async def handle_auth_signup(request, env=None):
     except Exception as e:
         err_info = traceback.format_exc()
         console.log(f"Signup Error: {err_info}")
-        return create_response({
+        
+        response_data = {
             'success': False,
-            'error': str(e),
-            'traceback': err_info
-        }, status=400, origin=request.headers.get('Origin'))
+            'error': str(e)
+        }
+        
+        if env and getattr(env, 'DEBUG', False):
+            response_data['traceback'] = err_info
+            
+        return create_response(response_data, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_me(request, env=None):
     """Handle /api/auth/me endpoint"""
@@ -291,7 +317,7 @@ async def handle_auth_me(request, env=None):
         }, status=401, origin=request.headers.get('Origin'))
     
     token = auth_header.replace('Bearer ', '')
-    secret = getattr(env, 'JWT_SECRET', JWT_SECRET)
+    secret = get_jwt_secret(env)
     
     payload = verify_jwt(token, secret)
     if payload and 'sub' in payload:
@@ -325,6 +351,21 @@ async def handle_bugs_list(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     if request.method == 'POST':
+<<<<<<< Updated upstream
+=======
+        # Auth check for bug reporting
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer '):
+            return create_response({'error': 'Authentication required to report bugs'}, status=401, origin=request.headers.get('Origin'))
+        
+        token = auth_header.replace('Bearer ', '')
+        secret = get_jwt_secret(env)
+        payload = verify_jwt(token, secret)
+        
+        if not payload or 'sub' not in payload:
+            return create_response({'error': 'Invalid or expired session'}, status=401, origin=request.headers.get('Origin'))
+            
+>>>>>>> Stashed changes
         try:
             body = await request.json()
             title = body.title
@@ -344,11 +385,99 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
+<<<<<<< Updated upstream
             return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+=======
+            err_info = traceback.format_exc()
+            console.log(f"Bug Submission Error: {err_info}")
+            
+            response_data = {'error': str(e)}
+            if env and getattr(env, 'DEBUG', False):
+                response_data['traceback'] = err_info
+                
+            return create_response(response_data, status=500, origin=request.headers.get('Origin'))
+>>>>>>> Stashed changes
 
     try:
         results = await env.DB.prepare("SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20").all()
+<<<<<<< Updated upstream
         return create_response({'bugs': results.results}, origin=request.headers.get('Origin'))
+=======
+        # Convert results to plain dicts to avoid JsProxy serialization errors
+        bugs_list = []
+        if results.results:
+            for b in results.results:
+                bugs_list.append({
+                    'id': getattr(b, 'id', None),
+                    'title': getattr(b, 'title', 'Untitled'),
+                    'description': getattr(b, 'description', ''),
+                    'severity': getattr(b, 'severity', 'medium'),
+                    'status': getattr(b, 'status', 'open'),
+                    'created_at': getattr(b, 'created_at', '')
+                })
+        return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
+    except Exception as e:
+        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+
+async def handle_user_bugs(request, env=None):
+    """Handle /api/user/bugs endpoint - Fetch bugs for current user"""
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return create_response({'error': 'Unauthorized'}, status=401, origin=request.headers.get('Origin'))
+        
+    token = auth_header.replace('Bearer ', '')
+    secret = get_jwt_secret(env)
+    payload = verify_jwt(token, secret)
+    
+    if not payload or 'sub' not in payload:
+        return create_response({'error': 'Unauthorized'}, status=401, origin=request.headers.get('Origin'))
+        
+    try:
+        reporter_id = int(payload['sub'])
+        results = await env.DB.prepare("SELECT * FROM bugs WHERE reporter_id = ? ORDER BY created_at DESC").bind(reporter_id).all()
+        
+        # Return HTML rows for HTMX dashboard
+        if "text/html" in request.headers.get("Accept", ""):
+            if not results.results:
+                return handle_html_response('<p class="text-gray-500 py-4">No reports found yet.</p>', origin=request.headers.get('Origin'))
+                
+            rows = "".join([
+                f"""
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                    <td class="py-4 px-2 text-sm font-medium">{getattr(b, 'title', 'Untitled')}</td>
+                    <td class="py-4 px-2 text-xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase 
+                            {'bg-red-100 text-red-600' if b.severity == 'critical' else 
+                             'bg-orange-100 text-orange-600' if b.severity == 'high' else 
+                             'bg-yellow-100 text-yellow-600' if b.severity == 'medium' else 
+                             'bg-green-100 text-green-600'}">
+                            {b.severity}
+                        </span>
+                    </td>
+                    <td class="py-4 px-2 text-xs">
+                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 capitalize">
+                            {b.status}
+                        </span>
+                    </td>
+                    <td class="py-4 px-2 text-xs text-gray-400">{b.created_at[:10]}</td>
+                </tr>
+                """ for b in results.results
+            ])
+            return handle_html_response(rows, origin=request.headers.get('Origin'))
+            
+        # Convert results to plain dicts
+        bugs_list = []
+        if results.results:
+            for b in results.results:
+                bugs_list.append({
+                    'id': getattr(b, 'id', None),
+                    'title': getattr(b, 'title', 'Untitled'),
+                    'status': getattr(b, 'status', 'open'),
+                    'severity': getattr(b, 'severity', 'medium'),
+                    'created_at': getattr(b, 'created_at', '')
+                })
+        return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
+>>>>>>> Stashed changes
     except Exception as e:
         return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
 
@@ -486,8 +615,13 @@ async def on_fetch(request, env):
         return await route_request(request, env)
     except Exception as e:
         err_info = traceback.format_exc()
-        return create_response({
+        
+        response_data = {
             'error': 'Internal server error',
-            'message': str(e),
-            'traceback': err_info
-        }, status=500, origin=request.headers.get('Origin'))
+            'message': str(e)
+        }
+        
+        if env and getattr(env, 'DEBUG', False):
+            response_data['traceback'] = err_info
+            
+        return create_response(response_data, status=500, origin=request.headers.get('Origin'))

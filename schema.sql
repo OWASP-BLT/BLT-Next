@@ -1,4 +1,5 @@
--- Users table
+-- Users table for authentication and profile management
+-- password_hash stores PBKDF2 hashes in format 'salt:hash'
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
