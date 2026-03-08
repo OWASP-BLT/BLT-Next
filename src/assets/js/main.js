@@ -69,7 +69,8 @@ class APIClient {
         };
 
         // Add auth token if available
-        const token = localStorage.getItem('authToken');
+        const auth = JSON.parse(localStorage.getItem('blt_auth') || '{}');
+        const token = auth.token;
         if (token) {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -211,8 +212,12 @@ class AuthModule {
     }
 
     async checkAuth() {
-        const token = localStorage.getItem('authToken');
-        if (!token) return false;
+        const auth = JSON.parse(localStorage.getItem('blt_auth') || '{}');
+        const token = auth.token;
+        if (!token) {
+            updateUI();
+            return false;
+        }
 
         try {
             const response = await this.api.get('/auth/me');
@@ -222,9 +227,10 @@ class AuthModule {
                 return true;
             }
         } catch (error) {
-            localStorage.removeItem('authToken');
             localStorage.removeItem('blt_auth');
+            localStorage.removeItem('authToken'); // Cleanup legacy if exists
         }
+        updateUI();
         return false;
     }
 }
@@ -234,9 +240,13 @@ const auth = new AuthModule(api, state);
 // ===================================
 // Dashboard Module
 // ===================================
-class DashboardModule {
+    /**
+     * Updates dashboard statistics.
+     * Note: Current implementation uses HTMX for real-time updates on dashboard.html.
+     * This method serves as a hook for manual refreshes or non-HTMX implementations.
+     */
     static async updateStats() {
-        // This is primarily handled by HTMX now, but could be used for specific logic
+        // Stats are primarily handled by HTMX afterOnLoad listener in dashboard.html
     }
 }
 
@@ -546,7 +556,7 @@ function updateUI() {
   const navUsername = document.getElementById('navUsername');
   const navLinks = document.querySelector('nav ul');
 
-  if (auth_data.token && auth_data.user) {
+    if (auth_data.token && auth_data.user) {
     if (loginBtn) loginBtn.classList.add('hidden');
     if (signupBtn) signupBtn.classList.add('hidden');
     if (userMenu) {
@@ -559,7 +569,13 @@ function updateUI() {
       const li = document.createElement('li');
       const isPagesDir = window.location.pathname.includes('/pages/');
       const href = isPagesDir ? 'dashboard.html' : 'pages/dashboard.html';
-      li.innerHTML = `<a href="${href}" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Dashboard</a>`;
+      
+      const a = document.createElement('a');
+      a.href = href;
+      a.className = "px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors";
+      a.textContent = "Dashboard";
+      
+      li.appendChild(a);
       navLinks.appendChild(li);
     }
   } else {

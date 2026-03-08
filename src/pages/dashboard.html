@@ -267,7 +267,7 @@
     </footer>
 
     <script>
-      // Theme logic
+      // Theme logic (Inline to prevent flicker)
       (function () {
         const h = document.documentElement;
         const s = localStorage.getItem("theme");
@@ -279,33 +279,17 @@
       })();
 
       document.addEventListener("DOMContentLoaded", () => {
-        document
-          .getElementById("themeToggle")
-          ?.addEventListener("click", () => {
-            document.documentElement.classList.toggle("dark");
-            localStorage.setItem(
-              "theme",
-              document.documentElement.classList.contains("dark")
-                ? "dark"
-                : "light",
-            );
-          });
-
-        // Inject token for HTMX
-        document.body.addEventListener("htmx:configRequest", (event) => {
-          const auth = JSON.parse(localStorage.getItem("blt_auth") || "{}");
-          if (auth.token) {
-            event.detail.headers["Authorization"] = `Bearer ${auth.token}`;
-          }
-        });
-
-        // Handle response to update stats (mock logic for demo)
+        // Stats update logic
         document.body.addEventListener("htmx:afterOnLoad", (event) => {
           if (event.detail.elt.id === "reportsList") {
             const rowCount = event.detail.elt.querySelectorAll("tr").length;
-            document.getElementById("stat-total").textContent = rowCount;
-            document.getElementById("stat-review").textContent = rowCount; // For demo purposes
-            document.getElementById("stat-resolved").textContent = "0";
+            const totalStat = document.getElementById("stat-total");
+            const reviewStat = document.getElementById("stat-review");
+            const resolvedStat = document.getElementById("stat-resolved");
+
+            if (totalStat) totalStat.textContent = rowCount;
+            if (reviewStat) reviewStat.textContent = rowCount; // For demo purposes
+            if (resolvedStat) resolvedStat.textContent = "0";
           }
         });
       });

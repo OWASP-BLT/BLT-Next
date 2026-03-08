@@ -222,8 +222,7 @@ async def handle_auth_login(request, env=None):
         console.log(f"Login Error: {err_info}")
         return create_response({
             'success': False,
-            'error': str(e),
-            'traceback': err_info
+            'error': str(e)
         }, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_signup(request, env=None):
@@ -277,8 +276,7 @@ async def handle_auth_signup(request, env=None):
         console.log(f"Signup Error: {err_info}")
         return create_response({
             'success': False,
-            'error': str(e),
-            'traceback': err_info
+            'error': str(e)
         }, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_me(request, env=None):
@@ -361,9 +359,7 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-            err_info = traceback.format_exc()
-            console.log(f"Bug Submission Error: {err_info}")
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+            return create_response({'error': 'Failed to process request'}, status=500, origin=request.headers.get('Origin'))
 
     # GET case (list all bugs)
     try:
@@ -579,9 +575,7 @@ async def on_fetch(request, env):
     try:
         return await route_request(request, env)
     except Exception as e:
-        err_info = traceback.format_exc()
         return create_response({
             'error': 'Internal server error',
-            'message': str(e),
-            'traceback': err_info
+            'message': 'An unexpected error occurred'
         }, status=500, origin=request.headers.get('Origin'))
