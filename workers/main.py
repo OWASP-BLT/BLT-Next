@@ -196,9 +196,9 @@ async def handle_auth_login(request, env=None):
 
     try:
         body = await request.json()
-        # Direct property access for JS objects
-        email = body.email
-        password = body.password
+        # Secure attribute access for JS objects to prevent AttributeError
+        email = getattr(body, 'email', None)
+        password = getattr(body, 'password', None)
         
         if not email or not password:
             return create_response({'success': False, 'error': 'Missing credentials'}, status=400, origin=request.headers.get('Origin'))
@@ -254,10 +254,10 @@ async def handle_auth_signup(request, env=None):
 
     try:
         body = await request.json()
-        # Direct property access for JS objects
-        username = body.username
-        email = body.email
-        password = body.password
+        # Secure attribute access for JS objects to prevent AttributeError
+        username = getattr(body, 'username', None)
+        email = getattr(body, 'email', None)
+        password = getattr(body, 'password', None)
         
         if not username or not email or not password:
             return create_response({'success': False, 'error': 'Invalid signup data'}, status=400, origin=request.headers.get('Origin'))
@@ -332,7 +332,8 @@ async def handle_auth_me(request, env=None):
                 return create_response({
                     'user': user
                 }, origin=request.headers.get('Origin'))
-        except Exception:
+        except Exception as e:
+            console.log(f"Auth Me Error: {str(e)}")
             pass
     
     return create_response({
@@ -351,8 +352,6 @@ async def handle_bugs_list(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     if request.method == 'POST':
-<<<<<<< Updated upstream
-=======
         # Auth check for bug reporting
         auth_header = request.headers.get('Authorization', '')
         if not auth_header.startswith('Bearer '):
@@ -365,29 +364,30 @@ async def handle_bugs_list(request, env=None):
         if not payload or 'sub' not in payload:
             return create_response({'error': 'Invalid or expired session'}, status=401, origin=request.headers.get('Origin'))
             
->>>>>>> Stashed changes
         try:
+            reporter_id = int(payload['sub'])
             body = await request.json()
-            title = body.title
-            description = body.description
-            severity = body.severity
+            title = getattr(body, 'title', 'Untitled')
+            description = getattr(body, 'description', '')
+            severity = getattr(body, 'severity', 'medium')
+            url_val = getattr(body, 'url', None)
+            bug_type = getattr(body, 'type', 'other')
+            steps = getattr(body, 'steps', None)
             
             await env.DB.prepare(
-                "INSERT INTO bugs (title, description, severity, status) VALUES (?, ?, ?, ?)"
-            ).bind(title, description, severity, 'open').run()
+                "INSERT INTO bugs (title, description, severity, status, url, bug_type, steps_to_reproduce, reporter_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            ).bind(title, description, severity, 'open', url_val, bug_type, steps, reporter_id).run()
 
+            # For HTMX submission
             html = """
                 <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
                     <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
                     <p>Thank you for contributing to OWASP BLT. Our team will review your report shortly.</p>
-                    <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
+                    <a href="/pages/dashboard.html" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Go to Dashboard</a>
                 </div>
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-<<<<<<< Updated upstream
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
-=======
             err_info = traceback.format_exc()
             console.log(f"Bug Submission Error: {err_info}")
             
@@ -396,13 +396,10 @@ async def handle_bugs_list(request, env=None):
                 response_data['traceback'] = err_info
                 
             return create_response(response_data, status=500, origin=request.headers.get('Origin'))
->>>>>>> Stashed changes
 
+    # GET case (list all bugs)
     try:
         results = await env.DB.prepare("SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20").all()
-<<<<<<< Updated upstream
-        return create_response({'bugs': results.results}, origin=request.headers.get('Origin'))
-=======
         # Convert results to plain dicts to avoid JsProxy serialization errors
         bugs_list = []
         if results.results:
@@ -477,7 +474,6 @@ async def handle_user_bugs(request, env=None):
                     'created_at': getattr(b, 'created_at', '')
                 })
         return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
->>>>>>> Stashed changes
     except Exception as e:
         return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
 
