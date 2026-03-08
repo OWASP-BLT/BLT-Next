@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import base64
 import traceback
+import secrets
 from datetime import datetime, timedelta
 
 # ===================================
@@ -76,8 +77,7 @@ JWT_SECRET = "dev-secret-key" # In production, set this via wrangler secret put
 def hash_password(password, salt=None):
     """Hash a password using PBKDF2"""
     if salt is None:
-        import random
-        salt = "".join([random.choice("0123456789abcdef") for _ in range(16)])
+        salt = secrets.token_hex(8)
     
     dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
     return f"{salt}:{dk.hex()}"
@@ -120,7 +120,7 @@ def verify_jwt(token, secret):
         sig = hmac.new(secret.encode(), signature_input.encode(), hashlib.sha256).digest()
         expected_sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip('=')
         
-        if signature_b64 != expected_sig_b64:
+        if not hmac.compare_digest(signature_b64, expected_sig_b64):
             return None
         
         padding = '=' * (4 - len(payload_b64) % 4)

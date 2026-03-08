@@ -240,6 +240,7 @@ const auth = new AuthModule(api, state);
 // ===================================
 // Dashboard Module
 // ===================================
+class DashboardModule {
     /**
      * Updates dashboard statistics.
      * Note: Current implementation uses HTMX for real-time updates on dashboard.html.
