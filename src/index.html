@@ -60,8 +60,8 @@
           <li><a href="pages/about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
         </ul>
         <div class="flex gap-3 mt-3">
-          <button class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button id="mobileLoginBtn"  class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="mobileSignupBtn"  class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
       </div>
     </div>
@@ -259,7 +259,38 @@
         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100" id="modalTitle">Sign In</h2>
         <button id="closeModal" class="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       </div>
-      <div class="p-6" id="modalContent"></div>
+      <div class="p-6" id="modalContent">
+        <!-- Login Form -->
+        <div id="loginForm" class="flex flex-col gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input id="loginEmail" type="email" placeholder="you@example.com" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <input id="loginPassword" type="password" placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+          <button id="loginSubmit" class="w-full px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Login</button>
+          <p class="text-xs text-center text-gray-500 dark:text-gray-400">Don't have an account? <a href="#" id="switchToSignup" class="text-red-600 dark:text-red-400 hover:underline">Sign Up</a></p>
+        </div>
+        <!-- Signup Form -->
+        <div id="signupForm" class="flex flex-col gap-4 hidden">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+            <input id="signupUsername" type="text" placeholder="yourname" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input id="signupEmail" type="email" placeholder="you@example.com" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <input id="signupPassword" type="password" placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500"/>
+          </div>
+          <button id="signupSubmit" class="w-full px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Create Account</button>
+          <p class="text-xs text-center text-gray-500 dark:text-gray-400">Already have an account? <a href="#" id="switchToLogin" class="text-red-600 dark:text-red-400 hover:underline">Login</a></p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -282,11 +313,16 @@
       
       const modal = document.getElementById('authModal');
       const modalTitle = document.getElementById('modalTitle');
-      document.getElementById('loginBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Sign In'; modal.classList.remove('hidden'); });
-      document.getElementById('signupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; modal.classList.remove('hidden'); });
-      document.getElementById('ctaSignupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; modal.classList.remove('hidden'); });
+      document.getElementById('loginBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Sign In'; document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('signupForm').classList.add('hidden'); modal.classList.remove('hidden'); });
+      document.getElementById('signupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; document.getElementById('loginForm').classList.add('hidden'); document.getElementById('signupForm').classList.remove('hidden'); modal.classList.remove('hidden'); });
+      document.getElementById('mobileLoginBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Sign In'; document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('signupForm').classList.add('hidden'); modal.classList.remove('hidden'); }); document.getElementById('mobileSignupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; document.getElementById('loginForm').classList.add('hidden'); document.getElementById('signupForm').classList.remove('hidden'); modal.classList.remove('hidden'); });
+      document.getElementById('ctaSignupBtn')?.addEventListener('click', () => { modalTitle.textContent = 'Create Account'; document.getElementById('loginForm').classList.add('hidden'); document.getElementById('signupForm').classList.remove('hidden'); modal.classList.remove('hidden'); });
       document.getElementById('closeModal')?.addEventListener('click', () => modal.classList.add('hidden'));
       modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+
+      // Switch between login and signup forms
+      document.getElementById('switchToSignup')?.addEventListener('click', (e) => { e.preventDefault(); modalTitle.textContent = 'Create Account'; document.getElementById('loginForm').classList.add('hidden'); document.getElementById('signupForm').classList.remove('hidden'); });
+      document.getElementById('switchToLogin')?.addEventListener('click', (e) => { e.preventDefault(); modalTitle.textContent = 'Sign In'; document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('signupForm').classList.add('hidden'); });
 
     });
   </script>
