@@ -241,7 +241,7 @@ async def handle_bugs_list(request, env=None):
             # Handle incoming data (JSON or Form Data for HTMX)
             try:
                 body = await request.json()
-            except Exception:
+            except (json.JSONDecodeError, ValueError):
                 # Fallback for HTMX form-encoded data
                 form = await request.formData()
                 body = {

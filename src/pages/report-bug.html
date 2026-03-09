@@ -342,9 +342,7 @@
         // Function to update submit button state
         const updateSubmitButtonState = () => {
           const requiredFields = Array.from(bugForm.querySelectorAll('[required]'));
-          const allValid = requiredFields.every(field => {
-            return field.value.trim() !== "" && field.checkValidity();
-          });
+          const allValid = requiredFields.every(field => field.checkValidity());
 
           if (submitBtn) {
             submitBtn.disabled = !allValid;
@@ -353,7 +351,7 @@
 
         // Validation function 
         const validateField = (input) => {
-          const errorMsg = document.getElementById(`${input.id}Error`);
+          const errorMsg = document.getElementById(input.dataset.errorId);
           // Use browser's native validity check but handle trim for text inputs
           const isValueEmpty = typeof input.value === 'string' && input.value.trim() === "";
           const isInvalid = !input.checkValidity() || (input.hasAttribute('required') && isValueEmpty);
@@ -408,11 +406,21 @@
         updateSubmitButtonState();
 
         // Special handling for HTMX to prevent request if invalid
-        bugForm.addEventListener('htmx:confirm', function (e) {
-          if (!bugForm.checkValidity()) {
-            e.preventDefault();
-          }
-        });
+       bugForm.addEventListener('htmx:confirm', function (e) {
+  let isValid = true;
+  let firstErrorField = null;
+  bugForm.querySelectorAll('[required]').forEach(field => {
+    if (!validateField(field)) {
+      isValid = false;
+      if (!firstErrorField) firstErrorField = field;
+    }
+  });
+  if (!isValid) {
+    e.preventDefault();
+    firstErrorField?.focus();
+    firstErrorField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
       }
     });
   </script>
