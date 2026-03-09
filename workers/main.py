@@ -5,6 +5,7 @@ import hmac
 import base64
 import traceback
 import secrets
+import html
 from datetime import datetime, timedelta
 
 # ===================================
@@ -431,22 +432,22 @@ async def handle_user_bugs(request, env=None):
             rows = "".join([
                 f"""
                 <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
-                    <td class="py-4 px-2 text-sm font-medium">{getattr(b, 'title', 'Untitled')}</td>
+                    <td class="py-4 px-2 text-sm font-medium">{html.escape(getattr(b, 'title', 'Untitled'))}</td>
                     <td class="py-4 px-2 text-xs">
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase 
                             {'bg-red-100 text-red-600' if b.severity == 'critical' else 
                              'bg-orange-100 text-orange-600' if b.severity == 'high' else 
                              'bg-yellow-100 text-yellow-600' if b.severity == 'medium' else 
                              'bg-green-100 text-green-600'}">
-                            {b.severity}
+                            {html.escape(b.severity)}
                         </span>
                     </td>
                     <td class="py-4 px-2 text-xs">
                         <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 capitalize">
-                            {b.status}
+                            {html.escape(b.status)}
                         </span>
                     </td>
-                    <td class="py-4 px-2 text-xs text-gray-400">{b.created_at[:10]}</td>
+                    <td class="py-4 px-2 text-xs text-gray-400">{html.escape(b.created_at[:10])}</td>
                 </tr>
                 """ for b in results.results
             ])
@@ -484,10 +485,10 @@ async def handle_leaderboard(request, env=None):
         rows = "".join([
             f"""
             <div class="leaderboard-row">
-                <div class="rank">{item.rank}</div>
-                <div class="username">{item.username}</div>
-                <div class="stat">{item.points} pts</div>
-                <div class="stat">{item.bugs} bugs</div>
+                <div class="rank">{html.escape(str(item.rank))}</div>
+                <div class="username">{html.escape(item.username)}</div>
+                <div class="stat">{html.escape(str(item.points))} pts</div>
+                <div class="stat">{html.escape(str(item.bugs))} bugs</div>
             </div>
             """ for item in leaderboard
         ])
@@ -523,14 +524,14 @@ async def handle_projects(request, env=None):
                 <div class="project-header">
                     <div class="project-logo">🛡️</div>
                     <div class="project-info">
-                        <div class="project-name">{p.name}</div>
-                        <div class="project-type">{p.type}</div>
+                        <div class="project-name">{html.escape(p.name)}</div>
+                        <div class="project-type">{html.escape(p.type)}</div>
                     </div>
                 </div>
-                <div class="project-reward">{getattr(p, 'reward', 'N/A')}</div>
+                <div class="project-reward">{html.escape(getattr(p, 'reward', 'N/A'))}</div>
                 <div class="project-stats">
                     <div class="stat">
-                        <div class="stat-value">{getattr(p, 'bugs', 0)}</div>
+                        <div class="stat-value">{html.escape(str(getattr(p, 'bugs', 0)))}</div>
                         <div class="stat-label">Bugs</div>
                     </div>
                     <div class="stat">
