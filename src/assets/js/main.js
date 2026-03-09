@@ -655,3 +655,72 @@ window.addEventListener('htmx:beforeRequest', (event) => {
         }
     }
 });
+
+const rowsPerPage=5;
+let currentPage=1;
+const totalResearchers = 3500;
+
+function updateLeaderboardPagination(){
+const rows=document.querySelectorAll("#leaderboard-body .leaderboard-row");
+const totalRows=rows.length;
+
+const start=(currentPage-1)*rowsPerPage;
+const end=start+rowsPerPage;
+
+rows.forEach((row,index) =>{
+    if(index>=start && index<end){
+        row.style.display="";
+    }
+    else{
+        row.style.display="none";
+    }
+});
+
+const info=document.getElementById("pagination-info");
+
+if(info){
+    info.textContent = `Showing ${start + 1}-${Math.min(end,totalResearchers)} of ${totalResearchers} researchers`;
+    }
+}
+
+function updateActiveButton() {
+  document.querySelectorAll(".page-btn").forEach((btn, index) => {
+    btn.classList.remove("bg-red-600", "text-white");
+
+    if (index + 1 === currentPage) {
+      btn.classList.add("bg-red-600", "text-white");
+    }
+  });
+}
+
+document.addEventListener("htmx:afterSwap", ()=>{
+    updateLeaderboardPagination();
+    updateActiveButton();
+});
+
+document.querySelectorAll(".page-btn").forEach((btn, index) => {
+  btn.addEventListener("click", () => {
+    currentPage = index + 1;
+    updateLeaderboardPagination();
+    updateActiveButton();
+  });
+});
+
+document.getElementById("next-page")?.addEventListener("click", () => {
+  const rows = document.querySelectorAll("#leaderboard-body .leaderboard-row");
+  const maxPage = Math.ceil(totalResearchers / rowsPerPage);
+
+  if (currentPage < maxPage) {
+    currentPage++;
+    updateLeaderboardPagination();
+    updateActiveButton();
+  }
+});
+
+document.getElementById("prev-page")?.addEventListener("click", ()=>{
+    if(currentPage>1){
+        currentPage--;
+    }
+    updateLeaderboardPagination();
+    updateActiveButton();
+});
