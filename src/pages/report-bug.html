@@ -226,13 +226,14 @@
               <div class="flex items-center justify-end gap-3 pt-2">
                 <a href="../index.html"
                   class="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-[#E5E5E5] dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Cancel</a>
-                <button type="submit" id="submitBtn"
+                <button type="submit" id="submitBtn" disabled aria-disabled="true"
                   class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit Bug Report
                 </button>
               </div>
 
             </form>
+
           </div>
 
           <!-- Sidebar -->
@@ -348,6 +349,7 @@
 
           if (submitBtn) {
             submitBtn.disabled = !allValid;
+            submitBtn.setAttribute('aria-disabled', (!allValid).toString());
           }
         };
 

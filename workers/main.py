@@ -241,7 +241,13 @@ async def handle_bugs_list(request, env=None):
             # Handle incoming data (JSON or Form Data for HTMX)
             content_type = (request.headers.get('Content-Type') or '').lower()
             if 'application/json' in content_type:
-                body = await request.json()
+                try:
+                    body = await request.json()
+                except (json.JSONDecodeError, ValueError):
+                    return create_response({'error': 'Malformed JSON'}, status=400, origin=request.headers.get('Origin'))
+                
+                if not isinstance(body, dict):
+                    return create_response({'error': 'Payload must be a JSON object'}, status=400, origin=request.headers.get('Origin'))
             else:
                 form = await request.formData()
                 body = {
