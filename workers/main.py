@@ -68,11 +68,10 @@ def handle_cors_preflight(origin):
         headers=Headers.new(get_cors_headers(origin))
     )
 
-# ===================================
+# = ::::::::::::::::::::::::::::::::::
 # Security Helpers
-# ===================================
+# = ::::::::::::::::::::::::::::::::::
 
-# Default to a weak key only for development; production SHOULD use env.JWT_SECRET
 DEFAULT_DEV_SECRET = "dev-secret-key"
 
 def get_jwt_secret(env):
@@ -81,20 +80,32 @@ def get_jwt_secret(env):
     if secret:
         return secret
     
-    # Check if we are in a production-like environment (not localhost)
-    # This is a heuristic; ideally, wrangler.toml should define environments
     is_dev = getattr(env, 'DEBUG', False)
     if not is_dev:
-        # In production, we should arguably fail if secret is missing
-        # but for now, we'll return the default and log a warning if possible
-        pass
+        # In production, we MUST NOT use a default key
+        raise RuntimeError("JWT_SECRET must be set in the environment for non-dev deployments")
         
     return DEFAULT_DEV_SECRET
+
+def get_error_response(e, env, status=500, origin=None):
+    """Standardized error response with masking for production"""
+    err_info = traceback.format_exc()
+    is_debug = getattr(env, 'DEBUG', False)
+    
+    response_data = {
+        'success': False,
+        'error': str(e) if is_debug else "An unexpected error occurred"
+    }
+    
+    if is_debug:
+        response_data['traceback'] = err_info
+        
+    return create_response(response_data, status=status, origin=origin)
 
 def hash_password(password, salt=None):
     """Hash a password using PBKDF2"""
     if salt is None:
-        salt = secrets.token_hex(16)
+        salt = secrets.token_hex(16) # 32 hex characters
     
     dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
     return f"{salt}:{dk.hex()}"
@@ -102,8 +113,7 @@ def hash_password(password, salt=None):
 def verify_password(stored_password, provided_password):
     """Verify a stored password hash against a provided password"""
     if ':' not in stored_password:
-        # We no longer support unsalted SHA256 for new or existing users
-        return False
+        return False # We no longer support legacy unsalted SHA256
         
     salt, hash_val = stored_password.split(':')
     dk = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt.encode(), 100000)
@@ -136,6 +146,7 @@ def verify_jwt(token, secret):
         sig = hmac.new(secret.encode(), signature_input.encode(), hashlib.sha256).digest()
         expected_sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip('=')
         
+        # Use constant-time comparison for signatures
         if not hmac.compare_digest(signature_b64.encode(), expected_sig_b64.encode()):
             return None
         
@@ -186,8 +197,8 @@ async def handle_stats(request, env=None):
         """
         return handle_html_response(html, origin=request.headers.get('Origin'))
     except Exception as e:
-        print(f"D1 Query Error: {e}")
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Stats Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_auth_login(request, env=None):
     """Handle /api/auth/login endpoint"""
@@ -196,7 +207,7 @@ async def handle_auth_login(request, env=None):
 
     try:
         body = await request.json()
-        # Secure attribute access for JS objects to prevent AttributeError
+        # Secure attribute access
         email = getattr(body, 'email', None)
         password = getattr(body, 'password', None)
         
@@ -220,11 +231,11 @@ async def handle_auth_login(request, env=None):
             }
             token = generate_jwt(payload, secret)
             
-            # Best-effort audit update; don't let it block a valid login
+            # Best-effort audit update; don't let it block login
             try:
                 await env.DB.prepare("UPDATE users SET last_login = ? WHERE id = ?").bind(datetime.now().isoformat(), result.id).run()
             except Exception as audit_err:
-                console.log(f"Audit Log Error: {str(audit_err)}")
+                console.log(f"Audit Error: {str(audit_err)}")
             
             return create_response({
                 'success': True,
@@ -238,19 +249,8 @@ async def handle_auth_login(request, env=None):
         }, status=401, origin=request.headers.get('Origin'))
         
     except Exception as e:
-        err_info = traceback.format_exc()
-        console.log(f"Login Error: {err_info}")
-        
-        is_debug = env and getattr(env, 'DEBUG', False)
-        response_data = {
-            'success': False,
-            'error': str(e) if is_debug else "An unexpected error occurred during login"
-        }
-        
-        if is_debug:
-            response_data['traceback'] = err_info
-            
-        return create_response(response_data, status=400, origin=request.headers.get('Origin'))
+        console.log(f"Login Error: {str(e)}")
+        return get_error_response(e, env, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_signup(request, env=None):
     """Handle /api/auth/signup endpoint"""
@@ -259,7 +259,7 @@ async def handle_auth_signup(request, env=None):
 
     try:
         body = await request.json()
-        # Secure attribute access for JS objects to prevent AttributeError
+        # Secure attribute access
         username = getattr(body, 'username', None)
         email = getattr(body, 'email', None)
         password = getattr(body, 'password', None)
@@ -299,19 +299,8 @@ async def handle_auth_signup(request, env=None):
         }, origin=request.headers.get('Origin'))
         
     except Exception as e:
-        err_info = traceback.format_exc()
-        console.log(f"Signup Error: {err_info}")
-        
-        is_debug = env and getattr(env, 'DEBUG', False)
-        response_data = {
-            'success': False,
-            'error': str(e) if is_debug else "An unexpected error occurred during registration"
-        }
-        
-        if is_debug:
-            response_data['traceback'] = err_info
-            
-        return create_response(response_data, status=400, origin=request.headers.get('Origin'))
+        console.log(f"Signup Error: {str(e)}")
+        return get_error_response(e, env, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_me(request, env=None):
     """Handle /api/auth/me endpoint"""
@@ -394,17 +383,8 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-            err_info = traceback.format_exc()
-            console.log(f"Bug Submission Error: {err_info}")
-            
-            is_debug = env and getattr(env, 'DEBUG', False)
-            response_data = {
-                'error': str(e) if is_debug else "An unexpected error occurred while submitting the report"
-            }
-            if is_debug:
-                response_data['traceback'] = err_info
-                
-            return create_response(response_data, status=500, origin=request.headers.get('Origin'))
+            console.log(f"Bug Submission Error: {str(e)}")
+            return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
     # GET case (list all bugs)
     try:
@@ -423,7 +403,8 @@ async def handle_bugs_list(request, env=None):
                 })
         return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Bugs List Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_user_bugs(request, env=None):
     """Handle /api/user/bugs endpoint - Fetch bugs for current user"""
@@ -484,7 +465,8 @@ async def handle_user_bugs(request, env=None):
                 })
         return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"User Bugs Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_leaderboard(request, env=None):
     """Handle /api/leaderboard endpoint"""
@@ -523,7 +505,8 @@ async def handle_leaderboard(request, env=None):
         """
         return handle_html_response(html, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Leaderboard Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_projects(request, env=None):
     """Handle /api/projects endpoint"""
@@ -560,7 +543,8 @@ async def handle_projects(request, env=None):
         ])
         return handle_html_response(cards, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Projects Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 # ===================================
 # Router
@@ -571,6 +555,7 @@ ROUTES = {
         '/api/stats': handle_stats,
         '/api/auth/me': handle_auth_me,
         '/api/bugs': handle_bugs_list,
+        '/api/user/bugs': handle_user_bugs,
         '/api/leaderboard': handle_leaderboard,
         '/api/projects': handle_projects,
     },
@@ -619,15 +604,5 @@ async def on_fetch(request, env):
     try:
         return await route_request(request, env)
     except Exception as e:
-        err_info = traceback.format_exc()
-        
-        is_debug = env and getattr(env, 'DEBUG', False)
-        response_data = {
-            'error': 'Internal server error',
-            'message': str(e) if is_debug else "A server-side error occurred"
-        }
-        
-        if is_debug:
-            response_data['traceback'] = err_info
-            
-        return create_response(response_data, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Fetch Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
