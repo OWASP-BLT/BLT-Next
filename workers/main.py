@@ -239,22 +239,26 @@ async def handle_bugs_list(request, env=None):
     if request.method == 'POST':
         try:
             # Handle incoming data (JSON or Form Data for HTMX)
-            try:
+            content_type = (request.headers.get('Content-Type') or '').lower()
+            if 'application/json' in content_type:
                 body = await request.json()
-            except (json.JSONDecodeError, ValueError):
-                # Fallback for HTMX form-encoded data
+            else:
                 form = await request.formData()
                 body = {
                     'title': form.get('title'),
                     'description': form.get('description'),
                     'severity': form.get('severity'),
-                    # 'url': form.get('url'),
-                    # 'type': form.get('type')
                 }
-            
-            title = body.get('title', '').strip()
-            description = body.get('description', '').strip()
-            severity = body.get('severity', '').lower() if body.get('severity') else ''
+
+            def normalize_text(value, lowercase=False):
+                if not isinstance(value, str):
+                    return ''
+                value = value.strip()
+                return value.lower() if lowercase else value
+
+            title = normalize_text(body.get('title'))
+            description = normalize_text(body.get('description'))
+            severity = normalize_text(body.get('severity'), lowercase=True)
             
             # Re-introducing robust validation
             errors = []
