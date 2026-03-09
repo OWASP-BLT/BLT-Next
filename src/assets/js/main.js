@@ -618,3 +618,33 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
+// ===================================
+// Bug Report Form Validation
+// ===================================
+window.addEventListener('htmx:beforeRequest', (event) => {
+    // Reference the element triggering the HTMX request
+    const form = event.detail.elt;
+
+    // Validate only if the request originates from the bug report form
+    if (form && form.id === 'bugReportForm') {
+        const description = document.getElementById('bugDescription');
+        const errorBox = document.getElementById('custom-error-box');
+
+        // Check for empty input or strings containing only whitespace
+        if (description && description.value.trim().length === 0) {
+            // Cancel the request to prevent unnecessary 405 errors
+            event.preventDefault();
+
+            if (errorBox) {
+                // Display the custom Tailwind error alert
+                errorBox.classList.remove('hidden');
+
+                // Auto-hide the alert after 5 seconds for a cleaner UI
+                setTimeout(() => {
+                    errorBox.classList.add('hidden');
+                }, 5000);
+            }
+        }
+    }
+});
