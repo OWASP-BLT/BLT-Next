@@ -410,7 +410,7 @@
         // Special handling for HTMX to prevent request if invalid
         bugForm.addEventListener('htmx:confirm', function (e) {
           if (!bugForm.checkValidity()) {
-            // e.preventDefault();
+            e.preventDefault();
           }
         });
       }

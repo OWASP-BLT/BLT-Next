@@ -238,24 +238,83 @@ async def handle_bugs_list(request, env=None):
 
     if request.method == 'POST':
         try:
-            body = await request.json()
-            title = body.get('title')
-            description = body.get('description')
-            severity = body.get('severity')
+            # Handle incoming data (JSON or Form Data for HTMX)
+            try:
+                body = await request.json()
+            except Exception:
+                # Fallback for HTMX form-encoded data
+                form = await request.formData()
+                body = {
+                    'title': form.get('title'),
+                    'description': form.get('description'),
+                    'severity': form.get('severity'),
+                    'url': form.get('url'),
+                    'type': form.get('type')
+                }
             
+            title = body.get('title', '').strip()
+            description = body.get('description', '').strip()
+            severity = body.get('severity', '').lower() if body.get('severity') else ''
+            
+            # Re-introducing robust validation
+            errors = []
+            if not title:
+                errors.append("Bug title is required.")
+            elif len(title) < 5:
+                errors.append("Bug title must be at least 5 characters.")
+            
+            if not description:
+                errors.append("Description is required.")
+            elif len(description) < 10:
+                errors.append("Description should be at least 10 characters long.")
+            
+            valid_severities = ['low', 'medium', 'high', 'critical', 'info']
+            if not severity:
+                errors.append("Severity level is required.")
+            elif severity not in valid_severities:
+                errors.append(f"Invalid severity level. Must be one of: {', '.join(valid_severities)}")
+
+            if errors:
+                # If request is from HTMX, return an HTML fragment for the error message
+                if request.headers.get('HX-Request') == 'true':
+                    error_items = ""
+                    for e in errors:
+                        error_items += f"<li>{e}</li>"
+                    
+                    error_html = f"""
+                    <div class="p-5 mb-6 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="font-bold text-base">Validation Failed</h3>
+                        </div>
+                        <ul class="list-disc pl-5 text-sm space-y-1.5 mb-4">
+                            {error_items}
+                        </ul>
+                    </div>
+                    """
+                    return handle_html_response(error_html, origin=request.headers.get('Origin'))
+                
+                return create_response({
+                    'success': False,
+                    'error': 'Validation failed',
+                    'details': errors
+                }, status=400, origin=request.headers.get('Origin'))
+
             await env.DB.prepare(
                 "INSERT INTO bugs (title, description, severity, status) VALUES (?, ?, ?, ?)"
             ).bind(title, description, severity, 'open').run()
 
-            # Mock success response in HTML for HTMX
-            html = """
-                <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
-                    <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
-                    <p>Thank you for contributing to OWASP BLT. Our team will review your report shortly.</p>
-                    <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
-                </div>
-            """
-            return handle_html_response(html, origin=request.headers.get('Origin'))
+            # Success response
+            if request.headers.get('HX-Request') == 'true':
+                html = """
+                    <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
+                        <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
+                        <p>Thank you for contributing. Our team will review your report shortly.</p>
+                        <a href="/" style="display: inline-block; margin-top: 1rem; color: #065f46; font-weight: bold;">Back to Home</a>
+                    </div>
+                """
+                return handle_html_response(html, origin=request.headers.get('Origin'))
+
+            return create_response({'success': True}, origin=request.headers.get('Origin'))
         except Exception as e:
             return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
 
