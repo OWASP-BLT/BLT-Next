@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -135,7 +135,7 @@
                 <label for="bugTitle" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Bug
                   Title <span class="text-red-600">*</span></label>
                 <input type="text" id="bugTitle" name="title" required
-                  placeholder="e.g. XSS vulnerability in login form"
+                  placeholder="e.g. XSS vulnerability in login form" data-error-id="bugTitleError"
                   class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors">
                 <p id="bugTitleError" class="mt-1.5 text-xs text-red-600 hidden">Please enter a bug title.</p>
               </div>
@@ -147,6 +147,7 @@
                   <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs"
                     aria-hidden="true"></i>
                   <input type="url" id="bugUrl" name="url" required placeholder="https://example.com/vulnerable-page"
+                    data-error-id="bugUrlError"
                     class="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors">
                 </div>
                 <p id="bugUrlError" class="mt-1.5 text-xs text-red-600 hidden">Please enter a valid URL.</p>
@@ -157,7 +158,7 @@
                   <label for="bugSeverity"
                     class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Severity <span
                       class="text-red-600">*</span></label>
-                  <select id="bugSeverity" name="severity" required
+                  <select id="bugSeverity" name="severity" required data-error-id="bugSeverityError"
                     class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-colors appearance-none">
                     <option value="" disabled selected>Select severity</option>
                     <option value="critical">Critical</option>
@@ -172,7 +173,7 @@
                 <div>
                   <label for="bugType" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5">Bug
                     Type <span class="text-red-600">*</span></label>
-                  <select id="bugType" name="type" required
+                  <select id="bugType" name="type" required data-error-id="bugTypeError"
                     class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-colors appearance-none">
                     <option value="" disabled selected>Select type</option>
                     <option value="security">Security Vulnerability</option>
@@ -191,6 +192,7 @@
                     class="text-red-600">*</span></label>
                 <textarea id="bugDescription" name="description" required rows="5"
                   placeholder="Describe the bug in detail — what it is, where it occurs, and what the impact is."
+                  data-error-id="bugDescriptionError"
                   class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-vertical transition-colors"></textarea>
                 <p id="bugDescriptionError" class="mt-1.5 text-xs text-red-600 hidden">Please provide a description of
                   the bug.</p>
@@ -202,8 +204,7 @@
                 <textarea id="bugSteps" name="steps" rows="4"
                   placeholder="1. Navigate to...&#10;2. Click on...&#10;3. Observe..."
                   class="w-full px-4 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-vertical transition-colors"></textarea>
-                <!-- <p id="bugStepsError" class="mt-1.5 text-xs text-red-600 hidden">Please enter the steps to reproduce.
-                </p> -->
+
               </div>
 
               <div>
@@ -349,11 +350,11 @@
           }
         };
 
-        // Validation function 
         const validateField = (input) => {
-          const errorMsg = document.getElementById(input.dataset.errorId);
+          const errorMsg = input.dataset.errorId ? document.getElementById(input.dataset.errorId) : null;
           // Use browser's native validity check but handle trim for text inputs
-          const isValueEmpty = typeof input.value === 'string' && input.value.trim() === "";
+          const isTextLike = ['text', 'url', 'email', 'textarea'].includes(input.type) || input.tagName === 'TEXTAREA';
+          const isValueEmpty = isTextLike && typeof input.value === 'string' && input.value.trim() === "";
           const isInvalid = !input.checkValidity() || (input.hasAttribute('required') && isValueEmpty);
 
           if (isInvalid) {
@@ -406,21 +407,21 @@
         updateSubmitButtonState();
 
         // Special handling for HTMX to prevent request if invalid
-       bugForm.addEventListener('htmx:confirm', function (e) {
-  let isValid = true;
-  let firstErrorField = null;
-  bugForm.querySelectorAll('[required]').forEach(field => {
-    if (!validateField(field)) {
-      isValid = false;
-      if (!firstErrorField) firstErrorField = field;
-    }
-  });
-  if (!isValid) {
-    e.preventDefault();
-    firstErrorField?.focus();
-    firstErrorField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-});
+        bugForm.addEventListener('htmx:confirm', function (e) {
+          let isValid = true;
+          let firstErrorField = null;
+          bugForm.querySelectorAll('[required]').forEach(field => {
+            if (!validateField(field)) {
+              isValid = false;
+              if (!firstErrorField) firstErrorField = field;
+            }
+          });
+          if (!isValid) {
+            e.preventDefault();
+            firstErrorField?.focus();
+            firstErrorField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
       }
     });
   </script>
