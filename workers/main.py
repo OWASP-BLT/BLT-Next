@@ -248,8 +248,8 @@ async def handle_bugs_list(request, env=None):
                     'title': form.get('title'),
                     'description': form.get('description'),
                     'severity': form.get('severity'),
-                    'url': form.get('url'),
-                    'type': form.get('type')
+                    # 'url': form.get('url'),
+                    # 'type': form.get('type')
                 }
             
             title = body.get('title', '').strip()
