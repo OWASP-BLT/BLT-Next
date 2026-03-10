@@ -1,6 +1,7 @@
 from js import Response, Headers, URL
 import json
 import hashlib
+import html
 from datetime import datetime
 
 # ===================================
@@ -322,18 +323,19 @@ async def handle_projects(request, env=None):
                 <div class="project-header">
                     <div class="project-logo">🛡️</div>
                     <div class="project-info">
-                        <div class="project-name">{p.name}</div>
-                        <div class="project-type">{p.type}</div>
+                        <div class="project-name">{html.escape(str(p.name))}</div>
+                        <div class="project-type">{html.escape(str(p.type or ""))}</div>
                     </div>
                 </div>
-                <div class="project-reward">{p.reward if hasattr(p, 'reward') else 'N/A'}</div>
+                <div class="project-description">{html.escape(str(getattr(p, "description", "") or ""))}</div>
+                <div class="project-reward">{html.escape(str(p.reward if hasattr(p, "reward") else "N/A"))}</div>
                 <div class="project-stats">
                     <div class="stat">
-                        <div class="stat-value">{p.bugs if hasattr(p, 'bugs') else 0}</div>
+                        <div class="stat-value">{p.bugs if hasattr(p, "bugs") else 0}</div>
                         <div class="stat-label">Bugs</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-value">Active</div>
+                        <div class="stat-value">{html.escape(str(getattr(p, "status", "Unknown")))}</div>
                         <div class="stat-label">Status</div>
                     </div>
                 </div>
