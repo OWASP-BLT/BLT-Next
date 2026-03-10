@@ -6,7 +6,7 @@
     "dev": "wrangler dev",
     "db:create": "wrangler d1 create blt-database",
     "db:init": "wrangler d1 execute blt-database --local --file=./schema.sql",
-    "db:migrate": "wrangler d1 migrations apply blt-database",
+    "db:migrate": "wrangler d1 migrations apply blt-database --remote",
     "worker:deploy": "npm run db:migrate && wrangler deploy",
     "pages:deploy": "npm run db:migrate && npm run build && wrangler pages deploy .",
     "lint": "echo 'Linting not configured'",
