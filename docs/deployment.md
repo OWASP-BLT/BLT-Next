@@ -294,7 +294,7 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: 'src/workers'
+          workingDirectory: '.'
 ```
 
 Add `CLOUDFLARE_API_TOKEN` to repository secrets.
