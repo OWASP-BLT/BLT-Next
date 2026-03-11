@@ -258,6 +258,8 @@ async def handle_bugs_list(request, env=None):
                 return create_response({'error': f'Severity must be one of: {", ".join(ALLOWED_SEVERITIES)}'}, status=400, origin=request.headers.get('Origin'))
             if not url:
                 return create_response({'error': 'Affected URL is required'}, status=400, origin=request.headers.get('Origin'))
+            if not (url.startswith('http://') or url.startswith('https://')):
+                return create_response({'error': 'Affected URL must be a valid HTTP/HTTPS URL'}, status=400, origin=request.headers.get('Origin'))
             if not bug_type:
                 return create_response({'error': 'Bug Type is required'}, status=400, origin=request.headers.get('Origin'))
             ALLOWED_BUG_TYPES = ('security', 'functional', 'ui', 'performance', 'other')
@@ -278,7 +280,8 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+            print(f"Bug submission error: {e}")
+            return create_response({'error': 'Failed to submit bug report. Please try again.'}, status=500, origin=request.headers.get('Origin'))
 
     # GET case (list bugs)
     try:
