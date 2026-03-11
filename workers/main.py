@@ -1,5 +1,6 @@
 from js import Response, Headers, URL
 import json
+import html
 import hashlib
 from datetime import datetime
 
@@ -283,10 +284,10 @@ async def handle_leaderboard(request, env=None):
         rows = "".join([
             f"""
             <div class="leaderboard-row">
-                <div class="rank">{item.rank}</div>
-                <div class="username">{item.username}</div>
-                <div class="stat">{item.points} pts</div>
-                <div class="stat">{item.bugs} bugs</div>
+                <div class="rank">{html.escape(str(item.rank))}</div>
+                <div class="username">{html.escape(str(item.username))}</div>
+                <div class="stat">{html.escape(str(item.points))} pts</div>
+                <div class="stat">{html.escape(str(item.bugs))} bugs</div>
             </div>
             """ for item in leaderboard
         ])
