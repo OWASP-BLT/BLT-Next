@@ -247,12 +247,19 @@ async def handle_bugs_list(request, env=None):
             steps = body.get('steps', '').strip()
 
             # Server-side validation
+            ALLOWED_SEVERITIES = ('low', 'medium', 'high', 'critical', 'info')
             if not title:
                 return create_response({'error': 'Title is required'}, status=400, origin=request.headers.get('Origin'))
             if not description:
                 return create_response({'error': 'Description is required'}, status=400, origin=request.headers.get('Origin'))
             if not severity:
                 return create_response({'error': 'Severity is required'}, status=400, origin=request.headers.get('Origin'))
+            if severity not in ALLOWED_SEVERITIES:
+                return create_response({'error': f'Severity must be one of: {", ".join(ALLOWED_SEVERITIES)}'}, status=400, origin=request.headers.get('Origin'))
+            if not url:
+                return create_response({'error': 'Affected URL is required'}, status=400, origin=request.headers.get('Origin'))
+            if not bug_type:
+                return create_response({'error': 'Bug Type is required'}, status=400, origin=request.headers.get('Origin'))
 
             await env.DB.prepare(
                 "INSERT INTO bugs (title, description, severity, url, type, steps, status) VALUES (?, ?, ?, ?, ?, ?, ?)"
