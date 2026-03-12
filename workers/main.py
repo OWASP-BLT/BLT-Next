@@ -395,12 +395,16 @@ async def route_request(request, env):
 
             # Serve custom 404 page for missing non-API routes
             if response.status == 404 and not path.startswith('/api/'):
-                not_found_url = str(url).rsplit(path, 1)[0] + '/pages/404.html'
+                not_found_url = url.origin + '/pages/404.html'
                 not_found_response = await env.ASSETS.fetch(not_found_url)
-                body = await not_found_response.text()
-                js_headers = Headers.new()
-                js_headers.set('Content-Type', 'text/html')
-                return Response.new(body, status=404, headers=js_headers)
+                if not_found_response.status == 200:
+                    body = await not_found_response.text()
+                    js_headers = Headers.new()
+                    js_headers.set('Content-Type', 'text/html')
+                    cors = get_cors_headers(request.headers.get('Origin'))
+                    for k, v in cors.items():
+                        js_headers.set(k, v)
+                    return Response.new(body, status=404, headers=js_headers)
 
             return response
         except Exception as e:
