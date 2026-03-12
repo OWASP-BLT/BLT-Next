@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="../styles/style.css">
+</head>
+<body>
+    <div class="container profile-container">
+        <div class="profile-header">
+            <h2 id="username">Username</h2>
+            <p id="email">user@example.com</p>
+        </div>
+        
+        <div class="profile-stats">
+            <div class="stat-item">
+                <h3>Bug Reports</h3>
+                <p id="bug-count">0</p>
+            </div>
+            <div class="stat-item">
+                <h3>Points</h3>
+                <p id="points">0</p>
+            </div>
+        </div>
+
+        <div class="profile-reports">
+            <h3>Submitted Reports</h3>
+            <ul id="reports-list">
+                <li>No reports submitted yet.</li>
+            </ul>
+        </div>
+
+        <div class="profile-settings">
+            <button id="edit-profile-btn">Edit Profile / Settings</button>
+        </div>
+    </div>
+    <script src="../scripts/profile.js"></script>
+</body>
+</html>
