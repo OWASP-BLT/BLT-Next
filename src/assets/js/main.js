@@ -406,7 +406,7 @@ function setupEventHandlers() {
     }
 
     // Signup buttons
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
+    const signupButtons = ['signupBtn', 'ctaSignupBtn', 'mobileSignupBtn'];
     signupButtons.forEach(btnId => {
         const btn = document.getElementById(btnId);
         if (btn) {
