@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - BLT-Next</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">BLT-Next</a>
+        <div class="nav-links">
+            <a href="/pages/dashboard.html">Dashboard</a>
+            <a href="/pages/report.html">Report Bug</a>
+            <a href="/pages/leaderboard.html">Leaderboard</a>
+            <span id="user-display" class="user-nav"></span>
+        </div>
+    </nav>
+    <main class="container">
+        <section class="profile-header">
+            <h1 id="profile-username">Loading...</h1>
+            <p id="profile-email"></p>
+        </section>
+        <section class="profile-stats">
+            <div class="stat-card">
+                <h3>Bugs Reported</h3>
+                <span id="bugs-count">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Points Earned</h3>
+                <span id="points-count">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Rewards</h3>
+                <span id="rewards-count">0</span>
+            </div>
+        </section>
+        <section class="profile-bugs">
+            <h2>Your Bug Reports</h2>
+            <ul id="bug-list" class="bug-list">
+                <li class="loading">Loading reports...</li>
+            </ul>
+        </section>
+        <section class="profile-actions">
+            <button id="edit-profile-btn">Edit Profile</button>
+            <button id="account-settings-btn">Account Settings</button>
+            <button id="logout-btn">Logout</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 OWASP BLT-Next</p>
+    </footer>
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/user/profile', { credentials: 'include' });
+                if (!res.ok) {
+                    window.location.href = '/pages/login.html';
+                    return;
+                }
+                const data = await res.json();
+                document.getElementById('profile-username').textContent = data.username || 'Unknown';
+                document.getElementById('profile-email').textContent = data.email || '';
+                document.getElementById('bugs-count').textContent = data.bugs_reported || 0;
+                document.getElementById('points-count').textContent = data.points || 0;
+                document.getElementById('rewards-count').textContent = data.rewards || 0;
+                const bugList = document.getElementById('bug-list');
+                if (data.bugs && data.bugs.length) {
+                    bugList.innerHTML = data.bugs.map(bug => `
+                        <li class="bug-item">
+                            <a href="/bug.html?id=${bug.id}">${bug.title}</a>
+                            <span class="status ${bug.status}">${bug.status}</span>
+                        </li>
+                    `).join('');
+                } else {
+                    bugList.innerHTML = '<li>No bug reports yet.</li>';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('profile-username').textContent = 'Error loading profile';
+            }
+        });
+        document.getElementById('edit-profile-btn').addEventListener('click', () => {
+            window.location.href = '/pages/edit-profile.html';
+        });
+        document.getElementById('account-settings-btn').addEventListener('click', () => {
+            window.location.href = '/pages/account-settings.html';
+        });
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
