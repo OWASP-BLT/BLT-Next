@@ -378,7 +378,9 @@ class UIComponents {
 // ===================================
 function setupEventHandlers() {
     // Login button
-    const loginBtn = document.getElementById('loginBtn');
+    const loginButtons = ['loginBtn', 'mobileLoginBtn'];
+    loginButtons.forEach(btnId => {
+    const loginBtn = document.getElementById(btnId);
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
             UIComponents.showModal(UIComponents.createLoginForm());
@@ -405,8 +407,9 @@ function setupEventHandlers() {
         });
     }
 
+    });
     // Signup buttons
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
+    const signupButtons = ['signupBtn', 'ctaSignupBtn', 'mobileSignupBtn'];
     signupButtons.forEach(btnId => {
         const btn = document.getElementById(btnId);
         if (btn) {
@@ -492,7 +495,7 @@ function updateUIForAuth() {
         if (loginBtn) {
             loginBtn.textContent = user.username;
             loginBtn.onclick = () => {
-                window.location.href = '/pages/profile.html';
+                window.location.href = window.location.origin + '/pages/profile.html';
             };
         }
         if (signupBtn) {

@@ -390,11 +390,26 @@ async def route_request(request, env):
             fetch_url = request.url
             if path == '/':
                 fetch_url = str(url).replace(path, '/index.html')
-            
-            return await env.ASSETS.fetch(fetch_url)
+
+            response = await env.ASSETS.fetch(fetch_url)
+
+            # Serve custom 404 page for missing non-API routes
+            if response.status == 404 and not path.startswith('/api/'):
+                not_found_url = url.origin + '/pages/404.html'
+                not_found_response = await env.ASSETS.fetch(not_found_url)
+                if not_found_response.status == 200:
+                    body = await not_found_response.text()
+                    js_headers = Headers.new()
+                    js_headers.set('Content-Type', 'text/html')
+                    cors = get_cors_headers(request.headers.get('Origin'))
+                    for k, v in cors.items():
+                        js_headers.set(k, v)
+                    return Response.new(body, status=404, headers=js_headers)
+
+            return response
         except Exception as e:
             print(f"Assets Error: {e}")
-    
+
     return create_response({'error': 'Not found', 'path': path}, status=404, origin=request.headers.get('Origin'))
 
 # ===================================
