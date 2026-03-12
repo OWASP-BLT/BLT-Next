@@ -492,7 +492,7 @@ function updateUIForAuth() {
         if (loginBtn) {
             loginBtn.textContent = user.username;
             loginBtn.onclick = () => {
-                window.location.href = 'pages/profile.html';
+                window.location.href = '/pages/profile.html';
             };
         }
         if (signupBtn) {
