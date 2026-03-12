@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - BLT</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="profile-header">
+            <div class="avatar">
+                <img id="user-avatar" src="../assets/img/default-avatar.png" alt="User Avatar">
+            </div>
+            <div class="user-info">
+                <h1 id="username">Loading...</h1>
+                <p id="user-email">Loading...</p>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-card">
+                <span class="stat-value" id="bug-count">0</span>
+                <span class="stat-label">Bug Reports</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="points">0</span>
+                <span class="stat-label">Points Earned</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="rank">-</span>
+                <span class="stat-label">Rank</span>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2>Bug Reports</h2>
+            <div id="bug-reports-list" class="bug-list">
+                <p class="loading-text">Loading bug reports...</p>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2>Account Settings</h2>
+            <div class="settings-options">
+                <button class="btn btn-primary" onclick="openEditProfile()">Edit Profile</button>
+                <button class="btn btn-secondary" onclick="openAccountSettings()">Account Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserProfile();
+            loadUserBugReports();
+        });
+
+        function loadUserProfile() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.username) {
+                window.location.href = '/login.html';
+                return;
+            }
+            document.getElementById('username').textContent = user.username;
+            document.getElementById('user-email').textContent = user.email || 'No email';
+            document.getElementById('bug-count').textContent = user.bug_count || 0;
+            document.getElementById('points').textContent = user.points || 0;
+            document.getElementById('rank').textContent = user.rank || '-';
+            if (user.avatar) {
+                document.getElementById('user-avatar').src = user.avatar;
+            }
+        }
+
+        function loadUserBugReports() {
+            const reports = JSON.parse(localStorage.getItem('user_reports') || '[]');
+            const listEl = document.getElementById('bug-reports-list');
+            if (reports.length === 0) {
+                listEl.innerHTML = '<p class="empty-state">No bug reports submitted yet.</p>';
+                return;
+            }
+            listEl.innerHTML = reports.map(report => `
+                <div class="bug-item">
+                    <span class="bug-title">${report.title}</span>
+                    <span class="bug-status ${report.status}">${report.status}</span>
+                    <span class="bug-date">${report.date}</span>
+                </div>
+            `).join('');
+        }
+
+        function openEditProfile() {
+            window.location.href = '/pages/edit-profile.html';
+        }
+
+        function openAccountSettings() {
+            window.location.href = '/pages/account-settings.html';
+        }
+    </script>
+</body>
+</html>
