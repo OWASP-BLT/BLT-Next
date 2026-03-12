@@ -69,7 +69,8 @@ class APIClient {
         };
 
         // Add auth token if available
-        const token = localStorage.getItem('authToken');
+        const auth = JSON.parse(localStorage.getItem('blt_auth') || '{}');
+        const token = auth.token;
         if (token) {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -78,7 +79,16 @@ class APIClient {
             const response = await fetch(url, { ...defaultOptions, ...options });
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                let errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.error) {
+                        errorMsg = errorData.error;
+                    }
+                } catch (e) {
+                    // Not a JSON error, keep generic message
+                }
+                throw new Error(errorMsg);
             }
 
             const data = await response.json();
@@ -139,6 +149,14 @@ const api = new APIClient(CONFIG.API_BASE_URL);
 // ===================================
 // Authentication Module
 // ===================================
+// HTMX Global Configuration
+document.body.addEventListener('htmx:configRequest', (event) => {
+  const auth = JSON.parse(localStorage.getItem('blt_auth') || '{}');
+  if (auth.token) {
+    event.detail.headers['Authorization'] = `Bearer ${auth.token}`;
+  }
+});
+
 class AuthModule {
     constructor(apiClient, appState) {
         this.api = apiClient;
@@ -151,11 +169,12 @@ class AuthModule {
 
             if (response.token) {
                 localStorage.setItem('authToken', response.token);
+                localStorage.setItem('blt_auth', JSON.stringify({ token: response.token, user: response.user }));
                 this.state.setUser(response.user);
                 return { success: true, user: response.user };
             }
 
-            return { success: false, error: 'Invalid credentials' };
+            return { success: false, error: response.error || 'Invalid credentials' };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -167,11 +186,12 @@ class AuthModule {
 
             if (response.token) {
                 localStorage.setItem('authToken', response.token);
+                localStorage.setItem('blt_auth', JSON.stringify({ token: response.token, user: response.user }));
                 this.state.setUser(response.user);
                 return { success: true, user: response.user };
             }
 
-            return { success: false, error: 'Signup failed' };
+            return { success: false, error: response.error || 'Signup failed' };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -184,33 +204,52 @@ class AuthModule {
             console.error('Logout error:', error);
         } finally {
             localStorage.removeItem('authToken');
+            localStorage.removeItem('blt_auth');
             this.state.setUser(null);
             this.api.clearCache();
+            updateUI();
         }
     }
 
     async checkAuth() {
-        const token = localStorage.getItem('authToken');
+        const auth = JSON.parse(localStorage.getItem('blt_auth') || '{}');
+        const token = auth.token;
         if (!token) {
+            updateUI();
             return false;
         }
 
         try {
             const response = await this.api.get('/auth/me');
             if (response.user) {
+                localStorage.setItem('blt_auth', JSON.stringify({ token, user: response.user }));
                 this.state.setUser(response.user);
                 return true;
             }
         } catch (error) {
-            // Token invalid, clear it
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('blt_auth');
+            localStorage.removeItem('authToken'); // Cleanup legacy if exists
         }
-
+        updateUI();
         return false;
     }
 }
 
 const auth = new AuthModule(api, state);
+
+// ===================================
+// Dashboard Module
+// ===================================
+class DashboardModule {
+    /**
+     * Updates dashboard statistics.
+     * Note: Current implementation uses HTMX for real-time updates on dashboard.html.
+     * This method serves as a hook for manual refreshes or non-HTMX implementations.
+     */
+    static async updateStats() {
+        // Stats are primarily handled by HTMX afterOnLoad listener in dashboard.html
+    }
+}
 
 // ===================================
 // UI Components
@@ -396,7 +435,7 @@ function setupEventHandlers() {
                     if (result.success) {
                         UIComponents.hideModal();
                         UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
+                        updateUI();
                     } else {
                         UIComponents.showNotification(result.error, 'error');
                     }
@@ -429,7 +468,7 @@ function setupEventHandlers() {
                         if (result.success) {
                             UIComponents.hideModal();
                             UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
+                            updateUI();
                         } else {
                             UIComponents.showNotification(result.error, 'error');
                         }
@@ -477,35 +516,77 @@ function setupEventHandlers() {
             UIComponents.hideModal();
         }
     });
+
+    // User menu dropdown toggle
+    const userMenuButton = document.getElementById('userMenuButton');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+    if (userMenuButton && userMenuDropdown) {
+        userMenuButton.addEventListener('click', () => {
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!userMenuButton.contains(event.target) && !userMenuDropdown.contains(event.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+    }
+
+    // Logout button in user menu
+    const logoutMenuItem = document.getElementById('logoutMenuItem');
+    if (logoutMenuItem) {
+        logoutMenuItem.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await auth.logout();
+            UIComponents.showNotification('Logged out successfully', 'success');
+            updateUI();
+        });
+    }
 }
 
 // ===================================
 // UI Updates
 // ===================================
-function updateUIForAuth() {
-    const user = state.getUser();
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
+function updateUI() {
+  const auth_data = JSON.parse(localStorage.getItem('blt_auth') || '{}');
+  const loginBtn = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
+  const userMenu = document.getElementById('userMenu');
+  const navUsername = document.getElementById('navUsername');
+  const navLinks = document.querySelector('nav ul');
 
-    if (user && state.isAuthenticated) {
-        // Update buttons to show user menu
-        if (loginBtn) {
-            loginBtn.textContent = user.username;
-            loginBtn.onclick = () => {
-                window.location.href = '/pages/profile.html';
-            };
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Logout';
-            signupBtn.classList.remove('btn-primary');
-            signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async () => {
-                await auth.logout();
-                UIComponents.showNotification('Logged out successfully', 'success');
-                updateUIForAuth();
-            };
-        }
+    if (auth_data.token && auth_data.user) {
+    if (loginBtn) loginBtn.classList.add('hidden');
+    if (signupBtn) signupBtn.classList.add('hidden');
+    if (userMenu) {
+      userMenu.classList.remove('hidden');
+      if (navUsername) navUsername.textContent = auth_data.user.username;
     }
+    
+    // Add Dashboard link if not already there
+    if (navLinks && !navLinks.querySelector('a[href*="dashboard.html"]')) {
+      const li = document.createElement('li');
+      const isPagesDir = window.location.pathname.includes('/pages/');
+      const href = isPagesDir ? 'dashboard.html' : 'pages/dashboard.html';
+      
+      const a = document.createElement('a');
+      a.href = href;
+      a.className = "px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors";
+      a.textContent = "Dashboard";
+      
+      li.appendChild(a);
+      navLinks.appendChild(li);
+    }
+  } else {
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    if (signupBtn) signupBtn.classList.remove('hidden');
+    if (userMenu) userMenu.classList.add('hidden');
+    // Remove dashboard link if logout
+    const dashLink = navLinks?.querySelector('a[href*="dashboard.html"]')?.parentElement;
+    if (dashLink) dashLink.remove();
+  }
 }
 
 // ===================================
@@ -565,7 +646,7 @@ async function init() {
     // Check authentication status in background
     try {
         await auth.checkAuth();
-        updateUIForAuth();
+        updateUI();
     } catch (error) {
         // Auth check failure is handled by UI state
     }

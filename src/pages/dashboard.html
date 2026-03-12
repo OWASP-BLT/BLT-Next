@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en" class="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Researcher Dashboard &mdash; OWASP BLT</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] },
+            colors: { primary: { DEFAULT: "#E10101", dark: "#BC0000" } },
+          },
+        },
+      };
+    </script>
+    <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+    <script src="../assets/js/main.js" type="module" defer></script>
+    <style>
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased transition-colors"
+  >
+    <!-- ===== NAVBAR ===== -->
+    <header
+      class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-800 transition-colors"
+      role="banner"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav
+          class="flex items-center justify-between h-16"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <a href="../index.html" class="flex items-center">
+            <img
+              src="../assets/img/logo-lg.png"
+              alt="OWASP BLT Logo"
+              class="h-8 w-auto"
+            />
+          </a>
+          <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
+            <li>
+              <a
+                href="../index.html"
+                class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="report-bug.html"
+                class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                >Report Bug</a
+              >
+            </li>
+            <li>
+              <a
+                href="dashboard.html"
+                class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800"
+                >Dashboard</a
+              >
+            </li>
+            <li>
+              <a
+                href="leaderboard.html"
+                class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                >Leaderboard</a
+              >
+            </li>
+          </ul>
+          <div class="flex items-center gap-2">
+            <button
+              id="themeToggle"
+              class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle theme"
+            >
+              <i
+                class="fa-solid fa-sun dark:hidden text-sm"
+                aria-hidden="true"
+              ></i>
+              <i
+                class="fa-solid fa-moon hidden dark:block text-sm"
+                aria-hidden="true"
+              ></i>
+            </button>
+            <div
+              id="userMenu"
+              class="hidden flex items-center gap-3 ml-2 border-l border-gray-100 dark:border-gray-800 pl-4"
+            >
+              <span id="navUsername" class="text-sm font-semibold"></span>
+              <button
+                id="logoutBtn"
+                class="text-xs text-gray-400 hover:text-red-600 transition-colors uppercase font-bold tracking-wider"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main role="main" class="min-h-screen">
+      <section class="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight mb-2">
+              Researcher Dashboard
+            </h1>
+            <p class="text-gray-500 text-sm">
+              Welcome back! Track your vulnerability reports and rewards here.
+            </p>
+          </div>
+          <a
+            href="report-bug.html"
+            class="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-all shadow-sm flex items-center gap-2"
+          >
+            <i class="fa-solid fa-plus text-xs"></i> New Report
+          </a>
+        </div>
+
+        <!-- STATS OVERVIEW -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <div
+            class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-xl shadow-sm"
+          >
+            <div
+              class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+            >
+              Total Reports
+            </div>
+            <div class="text-3xl font-extrabold text-blue-600" id="stat-total">
+              --
+            </div>
+          </div>
+          <div
+            class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-xl shadow-sm"
+          >
+            <div
+              class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+            >
+              In Review
+            </div>
+            <div
+              class="text-3xl font-extrabold text-orange-500"
+              id="stat-review"
+            >
+              --
+            </div>
+          </div>
+          <div
+            class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-xl shadow-sm"
+          >
+            <div
+              class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+            >
+              Resolved
+            </div>
+            <div
+              class="text-3xl font-extrabold text-green-500"
+              id="stat-resolved"
+            >
+              --
+            </div>
+          </div>
+          <div
+            class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-xl shadow-sm"
+          >
+            <div
+              class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+            >
+              Earned Rewards
+            </div>
+            <div class="text-3xl font-extrabold text-red-600" id="stat-rewards">
+              $0
+            </div>
+          </div>
+        </div>
+
+        <!-- REPORTS TABLE -->
+        <div
+          class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-sm overflow-hidden"
+        >
+          <div
+            class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between"
+          >
+            <h2 class="font-bold text-gray-900 dark:text-gray-100">
+              My Vulnerability Reports
+            </h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-gray-50/50 dark:bg-gray-800/30">
+                <tr>
+                  <th
+                    class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest"
+                  >
+                    Bug Title
+                  </th>
+                  <th
+                    class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest"
+                  >
+                    Severity
+                  </th>
+                  <th
+                    class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-widest"
+                  >
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="reportsList"
+                hx-get="/api/user/bugs"
+                hx-trigger="load"
+                hx-swap="innerHTML"
+              >
+                <tr>
+                  <td colspan="4" class="py-10 text-center">
+                    <div
+                      class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent"
+                    ></div>
+                    <span class="ml-2 text-sm text-gray-400"
+                      >Loading reports...</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="border-t border-gray-100 dark:border-gray-800 py-10 px-4 sm:px-6 lg:px-8 text-center"
+    >
+      <p class="text-xs text-gray-400">
+        &copy; 2026 OWASP BLT Researcher Portal
+      </p>
+    </footer>
+
+    <script>
+      // Theme logic (Inline to prevent flicker)
+      (function () {
+        const h = document.documentElement;
+        const s = localStorage.getItem("theme");
+        if (
+          s === "dark" ||
+          (!s && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        )
+          h.classList.add("dark");
+      })();
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Stats update logic
+        document.body.addEventListener("htmx:afterOnLoad", (event) => {
+          if (event.detail.elt.id === "reportsList") {
+            const rowCount = event.detail.elt.querySelectorAll("tr").length;
+            const totalStat = document.getElementById("stat-total");
+            const reviewStat = document.getElementById("stat-review");
+            const resolvedStat = document.getElementById("stat-resolved");
+
+            if (totalStat) totalStat.textContent = rowCount;
+            if (reviewStat) reviewStat.textContent = rowCount; // For demo purposes
+            if (resolvedStat) resolvedStat.textContent = "0";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
