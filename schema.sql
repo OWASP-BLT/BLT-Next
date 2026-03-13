@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS bugs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     description TEXT,
-    severity TEXT CHECK(severity IN ('low', 'medium', 'high', 'critical')),
+    severity TEXT CHECK(severity IN ('info', 'low', 'medium', 'high', 'critical')),
     status TEXT DEFAULT 'open',
     reporter_id INTEGER,
     reward_amount REAL DEFAULT 0,
