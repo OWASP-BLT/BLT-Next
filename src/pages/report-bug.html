@@ -18,6 +18,7 @@
       theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
     }
   </script>
+  <script src="../assets/js/theme-init.js"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
   <script src="../assets/js/main.js" type="module" defer></script>
   <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
@@ -235,17 +236,7 @@
   </footer>
   
   <script>
-    // Theme toggle
-    (function() {
-      const h = document.documentElement;
-      const s = localStorage.getItem('theme');
-      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
-    })();
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('themeToggle')?.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      });
       document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
         document.getElementById('mobileMenu').classList.toggle('hidden');
       });
