@@ -17,6 +17,7 @@ const CONFIG = {
 };
 
 // ===================================
+
 // State Management
 // ===================================
 class AppState {
@@ -441,19 +442,23 @@ function setupEventHandlers() {
 
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
+    const themeToggleMobile = document.getElementById('themeToggleMobile');
+const sunIconMobile = document.getElementById('sunIconMobile');
+const moonIconMobile = document.getElementById('moonIconMobile');
 
     function updateThemeIcons() {
-        if (!sunIcon || !moonIcon) return;
-        if (document.documentElement.classList.contains('dark')) {
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
-        }
-    }
+    const isDark = document.documentElement.classList.contains('dark');
+
+if (sunIcon && moonIcon) {
+    sunIcon.classList.toggle('hidden', isDark);
+    moonIcon.classList.toggle('hidden', !isDark);
+}
+
+if (sunIconMobile && moonIconMobile) {
+    sunIconMobile.classList.toggle('hidden', isDark);
+    moonIconMobile.classList.toggle('hidden', !isDark);
+}
+}
 
     if (themeToggle) {
         // Initial icon state
@@ -470,6 +475,17 @@ function setupEventHandlers() {
             }
         });
     }
+    if (themeToggleMobile) {
+    themeToggleMobile.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateThemeIcons();
+
+        if (window.bltApp && window.bltApp.state) {
+            window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
+        }
+    });
+}
 
     // Close modal on Escape key
     document.addEventListener('keydown', (e) => {
