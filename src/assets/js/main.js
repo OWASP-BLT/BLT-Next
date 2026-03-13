@@ -378,32 +378,35 @@ class UIComponents {
 // ===================================
 function setupEventHandlers() {
     // Login button
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
+    const loginButtons = ['loginBtn', 'mobileLoginBtn'];
+    loginButtons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                UIComponents.showModal(UIComponents.createLoginForm());
 
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
+                // Setup form submission
+                const form = document.getElementById('loginForm');
+                if (form) {
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const email = formData.get('email');
+                        const password = formData.get('password');
 
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
-            }
-        });
-    }
+                        const result = await auth.login(email, password);
+                        if (result.success) {
+                            UIComponents.hideModal();
+                            UIComponents.showNotification('Logged in successfully!', 'success');
+                            updateUIForAuth();
+                        } else {
+                            UIComponents.showNotification(result.error, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    });
 
     // Signup buttons
     const signupButtons = ['signupBtn', 'ctaSignupBtn', 'mobileSignupBtn'];
