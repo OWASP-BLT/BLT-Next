@@ -1,7 +1,12 @@
-from js import Response, Headers, URL
+from js import Response, Headers, URL, console
 import json
 import hashlib
-from datetime import datetime
+import hmac
+import base64
+import traceback
+import secrets
+import html
+from datetime import datetime, timedelta
 
 # ===================================
 # Configuration
@@ -64,6 +69,99 @@ def handle_cors_preflight(origin):
         headers=Headers.new(get_cors_headers(origin))
     )
 
+# = ::::::::::::::::::::::::::::::::::
+# Security Helpers
+# = ::::::::::::::::::::::::::::::::::
+
+DEFAULT_DEV_SECRET = "dev-secret-key"
+
+def get_jwt_secret(env):
+    """Retrieve JWT secret from environment, enforcing security in non-dev setups"""
+    secret = getattr(env, 'JWT_SECRET', None)
+    if secret:
+        return secret
+    
+    is_dev = getattr(env, 'DEBUG', False)
+    if not is_dev:
+        # In production, we MUST NOT use a default key
+        raise RuntimeError("JWT_SECRET must be set in the environment for non-dev deployments")
+        
+    return DEFAULT_DEV_SECRET
+
+def get_error_response(e, env, status=500, origin=None):
+    """Standardized error response with masking for production"""
+    err_info = traceback.format_exc()
+    is_debug = getattr(env, 'DEBUG', False)
+    
+    response_data = {
+        'success': False,
+        'error': str(e) if is_debug else "An unexpected error occurred"
+    }
+    
+    if is_debug:
+        response_data['traceback'] = err_info
+        
+    return create_response(response_data, status=status, origin=origin)
+
+def hash_password(password, salt=None):
+    """Hash a password using PBKDF2"""
+    if salt is None:
+        salt = secrets.token_hex(16) # 32 hex characters
+    
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    return f"{salt}:{dk.hex()}"
+
+def verify_password(stored_password, provided_password):
+    """Verify a stored password hash against a provided password"""
+    if ':' not in stored_password:
+        return False # We no longer support legacy unsalted SHA256
+        
+    salt, hash_val = stored_password.split(':')
+    dk = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt.encode(), 100000)
+    return hmac.compare_digest(dk.hex(), hash_val)
+
+def generate_jwt(payload, secret):
+    """Generate a simple JWT token (HS256)"""
+    header = {"alg": "HS256", "typ": "JWT"}
+    header_json = json.dumps(header, separators=(',', ':'))
+    header_b64 = base64.urlsafe_b64encode(header_json.encode()).decode().rstrip('=')
+    
+    payload_json = json.dumps(payload, separators=(',', ':'))
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode()).decode().rstrip('=')
+    
+    signature_input = f"{header_b64}.{payload_b64}"
+    sig = hmac.new(secret.encode(), signature_input.encode(), hashlib.sha256).digest()
+    sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip('=')
+    
+    return f"{header_b64}.{payload_b64}.{sig_b64}"
+
+def verify_jwt(token, secret):
+    """Verify a JWT token and return the payload"""
+    try:
+        parts = token.split('.')
+        if len(parts) != 3:
+            return None
+        
+        header_b64, payload_b64, signature_b64 = parts
+        signature_input = f"{header_b64}.{payload_b64}"
+        sig = hmac.new(secret.encode(), signature_input.encode(), hashlib.sha256).digest()
+        expected_sig_b64 = base64.urlsafe_b64encode(sig).decode().rstrip('=')
+        
+        # Use constant-time comparison for signatures
+        if not hmac.compare_digest(signature_b64.encode(), expected_sig_b64.encode()):
+            return None
+        
+        padding = '=' * (4 - len(payload_b64) % 4)
+        payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode()
+        payload = json.loads(payload_json)
+        
+        if 'exp' in payload and datetime.now().timestamp() > payload['exp']:
+            return None
+            
+        return payload
+    except Exception:
+        return None
+
 # ===================================
 # Route Handlers
 # ===================================
@@ -74,14 +172,12 @@ async def handle_stats(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     try:
-        # Query the stats table
         results = await env.DB.prepare("SELECT key, value FROM stats").all()
         stats = {row.key: row.value for row in results.results}
         
         if not stats:
             return create_response({'error': 'No stats found'}, status=404, origin=request.headers.get('Origin'))
 
-        # Return HTML fragment for HTMX
         html = f"""
         <div class="stat-card">
             <div class="stat-value">{stats.get('bugs_reported', 0)}</div>
@@ -102,25 +198,45 @@ async def handle_stats(request, env=None):
         """
         return handle_html_response(html, origin=request.headers.get('Origin'))
     except Exception as e:
-        print(f"D1 Query Error: {e}")
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Stats Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_auth_login(request, env=None):
     """Handle /api/auth/login endpoint"""
+    if not env or not hasattr(env, 'DB'):
+        return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
+
     try:
         body = await request.json()
-        email = body.get('email')
-        password = body.get('password')
+        # Secure attribute access
+        email = getattr(body, 'email', None)
+        password = getattr(body, 'password', None)
         
-        # Mock authentication - DO NOT USE IN PRODUCTION
-        if email and password:
+        if not email or not password:
+            return create_response({'success': False, 'error': 'Missing credentials'}, status=400, origin=request.headers.get('Origin'))
+
+        result = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first()
+        
+        if result and verify_password(result.password_hash, password):
             user = {
-                'id': 1,
-                'username': email.split('@')[0],
-                'email': email,
+                'id': result.id,
+                'username': result.username,
+                'email': result.email,
             }
             
-            token = f"mock_{hashlib.sha256(f'{email}{datetime.now().isoformat()}'.encode()).hexdigest()}"
+            secret = get_jwt_secret(env)
+            payload = {
+                'sub': result.id,
+                'username': result.username,
+                'exp': (datetime.now() + timedelta(days=7)).timestamp()
+            }
+            token = generate_jwt(payload, secret)
+            
+            # Best-effort audit update; don't let it block login
+            try:
+                await env.DB.prepare("UPDATE users SET last_login = ? WHERE id = ?").bind(datetime.now().isoformat(), result.id).run()
+            except Exception as audit_err:
+                console.log(f"Audit Error: {str(audit_err)}")
             
             return create_response({
                 'success': True,
@@ -134,55 +250,58 @@ async def handle_auth_login(request, env=None):
         }, status=401, origin=request.headers.get('Origin'))
         
     except Exception as e:
-        return create_response({
-            'success': False,
-            'error': str(e)
-        }, status=400, origin=request.headers.get('Origin'))
+        console.log(f"Login Error: {str(e)}")
+        return get_error_response(e, env, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_signup(request, env=None):
     """Handle /api/auth/signup endpoint"""
+    if not env or not hasattr(env, 'DB'):
+        return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
+
     try:
         body = await request.json()
-        username = body.get('username')
-        email = body.get('email')
-        password = body.get('password')
+        # Secure attribute access
+        username = getattr(body, 'username', None)
+        email = getattr(body, 'email', None)
+        password = getattr(body, 'password', None)
         
-        # IMPORTANT: This is mock signup for development/demo only
-        # TODO: In production, implement proper user registration:
-        # 1. Validate input (email format, password strength, username uniqueness)
-        # 2. Hash password with bcrypt/argon2 before storing
-        # 3. Check for existing user in database
-        # 4. Store user securely in database
-        # 5. Send verification email
-        # 6. Generate secure JWT token
+        if not username or not email or not password:
+            return create_response({'success': False, 'error': 'Invalid signup data'}, status=400, origin=request.headers.get('Origin'))
+
+        existing = await env.DB.prepare("SELECT id FROM users WHERE email = ? OR username = ?").bind(email, username).first()
+        if existing:
+            return create_response({'success': False, 'error': 'User already exists'}, status=400, origin=request.headers.get('Origin'))
+
+        hashed_pw = hash_password(password)
+        await env.DB.prepare(
+            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)"
+        ).bind(username, email, hashed_pw).run()
+
+        new_user = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first()
         
-        # Mock signup - DO NOT USE IN PRODUCTION
-        if username and email and password:
-            user = {
-                'id': 1,
-                'username': username,
-                'email': email,
-            }
-            
-            # WARNING: Mock token - NOT SECURE for production
-            token = f"mock_{hashlib.sha256(f'{email}{datetime.now().isoformat()}'.encode()).hexdigest()}"
-            
-            return create_response({
-                'success': True,
-                'token': token,
-                'user': user,
-            }, origin=request.headers.get('Origin'))
+        user = {
+            'id': new_user.id,
+            'username': new_user.username,
+            'email': new_user.email,
+        }
+        
+        secret = get_jwt_secret(env)
+        payload = {
+            'sub': new_user.id,
+            'username': new_user.username,
+            'exp': (datetime.now() + timedelta(days=7)).timestamp()
+        }
+        token = generate_jwt(payload, secret)
         
         return create_response({
-            'success': False,
-            'error': 'Invalid signup data'
-        }, status=400, origin=request.headers.get('Origin'))
+            'success': True,
+            'token': token,
+            'user': user,
+        }, origin=request.headers.get('Origin'))
         
     except Exception as e:
-        return create_response({
-            'success': False,
-            'error': str(e)
-        }, status=400, origin=request.headers.get('Origin'))
+        console.log(f"Signup Error: {str(e)}")
+        return get_error_response(e, env, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_me(request, env=None):
     """Handle /api/auth/me endpoint"""
@@ -194,30 +313,23 @@ async def handle_auth_me(request, env=None):
         }, status=401, origin=request.headers.get('Origin'))
     
     token = auth_header.replace('Bearer ', '')
+    secret = get_jwt_secret(env)
     
-    # IMPORTANT: This is mock token validation for development/demo only
-    # TODO: In production, implement proper JWT validation:
-    # 1. Verify JWT signature with secret key
-    # 2. Check token expiration
-    # 3. Validate token claims
-    # 4. Query database for current user data
-    # Example: decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-    
-    # Mock token validation - DO NOT USE IN PRODUCTION
-    if token.startswith('mock_'):
-        # Extract email from mock token (this is insecure)
-        # In production, decode JWT properly
+    payload = verify_jwt(token, secret)
+    if payload and 'sub' in payload:
         try:
-            # For demo purposes, return a mock user
-            user = {
-                'id': 1,
-                'username': 'demo_user',
-                'email': 'demo@example.com',
-            }
-            return create_response({
-                'user': user
-            }, origin=request.headers.get('Origin'))
-        except Exception:
+            result = await env.DB.prepare("SELECT id, username, email FROM users WHERE id = ?").bind(payload['sub']).first()
+            if result:
+                user = {
+                    'id': result.id,
+                    'username': result.username,
+                    'email': result.email,
+                }
+                return create_response({
+                    'user': user
+                }, origin=request.headers.get('Origin'))
+        except Exception as e:
+            console.log(f"Auth Me Error: {str(e)}")
             pass
     
     return create_response({
@@ -226,7 +338,6 @@ async def handle_auth_me(request, env=None):
 
 async def handle_auth_logout(request, env=None):
     """Handle /api/auth/logout endpoint"""
-    # In production, invalidate token in database
     return create_response({
         'success': True
     }, origin=request.headers.get('Origin'))
@@ -237,34 +348,126 @@ async def handle_bugs_list(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     if request.method == 'POST':
+        # Auth check for bug reporting
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer '):
+            return create_response({'error': 'Authentication required to report bugs'}, status=401, origin=request.headers.get('Origin'))
+        
+        token = auth_header.replace('Bearer ', '')
+        secret = get_jwt_secret(env)
+        payload = verify_jwt(token, secret)
+        
+        if not payload or 'sub' not in payload:
+            return create_response({'error': 'Invalid or expired session'}, status=401, origin=request.headers.get('Origin'))
+            
         try:
+            reporter_id = int(payload['sub'])
             body = await request.json()
-            title = body.get('title')
-            description = body.get('description')
-            severity = body.get('severity')
+            title = getattr(body, 'title', 'Untitled')
+            description = getattr(body, 'description', '')
+            severity = getattr(body, 'severity', 'medium')
+            url_val = getattr(body, 'url', None)
+            bug_type = getattr(body, 'type', 'other')
+            steps = getattr(body, 'steps', None)
             
             await env.DB.prepare(
-                "INSERT INTO bugs (title, description, severity, status) VALUES (?, ?, ?, ?)"
-            ).bind(title, description, severity, 'open').run()
+                "INSERT INTO bugs (title, description, severity, status, url, bug_type, steps_to_reproduce, reporter_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            ).bind(title, description, severity, 'open', url_val, bug_type, steps, reporter_id).run()
 
-            # Mock success response in HTML for HTMX
+            # For HTMX submission
             html = """
                 <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
                     <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
                     <p>Thank you for contributing to OWASP BLT. Our team will review your report shortly.</p>
-                    <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
+                    <a href="/pages/dashboard.html" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Go to Dashboard</a>
                 </div>
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+            console.log(f"Bug Submission Error: {str(e)}")
+            return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
-    # GET case (list bugs)
+    # GET case (list all bugs)
     try:
         results = await env.DB.prepare("SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20").all()
-        return create_response({'bugs': results.results}, origin=request.headers.get('Origin'))
+        # Convert results to plain dicts to avoid JsProxy serialization errors
+        bugs_list = []
+        if results.results:
+            for b in results.results:
+                bugs_list.append({
+                    'id': getattr(b, 'id', None),
+                    'title': getattr(b, 'title', 'Untitled'),
+                    'description': getattr(b, 'description', ''),
+                    'severity': getattr(b, 'severity', 'medium'),
+                    'status': getattr(b, 'status', 'open'),
+                    'created_at': getattr(b, 'created_at', '')
+                })
+        return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Bugs List Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
+
+async def handle_user_bugs(request, env=None):
+    """Handle /api/user/bugs endpoint - Fetch bugs for current user"""
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return create_response({'error': 'Unauthorized'}, status=401, origin=request.headers.get('Origin'))
+        
+    token = auth_header.replace('Bearer ', '')
+    secret = get_jwt_secret(env)
+    payload = verify_jwt(token, secret)
+    
+    if not payload or 'sub' not in payload:
+        return create_response({'error': 'Unauthorized'}, status=401, origin=request.headers.get('Origin'))
+        
+    try:
+        reporter_id = int(payload['sub'])
+        results = await env.DB.prepare("SELECT * FROM bugs WHERE reporter_id = ? ORDER BY created_at DESC").bind(reporter_id).all()
+        
+        # Return HTML rows for HTMX dashboard
+        if "text/html" in request.headers.get("Accept", ""):
+            if not results.results:
+                return handle_html_response('<p class="text-gray-500 py-4">No reports found yet.</p>', origin=request.headers.get('Origin'))
+                
+            rows = "".join([
+                f"""
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                    <td class="py-4 px-2 text-sm font-medium">{html.escape(getattr(b, 'title', 'Untitled'))}</td>
+                    <td class="py-4 px-2 text-xs">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase 
+                            {'bg-red-100 text-red-600' if b.severity == 'critical' else 
+                             'bg-orange-100 text-orange-600' if b.severity == 'high' else 
+                             'bg-yellow-100 text-yellow-600' if b.severity == 'medium' else 
+                             'bg-green-100 text-green-600'}">
+                            {html.escape(b.severity)}
+                        </span>
+                    </td>
+                    <td class="py-4 px-2 text-xs">
+                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 capitalize">
+                            {html.escape(b.status)}
+                        </span>
+                    </td>
+                    <td class="py-4 px-2 text-xs text-gray-400">{html.escape(b.created_at[:10])}</td>
+                </tr>
+                """ for b in results.results
+            ])
+            return handle_html_response(rows, origin=request.headers.get('Origin'))
+            
+        # Convert results to plain dicts
+        bugs_list = []
+        if results.results:
+            for b in results.results:
+                bugs_list.append({
+                    'id': getattr(b, 'id', None),
+                    'title': getattr(b, 'title', 'Untitled'),
+                    'status': getattr(b, 'status', 'open'),
+                    'severity': getattr(b, 'severity', 'medium'),
+                    'created_at': getattr(b, 'created_at', '')
+                })
+        return create_response({'bugs': bugs_list}, origin=request.headers.get('Origin'))
+    except Exception as e:
+        console.log(f"User Bugs Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_leaderboard(request, env=None):
     """Handle /api/leaderboard endpoint"""
@@ -279,14 +482,13 @@ async def handle_leaderboard(request, env=None):
             LIMIT 10''').all()
         leaderboard = results.results
         
-        # Return HTML table for HTMX
         rows = "".join([
             f"""
             <div class="leaderboard-row">
-                <div class="rank">{item.rank}</div>
-                <div class="username">{item.username}</div>
-                <div class="stat">{item.points} pts</div>
-                <div class="stat">{item.bugs} bugs</div>
+                <div class="rank">{html.escape(str(item.rank))}</div>
+                <div class="username">{html.escape(item.username)}</div>
+                <div class="stat">{html.escape(str(item.points))} pts</div>
+                <div class="stat">{html.escape(str(item.bugs))} bugs</div>
             </div>
             """ for item in leaderboard
         ])
@@ -304,7 +506,8 @@ async def handle_leaderboard(request, env=None):
         """
         return handle_html_response(html, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Leaderboard Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 async def handle_projects(request, env=None):
     """Handle /api/projects endpoint"""
@@ -315,21 +518,20 @@ async def handle_projects(request, env=None):
         results = await env.DB.prepare("SELECT * FROM projects").all()
         projects = results.results
         
-        # Return HTML for HTMX
         cards = "".join([
             f"""
             <div class="project-card">
                 <div class="project-header">
                     <div class="project-logo">🛡️</div>
                     <div class="project-info">
-                        <div class="project-name">{p.name}</div>
-                        <div class="project-type">{p.type}</div>
+                        <div class="project-name">{html.escape(p.name)}</div>
+                        <div class="project-type">{html.escape(p.type)}</div>
                     </div>
                 </div>
-                <div class="project-reward">{p.get('reward', 'N/A')}</div>
+                <div class="project-reward">{html.escape(getattr(p, 'reward', 'N/A'))}</div>
                 <div class="project-stats">
                     <div class="stat">
-                        <div class="stat-value">{p.get('bugs', 0)}</div>
+                        <div class="stat-value">{html.escape(str(getattr(p, 'bugs', 0)))}</div>
                         <div class="stat-label">Bugs</div>
                     </div>
                     <div class="stat">
@@ -342,7 +544,8 @@ async def handle_projects(request, env=None):
         ])
         return handle_html_response(cards, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Projects Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
 
 # ===================================
 # Router
@@ -353,6 +556,7 @@ ROUTES = {
         '/api/stats': handle_stats,
         '/api/auth/me': handle_auth_me,
         '/api/bugs': handle_bugs_list,
+        '/api/user/bugs': handle_user_bugs,
         '/api/leaderboard': handle_leaderboard,
         '/api/projects': handle_projects,
     },
@@ -369,31 +573,26 @@ async def route_request(request, env):
     url = URL.new(request.url)
     path = url.pathname
     
-    # Handle CORS preflight
     if request.method == 'OPTIONS':
         return handle_cors_preflight(request.headers.get('Origin'))
     
-    # Find and execute handler
     handler = ROUTES.get(request.method, {}).get(path)
-    
     if handler:
         try:
             return await handler(request, env)
         except Exception as e:
-            print(f"Handler Error: {e}")
+            err_info = traceback.format_exc()
+            console.log(f"Handler Error: {err_info}")
             raise e
     
-    # Handle root and static assets
     if hasattr(env, 'ASSETS'):
         try:
-            # If path is root, fetch index.html
             fetch_url = request.url
             if path == '/':
                 fetch_url = str(url).replace(path, '/index.html')
-            
             return await env.ASSETS.fetch(fetch_url)
         except Exception as e:
-            print(f"Assets Error: {e}")
+            console.log(f"Assets Error: {str(e)}")
     
     return create_response({'error': 'Not found', 'path': path}, status=404, origin=request.headers.get('Origin'))
 
@@ -406,7 +605,5 @@ async def on_fetch(request, env):
     try:
         return await route_request(request, env)
     except Exception as e:
-        return create_response({
-            'error': 'Internal server error',
-            'message': str(e)
-        }, status=500, origin=request.headers.get('Origin'))
+        console.log(f"Fetch Error: {str(e)}")
+        return get_error_response(e, env, status=500, origin=request.headers.get('Origin'))
