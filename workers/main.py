@@ -258,40 +258,76 @@ async def handle_bugs_list(request, env=None):
 
         try:
             body = await request.json()
-            title = body.get('title')
-            description = body.get('description')
-            severity = body.get('severity')
+        except Exception:
+            return create_response(
+                {'error': 'Invalid JSON body'},
+                status=400,
+                origin=origin
+            )
 
-            if not title or not description or not severity:
-                return create_response({'error': 'Missing required fields'}, status=400, origin=origin)
-            
+        title = body.get('title', '').strip()
+        description = body.get('description', '').strip()
+        severity = body.get('severity')
+
+        if not title or not description or not severity:
+            return create_response(
+                {'error': 'Missing required fields'},
+                status=400,
+                origin=origin
+            )
+
+        if len(title) < 5 or len(description) < 10:
+            return create_response(
+                {'error': 'Input too short'},
+                status=400,
+                origin=origin
+            )
+
+        ALLOWED_SEVERITIES = {"low", "medium", "high", "critical"}
+        if severity not in ALLOWED_SEVERITIES:
+            return create_response(
+                {'error': 'Invalid severity'},
+                status=400,
+                origin=origin
+            )
+
+        try:
             await env.DB.prepare(
                 "INSERT INTO bugs (title, description, severity, status) VALUES (?, ?, ?, ?)"
             ).bind(title, description, severity, 'open').run()
-
-            # Mock success response in HTML for HTMX
-            html = """
-                <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
-                    <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
-                    <p>Thank you for contributing to OWASP BLT. Our team will review your report shortly.</p>
-                    <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
-                </div>
-            """
-            return handle_html_response(html, origin=origin)
         except Exception:
             return create_response(
-                {'error': 'Failed to submit bug'},
+                {'error': 'Database error'},
                 status=500,
                 origin=origin
             )
 
-    # GET case (list bugs)
-    try:
-        results = await env.DB.prepare("SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20").all()
-        return create_response({'bugs': results.results}, origin=request.headers.get('Origin'))
-    except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        html = """
+            <div style="background: #ecfdf5; color: #065f46; padding: 2rem; border-radius: 0.5rem; text-align: center; border: 1px solid #10b981;">
+                <h2 style="margin-bottom: 1rem;">✅ Report Submitted!</h2>
+                <p>Thank you for contributing to OWASP BLT. Our team will review your report shortly.</p>
+                <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
+            </div>
+        """
 
+        return handle_html_response(html, origin=origin)
+    try:
+        results = await env.DB.prepare(
+            "SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20"
+        ).all()
+
+        return create_response(
+            {'bugs': results.results},
+            origin=request.headers.get('Origin')
+        )
+
+    except Exception as e:
+        return create_response(
+            {'error': str(e)},
+            status=500,
+            origin=request.headers.get('Origin')
+        )
+        
 async def handle_leaderboard(request, env=None):
     """Handle /api/leaderboard endpoint"""
     if not env or not hasattr(env, 'DB'):
