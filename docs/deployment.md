@@ -79,7 +79,7 @@ If using Cloudflare D1 for database:
 wrangler d1 create blt-database
 ```
 
-Copy the database ID from the output and update `src/workers/wrangler.toml`:
+Copy the database ID from the output and update `wrangler.toml`:
 
 ```toml
 [[d1_databases]]
@@ -108,7 +108,7 @@ wrangler secret put ENCRYPTION_KEY
 
 ### Step 5: Configure Worker
 
-Edit `src/workers/wrangler.toml`:
+Edit `wrangler.toml`:
 
 1. Update `name` to your desired worker name
 2. Update `route` with your custom domain (or remove for *.workers.dev)
@@ -117,7 +117,6 @@ Edit `src/workers/wrangler.toml`:
 ### Step 6: Deploy Worker
 
 ```bash
-cd src/workers
 wrangler deploy
 ```
 
@@ -154,7 +153,7 @@ git push
 
 ### Update Allowed Origins
 
-In `src/workers/main.py`, update `ALLOWED_ORIGINS`:
+In `workers/main.py`, update `ALLOWED_ORIGINS`:
 
 ```python
 ALLOWED_ORIGINS = [
@@ -166,7 +165,6 @@ ALLOWED_ORIGINS = [
 
 Redeploy the worker:
 ```bash
-cd src/workers
 wrangler deploy
 ```
 
@@ -272,7 +270,6 @@ Automatically deploys on push to `main` branch via GitHub Actions.
 
 **Option 1: Manual Deployment**
 ```bash
-cd src/workers
 wrangler deploy
 ```
 
@@ -287,7 +284,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/workers/**'
+      - 'workers/**'
 
 jobs:
   deploy:
@@ -297,7 +294,7 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: 'src/workers'
+          workingDirectory: 'workers'
 ```
 
 Add `CLOUDFLARE_API_TOKEN` to repository secrets.

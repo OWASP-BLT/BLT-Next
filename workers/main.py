@@ -33,6 +33,10 @@ def create_response(data, status=200, origin=None):
     """Create a JSON response with CORS headers"""
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'application/json')
+    js_headers.set('X-Content-Type-Options', 'nosniff')
+    js_headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+    js_headers.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
+    js_headers.set('X-Frame-Options', 'DENY')
     
     cors = get_cors_headers(origin)
     for k, v in cors.items():
@@ -49,6 +53,10 @@ def handle_html_response(html, origin=None):
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'text/html')
     js_headers.set('Access-Control-Allow-Origin', '*')
+    js_headers.set('X-Content-Type-Options', 'nosniff')
+    js_headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+    js_headers.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
+    js_headers.set('X-Frame-Options', 'DENY')
     
     return Response.new(
         html,
@@ -386,7 +394,6 @@ async def route_request(request, env):
     # Handle root and static assets
     if hasattr(env, 'ASSETS'):
         try:
-            # If path is root, fetch index.html
             fetch_url = request.url
             if path == '/':
                 fetch_url = str(url).replace(path, '/index.html')

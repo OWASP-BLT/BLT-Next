@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login &mdash; OWASP BLT</title>
+  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
+    }
+  </script>
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+  <script src="../assets/js/main.js" type="module" defer></script>
+  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased transition-colors min-h-screen flex flex-col">
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-800 transition-colors" role="banner">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
+        <a href="../index.html" class="flex items-center">
+          <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
+        </a>
+        <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
+          <li><a href="../index.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
+          <li><a href="report-bug.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
+          <li><a href="leaderboard.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
+          <li><a href="projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
+          <li><a href="about.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
+        </ul>
+        <div class="hidden md:flex items-center gap-2">
+          <button id="themeToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
+            <i class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
+            <i class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
+          </button>
+          <a href="login.html" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</a>
+        </div>
+        <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
+        </button>
+      </nav>
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-[#E5E5E5] dark:border-gray-800 dark:bg-gray-900" aria-hidden="true">
+        <ul class="flex flex-col gap-1 pt-3 list-none m-0 p-0">
+          <li><a href="../index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
+          <li><a href="report-bug.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
+          <li><a href="leaderboard.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
+          <li><a href="projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
+          <li><a href="about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
+        </ul>
+        <div class="flex gap-3 mt-3">
+          <a href="login.html" class="flex-1 px-4 py-2 text-sm font-medium text-center text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</a>
+          <a href="signup.html" class="flex-1 px-4 py-2 text-sm font-medium text-center text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== LOGIN FORM ===== -->
+  <main class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+        <p class="text-gray-500 dark:text-gray-400">Sign in to continue reporting and managing bugs.</p>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
+        <form id="loginForm" class="space-y-5">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </span>
+              <input 
+                type="email" 
+                name="email" 
+                id="email"
+                required 
+                placeholder="you@example.com"
+                class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+            <p id="emailError" class="error-message hidden text-xs text-red-500 mt-1"></p>
+          </div>
+          
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+              </span>
+              <input 
+                type="password" 
+                name="password" 
+                id="password"
+                required 
+                placeholder="••••••••"
+                class="w-full pl-10 pr-12 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              />
+              <button 
+                id="loginPasswordToggle"
+                type="button" 
+                aria-label="Show password"
+                aria-pressed="false"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <svg class="w-5 h-5 hidden" id="passwordEyeOff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                </svg>
+                <svg class="w-5 h-5" id="passwordEye" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+            </div>
+            <p id="passwordError" class="error-message hidden text-xs text-red-500 mt-1"></p>
+          </div>
+          
+          <div class="flex items-center">
+            <label class="flex items-center cursor-pointer">
+              <input type="checkbox" name="remember" class="w-4 h-4 text-red-500 border-gray-300 dark:border-gray-600 rounded focus:ring-red-500 focus:ring-2"/>
+              <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+            </label>
+          </div>
+          
+          <button 
+            type="submit" 
+            class="w-full py-2.5 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            Login
+          </button>
+          
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-200 dark:border-gray-600"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-3 bg-white dark:bg-gray-900 text-gray-400">or</span>
+            </div>
+          </div>
+          
+          <a 
+            href="signup.html"
+            class="w-full py-2.5 px-4 border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center"
+          >
+            Create an account
+          </a>
+        </form>
+      </div>
+      
+      <p class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+        Open Source • Secure • Community Driven
+      </p>
+    </div>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-[#E5E5E5] dark:border-gray-800 py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors" role="contentinfo">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <div>
+          <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto mb-3">
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">An open-source, community-driven bug logging and vulnerability disclosure platform.</p>
+        </div>
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Quick Links</h3>
+          <ul class="space-y-2 list-none m-0 p-0">
+            <li><a href="about.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">About</a></li>
+            <li><a href="https://github.com/OWASP-BLT/BLT-Next" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">GitHub</a></li>
+            <li><a href="https://owasp.org" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">OWASP Foundation</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Community</h3>
+          <ul class="space-y-2 list-none m-0 p-0">
+            <li><a href="leaderboard.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Leaderboard</a></li>
+            <li><a href="projects.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Projects</a></li>
+            <li><a href="report-bug.html" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Report a Bug</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Legal</h3>
+          <ul class="space-y-2 list-none m-0 p-0">
+            <li><a href="/privacy" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Privacy Policy</a></li>
+            <li><a href="/terms" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">Terms of Service</a></li>
+            <li><a href="https://github.com/OWASP-BLT/BLT-Next/blob/main/LICENSE" class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">License (AGPL-3.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-[#E5E5E5] dark:border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-gray-400 dark:text-gray-500">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
+        <div class="flex items-center gap-4">
+          <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="GitHub">
+            <i class="fa-brands fa-github text-base" aria-hidden="true"></i>
+          </a>
+          <a href="https://owasp.org" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="OWASP">
+            <i class="fa-solid fa-globe text-base" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+    
+    (function() {
+      const h = document.documentElement;
+      const s = localStorage.getItem('theme');
+      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
+    })();
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      mobileMenuBtn?.addEventListener('click', () => {
+        const isHidden = mobileMenu?.classList.toggle('hidden');
+        const isExpanded = !isHidden;
+        mobileMenuBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        if (mobileMenu) {
+          mobileMenu.setAttribute('aria-hidden', isExpanded ? 'false' : 'true');
+        }
+      });
+      
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        let inFlight = false;
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          if (inFlight) {
+            return;
+          }
+
+          const submitButton = loginForm.querySelector('button[type="submit"]');
+          const formData = new FormData(loginForm);
+          const email = formData.get('email');
+          const password = formData.get('password');
+          const remember = document.querySelector('input[name="remember"]')?.checked ?? false;
+
+          inFlight = true;
+          if (submitButton) submitButton.disabled = true;
+
+          try {
+            if (window.bltApp?.auth) {
+              const result = await window.bltApp.auth.login(email, password, remember);
+              if (result.success) {
+                window.location.href = '../index.html';
+              } else {
+                alert(result.error || 'Login failed');
+              }
+            } else {
+              alert('Login is unavailable right now');
+            }
+          } finally {
+            inFlight = false;
+            if (submitButton) submitButton.disabled = false;
+          }
+        });
+      }
+    });
+    
+    window.togglePassword = function(inputId, button) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      button.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+      button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      const eyeIcon = button.querySelector('#' + inputId + 'Eye');
+      const eyeOffIcon = button.querySelector('#' + inputId + 'EyeOff');
+      if (eyeIcon && eyeOffIcon) {
+        eyeIcon.classList.toggle('hidden', isPassword);
+        eyeOffIcon.classList.toggle('hidden', !isPassword);
+      }
+    };
+
+    window.validateLoginEmail = function(input) {
+      const errorEl = document.getElementById('emailError');
+      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
+      
+      if (input.value && !emailValid) {
+        input.classList.add('border-red-500');
+        input.classList.remove('border-green-500', 'border-gray-200', 'dark:border-gray-600');
+        if (errorEl) { errorEl.textContent = 'Please enter a valid email address'; errorEl.classList.remove('hidden'); }
+      } else if (emailValid) {
+        input.classList.remove('border-red-500');
+        input.classList.add('border-green-500');
+        if (errorEl) errorEl.classList.add('hidden');
+      } else if (!input.value) {
+        input.classList.remove('border-red-500', 'border-green-500');
+        input.classList.add('border-gray-200', 'dark:border-gray-600');
+        if (errorEl) errorEl.classList.add('hidden');
+      }
+    };
+
+    window.validateLoginPassword = function(input) {
+      const errorEl = document.getElementById('passwordError');
+      
+      if (!input.value) {
+        input.classList.add('border-red-500');
+        input.classList.remove('border-green-500', 'border-gray-200', 'dark:border-gray-600');
+        if (errorEl) { errorEl.textContent = 'Password is required'; errorEl.classList.remove('hidden'); }
+      } else {
+        input.classList.remove('border-red-500');
+        input.classList.add('border-green-500');
+        input.classList.remove('border-gray-200', 'dark:border-gray-600');
+        if (errorEl) errorEl.classList.add('hidden');
+      }
+    };
+  </script>
+</body>
+</html>

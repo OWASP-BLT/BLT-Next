@@ -2,19 +2,16 @@
 
 name = "blt-next"
 main = "workers/main.py"
-compatibility_date = "2024-04-03"
+compatibility_date = "2026-03-12"
 compatibility_flags = [ "python_workers" ]
 
 [assets]
 directory = "src"
 binding = "ASSETS"
 
-# Python support
-[build]
-command = ""
-
-# Environment variables (set these in Cloudflare dashboard)
-# [vars]
+# Environment variables (set production values in Cloudflare dashboard or override in [env.*])
+[vars]
+ALLOWED_ORIGIN = "http://localhost"  # Override in production via Cloudflare dashboard
 # ENVIRONMENT = "production"
 
 # Secrets (set via wrangler secret put)

@@ -16,6 +16,27 @@ const CONFIG = {
     ENABLE_ANALYTICS: true,
 };
 
+const TOKEN_KEY = 'authToken';
+
+function getAuthToken() {
+    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+}
+
+function persistAuthToken(token, remember = true) {
+    if (remember) {
+        localStorage.setItem(TOKEN_KEY, token);
+        sessionStorage.removeItem(TOKEN_KEY);
+    } else {
+        sessionStorage.setItem(TOKEN_KEY, token);
+        localStorage.removeItem(TOKEN_KEY);
+    }
+}
+
+function clearAuthToken() {
+    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+}
+
 // ===================================
 // State Management
 // ===================================
@@ -69,7 +90,7 @@ class APIClient {
         };
 
         // Add auth token if available
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
         if (token) {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -145,12 +166,12 @@ class AuthModule {
         this.state = appState;
     }
 
-    async login(email, password) {
+    async login(email, password, remember = false) {
         try {
-            const response = await this.api.post('/auth/login', { email, password });
+            const response = await this.api.post('/api/auth/login', { email, password });
 
             if (response.token) {
-                localStorage.setItem('authToken', response.token);
+                persistAuthToken(response.token, remember);
                 this.state.setUser(response.user);
                 return { success: true, user: response.user };
             }
@@ -163,10 +184,10 @@ class AuthModule {
 
     async signup(userData) {
         try {
-            const response = await this.api.post('/auth/signup', userData);
+            const response = await this.api.post('/api/auth/signup', userData);
 
             if (response.token) {
-                localStorage.setItem('authToken', response.token);
+                persistAuthToken(response.token, true);
                 this.state.setUser(response.user);
                 return { success: true, user: response.user };
             }
@@ -179,33 +200,36 @@ class AuthModule {
 
     async logout() {
         try {
-            await this.api.post('/auth/logout', {});
+            await this.api.post('/api/auth/logout', {});
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
-            localStorage.removeItem('authToken');
+            clearAuthToken();
             this.state.setUser(null);
             this.api.clearCache();
         }
     }
 
     async checkAuth() {
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
         if (!token) {
+            this.state.setUser(null);
             return false;
         }
 
         try {
-            const response = await this.api.get('/auth/me');
+            const response = await this.api.get('/api/auth/me');
             if (response.user) {
                 this.state.setUser(response.user);
                 return true;
             }
         } catch (error) {
             // Token invalid, clear it
-            localStorage.removeItem('authToken');
+            clearAuthToken();
+            this.state.setUser(null);
         }
 
+        this.state.setUser(null);
         return false;
     }
 }
@@ -216,29 +240,6 @@ const auth = new AuthModule(api, state);
 // UI Components
 // ===================================
 class UIComponents {
-    static showModal(content) {
-        const modal = document.getElementById('authModal');
-        if (modal) {
-            modal.innerHTML = content;
-            modal.style.display = 'flex';
-
-            // Close modal on backdrop click
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.hideModal();
-                }
-            });
-        }
-    }
-
-    static hideModal() {
-        const modal = document.getElementById('authModal');
-        if (modal) {
-            modal.style.display = 'none';
-            modal.innerHTML = '';
-        }
-    }
-
     static showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -263,206 +264,18 @@ class UIComponents {
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
-
-    static createLoginForm() {
-        return `
-            <div class="modal-content">
-                <h2 style="margin-bottom: 1.5rem;">Login to BLT</h2>
-                <form id="loginForm">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Email
-                        </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Password
-                        </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <button 
-                            type="submit" 
-                            class="btn btn-primary"
-                            style="flex: 1;"
-                        >
-                            Login
-                        </button>
-                        <button 
-                            type="button" 
-                            class="btn btn-secondary"
-                            onclick="window.uiComponents.hideModal()"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-    }
-
-    static createSignupForm() {
-        return `
-            <div class="modal-content">
-                <h2 style="margin-bottom: 1.5rem;">Create Account</h2>
-                <form id="signupForm">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Username
-                        </label>
-                        <input 
-                            type="text" 
-                            name="username" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Email
-                        </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Password
-                        </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
-                            minlength="8"
-                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
-                        />
-                    </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <button 
-                            type="submit" 
-                            class="btn btn-primary"
-                            style="flex: 1;"
-                        >
-                            Sign Up
-                        </button>
-                        <button 
-                            type="button" 
-                            class="btn btn-secondary"
-                            onclick="window.uiComponents.hideModal()"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-    }
 }
 
 // ===================================
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
-    // Login button
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
-
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    // Signup buttons
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
-
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
-
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
-                }
-            });
-        }
-    });
-
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
-
-    function updateThemeIcons() {
-        if (!sunIcon || !moonIcon) return;
-        if (document.documentElement.classList.contains('dark')) {
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
-        }
-    }
-
     if (themeToggle) {
-        // Initial icon state
-        updateThemeIcons();
-
         themeToggle.addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcons();
 
             // Re-emit theme change for other components
             if (window.bltApp && window.bltApp.state) {
@@ -471,12 +284,47 @@ function setupEventHandlers() {
         });
     }
 
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            UIComponents.hideModal();
+    // Login page handlers (bound in external JS to avoid inline event attributes)
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        const loginEmail = loginForm.querySelector('#email');
+        const loginPassword = loginForm.querySelector('#password');
+        const loginPasswordToggle = loginForm.querySelector('#loginPasswordToggle');
+
+        if (loginEmail) {
+            loginEmail.addEventListener('input', () => {
+                if (typeof window.validateLoginEmail === 'function') {
+                    window.validateLoginEmail(loginEmail);
+                }
+            });
+            loginEmail.addEventListener('blur', () => {
+                if (typeof window.validateLoginEmail === 'function') {
+                    window.validateLoginEmail(loginEmail);
+                }
+            });
         }
-    });
+
+        if (loginPassword) {
+            loginPassword.addEventListener('input', () => {
+                if (typeof window.validateLoginPassword === 'function') {
+                    window.validateLoginPassword(loginPassword);
+                }
+            });
+            loginPassword.addEventListener('blur', () => {
+                if (typeof window.validateLoginPassword === 'function') {
+                    window.validateLoginPassword(loginPassword);
+                }
+            });
+        }
+
+        if (loginPasswordToggle) {
+            loginPasswordToggle.addEventListener('click', () => {
+                if (typeof window.togglePassword === 'function') {
+                    window.togglePassword('password', loginPasswordToggle);
+                }
+            });
+        }
+    }
 }
 
 // ===================================
@@ -513,6 +361,7 @@ function updateUIForAuth() {
 // ===================================
 function updateFooterLastUpdated() {
     const el = document.getElementById('footer-last-updated');
+    //document.body.addEventListener("htmx:afterSwap", updateFooterLastUpdated);
     if (!el) return;
 
     const lastModified = new Date(document.lastModified);
@@ -543,6 +392,12 @@ function updateFooterLastUpdated() {
 
     el.textContent = `Last updated: ${dateStr} (${agoStr})`;
 }
+
+document.body.addEventListener("htmx:afterSwap", function (event) {
+    if (document.getElementById("footer-last-updated")) {
+        updateFooterLastUpdated();
+    }
+});
 
 // ===================================
 // Initialization
@@ -618,3 +473,109 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
+// ===================================
+// Bug Report Form Validation
+// ===================================
+window.addEventListener('htmx:beforeRequest', (event) => {
+    // Reference the element triggering the HTMX request
+    const form = event.detail.elt;
+
+    // Validate only if the request originates from the bug report form
+    if (form && form.id === 'bugReportForm') {
+        const description = document.getElementById('bugDescription');
+        const errorBox = document.getElementById('custom-error-box');
+
+        // Check for empty input or strings containing only whitespace
+        if (description && description.value.trim().length === 0) {
+            // Cancel the request to prevent unnecessary 405 errors
+            event.preventDefault();
+
+            if (errorBox) {
+                // Display the custom Tailwind error alert
+                errorBox.classList.remove('hidden');
+
+                // Auto-hide the alert after 5 seconds for a cleaner UI
+                setTimeout(() => {
+                    errorBox.classList.add('hidden');
+                }, 5000);
+            }
+        }
+    }
+});
+
+const rowsPerPage = 5;
+let currentPage = 1;
+let totalResearchers = 3500;
+
+function updateLeaderboardPagination() {
+  const rows = document.querySelectorAll("#leaderboard-body .leaderboard-row");
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+
+  rows.forEach((row, index) => {
+    if (index >= start && index < end) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+
+  const info = document.getElementById("pagination-info");
+
+  if (info) {
+    const displayStart = start + 1;
+    const displayEnd = Math.min(end, totalResearchers);
+    info.textContent = `Showing ${displayStart}-${displayEnd} of ${totalResearchers} researchers`;
+  }
+}
+
+function updateActiveButton() {
+  const buttons = document.querySelectorAll(".page-btn");
+
+  buttons.forEach((btn) => {
+    btn.classList.remove("bg-red-600", "text-white");
+
+    const page = parseInt(btn.textContent.trim());
+
+    if (page === currentPage) {
+      btn.classList.add("bg-red-600", "text-white");
+    }
+  });
+}
+
+document.addEventListener("htmx:afterSwap", () => {
+  updateLeaderboardPagination();
+  updateActiveButton();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".page-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const page = parseInt(btn.dataset.page);
+      if (!isNaN(page)) {
+        currentPage = page;
+        updateLeaderboardPagination();
+        updateActiveButton();
+      }
+    });
+  });
+});
+
+document.getElementById("next-page")?.addEventListener("click", () => {
+  const maxPage = Math.ceil(totalResearchers / rowsPerPage);
+  if (currentPage < maxPage) {
+    currentPage++;
+    updateLeaderboardPagination();
+    updateActiveButton();
+  }
+});
+
+document.getElementById("prev-page")?.addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    updateLeaderboardPagination();
+    updateActiveButton();
+  }
+});
