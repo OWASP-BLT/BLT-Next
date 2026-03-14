@@ -239,6 +239,7 @@ async def handle_auth_logout(request, env=None):
         'success': True
     }, origin=request.headers.get('Origin'))
 
+ALLOWED_SEVERITIES = {"low", "medium", "high", "critical"}
 async def handle_bugs_list(request, env=None):
     """Handle /api/bugs endpoint (GET and POST)"""
     if not env or not hasattr(env, 'DB'):
@@ -267,7 +268,7 @@ async def handle_bugs_list(request, env=None):
 
         title = body.get('title', '').strip()
         description = body.get('description', '').strip()
-        severity = body.get('severity')
+        severity = body.get('severity', '').strip().lower()
 
         if not title or not description or not severity:
             return create_response(
@@ -283,7 +284,6 @@ async def handle_bugs_list(request, env=None):
                 origin=origin
             )
 
-        ALLOWED_SEVERITIES = {"low", "medium", "high", "critical"}
         if severity not in ALLOWED_SEVERITIES:
             return create_response(
                 {'error': 'Invalid severity'},
