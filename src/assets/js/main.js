@@ -1,23 +1,23 @@
 /**
  * OWASP BLT - Main Application Module
  */
+
 // ===================================
-// Configuration    
-// Configuration    
+// Configuration
 // ===================================
 const CONFIG = {
     // API endpoint - should be set to your Cloudflare Worker URL
     // For production, use absolute URL like: 'https://api.owaspblt.org'
     // For local development with worker: 'http://localhost:8787'
-    API_BASE_URL: window.location.hostname === 'localhost'
-        ? 'http://localhost:8787'
-        : 'https://api.owaspblt.org', // TODO: Replace with your actual worker URL
+    API_BASE_URL:
+        window.location.hostname === 'localhost'
+            ? 'http://localhost:8787'
+            : 'https://api.owaspblt.org', // TODO: Replace with your actual worker URL
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
     ENABLE_ANALYTICS: true,
 };
 
 // ===================================
-
 // State Management
 // ===================================
 class AppState {
@@ -63,6 +63,7 @@ class APIClient {
 
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
+
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
@@ -192,9 +193,7 @@ class AuthModule {
 
     async checkAuth() {
         const token = localStorage.getItem('authToken');
-        if (!token) {
-            return false;
-        }
+        if (!token) return false;
 
         try {
             const response = await this.api.get('/auth/me');
@@ -203,7 +202,7 @@ class AuthModule {
                 return true;
             }
         } catch (error) {
-            // Token invalid, clear it
+            // Token invalid → clear it
             localStorage.removeItem('authToken');
         }
 
@@ -244,6 +243,7 @@ class UIComponents {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
+
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -274,10 +274,10 @@ class UIComponents {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Email
                         </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
+                        <input
+                            type="email"
+                            name="email"
+                            required
                             style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
                         />
                     </div>
@@ -285,23 +285,19 @@ class UIComponents {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Password
                         </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
+                        <input
+                            type="password"
+                            name="password"
+                            required
                             style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
                         />
                     </div>
                     <div style="display: flex; gap: 1rem;">
-                        <button 
-                            type="submit" 
-                            class="btn btn-primary"
-                            style="flex: 1;"
-                        >
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
                             Login
                         </button>
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             class="btn btn-secondary"
                             onclick="window.uiComponents.hideModal()"
                         >
@@ -322,10 +318,10 @@ class UIComponents {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Username
                         </label>
-                        <input 
-                            type="text" 
-                            name="username" 
-                            required 
+                        <input
+                            type="text"
+                            name="username"
+                            required
                             style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
                         />
                     </div>
@@ -333,10 +329,10 @@ class UIComponents {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Email
                         </label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            required 
+                        <input
+                            type="email"
+                            name="email"
+                            required
                             style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
                         />
                     </div>
@@ -344,24 +340,20 @@ class UIComponents {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
                             Password
                         </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
+                        <input
+                            type="password"
+                            name="password"
+                            required
                             minlength="8"
                             style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
                         />
                     </div>
                     <div style="display: flex; gap: 1rem;">
-                        <button 
-                            type="submit" 
-                            class="btn btn-primary"
-                            style="flex: 1;"
-                        >
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
                             Sign Up
                         </button>
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             class="btn btn-secondary"
                             onclick="window.uiComponents.hideModal()"
                         >
@@ -384,7 +376,6 @@ function setupEventHandlers() {
         loginBtn.addEventListener('click', () => {
             UIComponents.showModal(UIComponents.createLoginForm());
 
-            // Setup form submission
             const form = document.getElementById('loginForm');
             if (form) {
                 form.addEventListener('submit', async (e) => {
@@ -394,6 +385,7 @@ function setupEventHandlers() {
                     const password = formData.get('password');
 
                     const result = await auth.login(email, password);
+
                     if (result.success) {
                         UIComponents.hideModal();
                         UIComponents.showNotification('Logged in successfully!', 'success');
@@ -406,15 +398,14 @@ function setupEventHandlers() {
         });
     }
 
-    // Signup buttons
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
+    // Signup buttons (desktop + any CTA button)
+    const signupButtonIds = ['signupBtn', 'ctaSignupBtn'];
+    signupButtonIds.forEach(id => {
+        const btn = document.getElementById(id);
         if (btn) {
             btn.addEventListener('click', () => {
                 UIComponents.showModal(UIComponents.createSignupForm());
 
-                // Setup form submission
                 const form = document.getElementById('signupForm');
                 if (form) {
                     form.addEventListener('submit', async (e) => {
@@ -427,6 +418,7 @@ function setupEventHandlers() {
                         };
 
                         const result = await auth.signup(userData);
+
                         if (result.success) {
                             UIComponents.hideModal();
                             UIComponents.showNotification('Account created successfully!', 'success');
@@ -443,52 +435,57 @@ function setupEventHandlers() {
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
     const themeToggleMobile = document.getElementById('themeToggleMobile');
-const sunIconMobile = document.getElementById('sunIconMobile');
-const moonIconMobile = document.getElementById('moonIconMobile');
 
     function updateThemeIcons() {
-    const isDark = document.documentElement.classList.contains('dark');
+        const isDark = document.documentElement.classList.contains('dark');
 
-if (sunIcon && moonIcon) {
-    sunIcon.classList.toggle('hidden', isDark);
-    moonIcon.classList.toggle('hidden', !isDark);
-}
+        // Desktop icons (assuming they exist in HTML)
+        const sunIcon = document.querySelector('#themeToggle .fa-sun');
+        const moonIcon = document.querySelector('#themeToggle .fa-moon');
 
-if (sunIconMobile && moonIconMobile) {
-    sunIconMobile.classList.toggle('hidden', isDark);
-    moonIconMobile.classList.toggle('hidden', !isDark);
-}
-}
+        if (sunIcon && moonIcon) {
+            sunIcon.classList.toggle('hidden', isDark);
+            moonIcon.classList.toggle('hidden', !isDark);
+        }
+
+        // Mobile icons
+        const sunIconMobile = document.getElementById('sunIconMobile');
+        const moonIconMobile = document.getElementById('moonIconMobile');
+
+        if (sunIconMobile && moonIconMobile) {
+            sunIconMobile.classList.toggle('hidden', isDark);
+            moonIconMobile.classList.toggle('hidden', !isDark);
+        }
+    }
 
     if (themeToggle) {
-        // Initial icon state
-        updateThemeIcons();
+        updateThemeIcons(); // initial state
 
         themeToggle.addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             updateThemeIcons();
 
-            // Re-emit theme change for other components
-            if (window.bltApp && window.bltApp.state) {
+            if (window.bltApp?.state) {
                 window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
             }
         });
     }
-    if (themeToggleMobile) {
-    themeToggleMobile.addEventListener('click', () => {
-        const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        updateThemeIcons();
 
-        if (window.bltApp && window.bltApp.state) {
-            window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
-        }
-    });
-}
+    if (themeToggleMobile) {
+        themeToggleMobile.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcons();
+
+            if (window.bltApp?.state) {
+                window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
+            }
+        });
+    }
 
     // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             UIComponents.hideModal();
         }
@@ -504,13 +501,13 @@ function updateUIForAuth() {
     const signupBtn = document.getElementById('signupBtn');
 
     if (user && state.isAuthenticated) {
-        // Update buttons to show user menu
         if (loginBtn) {
-            loginBtn.textContent = user.username;
+            loginBtn.textContent = user.username || 'Profile';
             loginBtn.onclick = () => {
                 window.location.href = '/pages/profile.html';
             };
         }
+
         if (signupBtn) {
             signupBtn.textContent = 'Logout';
             signupBtn.classList.remove('btn-primary');
@@ -528,139 +525,4 @@ function updateUIForAuth() {
 // Footer Last Updated
 // ===================================
 function updateFooterLastUpdated() {
-    const el = document.getElementById('footer-last-updated');
-    if (!el) return;
-
-    const lastModified = new Date(document.lastModified);
-    const now = new Date();
-    const diffMins = Math.max(0, Math.floor((now - lastModified) / 60000));
-    const hours = Math.floor(diffMins / 60);
-    const mins = diffMins % 60;
-
-    const dateStr = lastModified.toLocaleString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    });
-
-    let agoStr;
-    if (hours > 0 && mins > 0) {
-        agoStr = `${hours} hour${hours !== 1 ? 's' : ''} and ${mins} minute${mins !== 1 ? 's' : ''} ago`;
-    } else if (hours > 0) {
-        agoStr = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-    } else if (mins > 0) {
-        agoStr = `${mins} minute${mins !== 1 ? 's' : ''} ago`;
-    } else {
-        agoStr = 'just now';
-    }
-
-    el.textContent = `Last updated: ${dateStr} (${agoStr})`;
-}
-
-// ===================================
-// Initialization
-// ===================================
-async function init() {
-    // Setup event handlers immediately so UI is responsive
-    try {
-        setupEventHandlers();
-    } catch (error) {
-        // Silently fail or log sparingly in production
-    }
-
-    // Check authentication status in background
-    try {
-        await auth.checkAuth();
-        updateUIForAuth();
-    } catch (error) {
-        // Auth check failure is handled by UI state
-    }
-
-    // Update footer with last modified date
-    updateFooterLastUpdated();
-
-    // Update state to ready
-    state.emit('app:ready');
-
-    // Add CSS animations
-    if (!document.getElementById('blt-animations')) {
-        const style = document.createElement('style');
-        style.id = 'blt-animations';
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
-
-// ===================================
-// Export to window for global access
-// ===================================
-window.bltApp = {
-    state,
-    api,
-    auth,
-};
-
-window.uiComponents = UIComponents;
-
-// ===================================
-// Start the application
-// ===================================
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
-
-// ===================================
-// Bug Report Form Validation
-// ===================================
-window.addEventListener('htmx:beforeRequest', (event) => {
-    // Reference the element triggering the HTMX request
-    const form = event.detail.elt;
-
-    // Validate only if the request originates from the bug report form
-    if (form && form.id === 'bugReportForm') {
-        const description = document.getElementById('bugDescription');
-        const errorBox = document.getElementById('custom-error-box');
-
-        // Check for empty input or strings containing only whitespace
-        if (description && description.value.trim().length === 0) {
-            // Cancel the request to prevent unnecessary 405 errors
-            event.preventDefault();
-
-            if (errorBox) {
-                // Display the custom Tailwind error alert
-                errorBox.classList.remove('hidden');
-
-                // Auto-hide the alert after 5 seconds for a cleaner UI
-                setTimeout(() => {
-                    errorBox.classList.add('hidden');
-                }, 5000);
-            }
-        }
-    }
-});
+    const el = document.getElement
