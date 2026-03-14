@@ -245,11 +245,25 @@ async def handle_bugs_list(request, env=None):
         return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
 
     if request.method == 'POST':
+        origin = request.headers.get('Origin')
+        auth_header = request.headers.get('Authorization', '')
+
+        if not auth_header.startswith('Bearer '):
+            return create_response({'error': 'Unauthorized'}, status=401, origin=origin)
+
+        token = auth_header.replace('Bearer ', '')
+
+        if not token.startswith('mock_'):
+            return create_response({'error': 'Invalid token'}, status=401, origin=origin)
+
         try:
             body = await request.json()
             title = body.get('title')
             description = body.get('description')
             severity = body.get('severity')
+
+            if not title or not description or not severity:
+                return create_response({'error': 'Missing required fields'}, status=400, origin=origin)
             
             await env.DB.prepare(
                 "INSERT INTO bugs (title, description, severity, status) VALUES (?, ?, ?, ?)"
@@ -263,9 +277,13 @@ async def handle_bugs_list(request, env=None):
                     <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
                 </div>
             """
-            return handle_html_response(html, origin=request.headers.get('Origin'))
-        except Exception as e:
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+            return handle_html_response(html, origin=origin)
+        except Exception:
+            return create_response(
+                {'error': 'Failed to submit bug'},
+                status=500,
+                origin=origin
+            )
 
     # GET case (list bugs)
     try:
