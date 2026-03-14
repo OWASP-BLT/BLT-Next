@@ -322,8 +322,9 @@ async def handle_bugs_list(request, env=None):
         )
 
     except Exception as e:
+        print(f"Bug list query error: {e}")
         return create_response(
-            {'error': str(e)},
+            {'error': 'Failed to retrieve bugs'},
             status=500,
             origin=request.headers.get('Origin')
         )
