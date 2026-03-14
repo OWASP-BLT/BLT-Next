@@ -1,4 +1,5 @@
 from js import Response, Headers, URL
+import html
 import json
 import hashlib
 from datetime import datetime
@@ -48,7 +49,7 @@ def create_response(data, status=200, origin=None):
         headers=js_headers
     )
 
-def handle_html_response(html, origin=None):
+def handle_html_response(html_content, origin=None):
     """Create an HTML response with CORS headers"""
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'text/html')
@@ -57,9 +58,9 @@ def handle_html_response(html, origin=None):
     js_headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
     js_headers.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
     js_headers.set('X-Frame-Options', 'DENY')
-    
+
     return Response.new(
-        html,
+        html_content,
         status=200,
         headers=js_headers
     )
@@ -90,28 +91,28 @@ async def handle_stats(request, env=None):
             return create_response({'error': 'No stats found'}, status=404, origin=request.headers.get('Origin'))
 
         # Return HTML fragment for HTMX
-        html = f"""
+        stats_html = f"""
         <div class="stat-card">
-            <div class="stat-value">{stats.get('bugs_reported', 0)}</div>
+            <div class="stat-value">{html.escape(str(stats.get('bugs_reported', 0)))}</div>
             <div class="stat-label">Bugs Reported</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{stats.get('active_researchers', 0)}</div>
+            <div class="stat-value">{html.escape(str(stats.get('active_researchers', 0)))}</div>
             <div class="stat-label">Active Researchers</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{stats.get('rewards_distributed', '$0')}</div>
+            <div class="stat-value">{html.escape(str(stats.get('rewards_distributed', '$0')))}</div>
             <div class="stat-label">Rewards Distributed</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{stats.get('projects_protected', 0)}</div>
+            <div class="stat-value">{html.escape(str(stats.get('projects_protected', 0)))}</div>
             <div class="stat-label">Projects Protected</div>
         </div>
         """
-        return handle_html_response(html, origin=request.headers.get('Origin'))
+        return handle_html_response(stats_html, origin=request.headers.get('Origin'))
     except Exception as e:
         print(f"D1 Query Error: {e}")
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        return create_response({'error': 'Failed to load stats'}, status=500, origin=request.headers.get('Origin'))
 
 async def handle_auth_login(request, env=None):
     """Handle /api/auth/login endpoint"""
@@ -142,9 +143,10 @@ async def handle_auth_login(request, env=None):
         }, status=401, origin=request.headers.get('Origin'))
         
     except Exception as e:
+        print(f"Login Error: {e}")
         return create_response({
             'success': False,
-            'error': str(e)
+            'error': 'Login failed'
         }, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_signup(request, env=None):
@@ -187,9 +189,10 @@ async def handle_auth_signup(request, env=None):
         }, status=400, origin=request.headers.get('Origin'))
         
     except Exception as e:
+        print(f"Signup Error: {e}")
         return create_response({
             'success': False,
-            'error': str(e)
+            'error': 'Signup failed'
         }, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_me(request, env=None):
@@ -265,14 +268,39 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+            print(f"Bug Report Error: {e}")
+            return create_response({'error': 'Failed to submit bug report'}, status=500, origin=request.headers.get('Origin'))
 
     # GET case (list bugs)
     try:
         results = await env.DB.prepare("SELECT * FROM bugs ORDER BY created_at DESC LIMIT 20").all()
         return create_response({'bugs': results.results}, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f"Bug List Error: {e}")
+        return create_response({'error': 'Failed to load bugs'}, status=500, origin=request.headers.get('Origin'))
+
+async def handle_bug_detail(request, env=None, bug_id=None):
+    """Handle /api/bugs/:id endpoint (GET)"""
+    if not env or not hasattr(env, 'DB'):
+        return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
+
+    if not bug_id:
+        return create_response({'error': 'Bug ID is required'}, status=400, origin=request.headers.get('Origin'))
+
+    try:
+        result = await env.DB.prepare(
+            "SELECT * FROM bugs WHERE id = ?"
+        ).bind(int(bug_id)).first()
+
+        if not result:
+            return create_response({'error': 'Bug not found'}, status=404, origin=request.headers.get('Origin'))
+
+        return create_response(result, origin=request.headers.get('Origin'))
+    except (ValueError, TypeError):
+        return create_response({'error': 'Invalid bug ID'}, status=400, origin=request.headers.get('Origin'))
+    except Exception as e:
+        print(f"Bug Detail Error: {e}")
+        return create_response({'error': 'Failed to load bug details'}, status=500, origin=request.headers.get('Origin'))
 
 async def handle_leaderboard(request, env=None):
     """Handle /api/leaderboard endpoint"""
@@ -291,15 +319,15 @@ async def handle_leaderboard(request, env=None):
         rows = "".join([
             f"""
             <div class="leaderboard-row">
-                <div class="rank">{item.rank}</div>
-                <div class="username">{item.username}</div>
-                <div class="stat">{item.points} pts</div>
-                <div class="stat">{item.bugs} bugs</div>
+                <div class="rank">{html.escape(str(item.rank))}</div>
+                <div class="username">{html.escape(str(item.username))}</div>
+                <div class="stat">{html.escape(str(item.points))} pts</div>
+                <div class="stat">{html.escape(str(item.bugs))} bugs</div>
             </div>
             """ for item in leaderboard
         ])
         
-        html = f"""
+        leaderboard_html = f"""
         <div class="leaderboard-table">
             <div class="leaderboard-row leaderboard-header">
                 <div>Rank</div>
@@ -310,9 +338,10 @@ async def handle_leaderboard(request, env=None):
             {rows}
         </div>
         """
-        return handle_html_response(html, origin=request.headers.get('Origin'))
+        return handle_html_response(leaderboard_html, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f"Leaderboard Error: {e}")
+        return create_response({'error': 'Failed to load leaderboard'}, status=500, origin=request.headers.get('Origin'))
 
 async def handle_projects(request, env=None):
     """Handle /api/projects endpoint"""
@@ -330,14 +359,14 @@ async def handle_projects(request, env=None):
                 <div class="project-header">
                     <div class="project-logo">🛡️</div>
                     <div class="project-info">
-                        <div class="project-name">{p.name}</div>
-                        <div class="project-type">{p.type}</div>
+                        <div class="project-name">{html.escape(str(p.name))}</div>
+                        <div class="project-type">{html.escape(str(p.type))}</div>
                     </div>
                 </div>
-                <div class="project-reward">{p.get('reward', 'N/A')}</div>
+                <div class="project-reward">{html.escape(str(p.get('reward', 'N/A')))}</div>
                 <div class="project-stats">
                     <div class="stat">
-                        <div class="stat-value">{p.get('bugs', 0)}</div>
+                        <div class="stat-value">{html.escape(str(p.get('bugs', 0)))}</div>
                         <div class="stat-label">Bugs</div>
                     </div>
                     <div class="stat">
@@ -350,7 +379,8 @@ async def handle_projects(request, env=None):
         ])
         return handle_html_response(cards, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f"Projects Error: {e}")
+        return create_response({'error': 'Failed to load projects'}, status=500, origin=request.headers.get('Origin'))
 
 # ===================================
 # Router
@@ -383,13 +413,23 @@ async def route_request(request, env):
     
     # Find and execute handler
     handler = ROUTES.get(request.method, {}).get(path)
-    
+
+    # Check for parameterized routes (e.g., /api/bugs/:id)
+    if not handler and request.method == 'GET' and path.startswith('/api/bugs/'):
+        bug_id = path.split('/api/bugs/')[-1]
+        if bug_id:
+            try:
+                return await handle_bug_detail(request, env, bug_id=bug_id)
+            except Exception as e:
+                print(f"Handler Error: {e}")
+                return create_response({'error': 'Internal server error'}, status=500, origin=request.headers.get('Origin'))
+
     if handler:
         try:
             return await handler(request, env)
         except Exception as e:
             print(f"Handler Error: {e}")
-            raise e
+            return create_response({'error': 'Internal server error'}, status=500, origin=request.headers.get('Origin'))
     
     # Handle root and static assets
     if hasattr(env, 'ASSETS'):
@@ -413,7 +453,7 @@ async def on_fetch(request, env):
     try:
         return await route_request(request, env)
     except Exception as e:
+        print(f"Unhandled Error: {e}")
         return create_response({
-            'error': 'Internal server error',
-            'message': str(e)
+            'error': 'Internal server error'
         }, status=500, origin=request.headers.get('Origin'))
