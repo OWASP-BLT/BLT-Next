@@ -9,14 +9,11 @@ compatibility_flags = [ "python_workers" ]
 directory = "src"
 binding = "ASSETS"
 
-# Python support
-[build]
-command = ""
-
-# Environment variables (set these in Cloudflare dashboard)
-# [vars]
+# Environment variables (set production values in Cloudflare dashboard or override in [env.*])
+[vars]
+ALLOWED_ORIGIN = "http://localhost"  # Override in production via Cloudflare dashboard
 # ENVIRONMENT = "production"
-ALLOWED_ORIGIN="http://localhost"
+
 # Secrets (set via wrangler secret put)
 # - JWT_SECRET
 # - DATABASE_URL
