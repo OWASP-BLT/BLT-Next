@@ -19,6 +19,7 @@
       theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
     }
   </script>
+  <script src="../assets/js/theme-init.js"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
   <script src="../assets/js/main.js" type="module" defer></script>
   <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
@@ -81,7 +82,7 @@
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
             <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
@@ -103,7 +104,7 @@
               <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
             </div>
             <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
@@ -153,7 +154,7 @@
               <div class="w-full border-t border-gray-200 dark:border-gray-600"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-3 bg-white dark:bg-gray-900 text-gray-400">or</span>
+              <span class="px-3 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500">or</span>
             </div>
           </div>
           
