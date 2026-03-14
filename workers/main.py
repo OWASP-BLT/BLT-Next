@@ -10,6 +10,7 @@ ALLOWED_ORIGINS = [
     'https://owasp-blt.github.io',
     'http://localhost:3000',
     'http://localhost:8000',
+    'http://localhost:8787',  # default wrangler dev port
 ]
 
 # ===================================
@@ -48,7 +49,9 @@ def handle_html_response(html, origin=None):
     """Create an HTML response with CORS headers"""
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'text/html')
-    js_headers.set('Access-Control-Allow-Origin', '*')
+    cors = get_cors_headers(origin)
+    for k, v in cors.items():
+        js_headers.set(k, v)
     
     return Response.new(
         html,
