@@ -376,6 +376,111 @@ async def handle_projects(request, env=None):
     except Exception as e:
         return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
 
+async def handle_sendgrid_webhook(request, env=None):
+    """Handle incoming SendGrid Event Webhook (POST /api/webhooks/sendgrid).
+
+    SendGrid sends a JSON array of event objects.  Each event is stored in the
+    sendgrid_events table so that delivery, bounce, open, click, and other
+    email lifecycle events can be audited.
+
+    Signature verification
+    ----------------------
+    SendGrid uses ECDSA P-256 signatures (headers:
+    X-Twilio-Email-Event-Webhook-Signature and
+    X-Twilio-Email-Event-Webhook-Timestamp).  Full ECDSA verification requires
+    a third-party crypto library that is not currently available in the
+    Cloudflare Workers Python runtime.  Until such a library is supported,
+    the SENDGRID_WEBHOOK_KEY secret is accepted but verification is skipped
+    with a warning.  Protect the endpoint at the network/firewall level
+    (e.g. allowlist SendGrid IP ranges) until ECDSA verification can be added.
+    """
+    if not env or not hasattr(env, 'DB'):
+        return create_response({'error': 'Database binding missing'}, status=500)
+
+    webhook_key = getattr(env, 'SENDGRID_WEBHOOK_KEY', None)
+    if webhook_key:
+        # TODO: implement ECDSA P-256 signature verification once a compatible
+        # crypto library is available in the Cloudflare Workers Python runtime.
+        # For now, log a warning so operators know verification is not active.
+        print("WARNING: SENDGRID_WEBHOOK_KEY is set but ECDSA verification is not yet implemented.")
+
+    try:
+        events = await request.json()
+    except Exception as e:
+        return create_response({'error': f'Invalid JSON body: {e}'}, status=400)
+
+    if not isinstance(events, list):
+        return create_response({'error': 'Invalid payload: expected a JSON array of events'}, status=400)
+
+    try:
+        events_received = len(events)
+        for event in events:
+            event_type = event.get('event', '')
+            email = event.get('email', '')
+            sg_event_id = event.get('sg_event_id', '')
+            sg_message_id = event.get('sg_message_id', '')
+            timestamp = event.get('timestamp')
+            raw_payload = json.dumps(event)
+
+            await env.DB.prepare(
+                """INSERT OR IGNORE INTO sendgrid_events
+                       (event_type, email, sg_event_id, sg_message_id, timestamp, raw_payload)
+                   VALUES (?, ?, ?, ?, ?, ?)"""
+            ).bind(event_type, email, sg_event_id, sg_message_id, timestamp, raw_payload).run()
+
+        print(f"SendGrid webhook: received {events_received} event(s)")
+        return create_response({'success': True, 'events_received': events_received})
+    except Exception as e:
+        print(f"SendGrid Webhook DB Error: {e}")
+        return create_response({'error': str(e)}, status=500)
+
+async def handle_sendgrid_events(request, env=None):
+    """Return logged SendGrid events (GET /api/webhooks/sendgrid/events).
+
+    Accepts optional query parameters:
+      - limit   : max number of rows to return (default 50, max 200)
+      - event   : filter by event type (e.g. 'bounce', 'delivered')
+      - email   : filter by recipient address
+    """
+    if not env or not hasattr(env, 'DB'):
+        return create_response({'error': 'Database binding missing'}, status=500, origin=request.headers.get('Origin'))
+
+    try:
+        url = URL.new(request.url)
+        params = url.searchParams
+
+        limit_param = params.get('limit') or '50'
+        try:
+            limit = min(int(limit_param), 200)
+        except ValueError:
+            return create_response({'error': f'Invalid limit value: {limit_param!r}'}, status=400, origin=request.headers.get('Origin'))
+        event_filter = params.get('event') or None
+        email_filter = params.get('email') or None
+
+        if event_filter and email_filter:
+            results = await env.DB.prepare(
+                "SELECT * FROM sendgrid_events WHERE event_type = ? AND email = ? ORDER BY id DESC LIMIT ?"
+            ).bind(event_filter, email_filter, limit).all()
+        elif event_filter:
+            results = await env.DB.prepare(
+                "SELECT * FROM sendgrid_events WHERE event_type = ? ORDER BY id DESC LIMIT ?"
+            ).bind(event_filter, limit).all()
+        elif email_filter:
+            results = await env.DB.prepare(
+                "SELECT * FROM sendgrid_events WHERE email = ? ORDER BY id DESC LIMIT ?"
+            ).bind(email_filter, limit).all()
+        else:
+            results = await env.DB.prepare(
+                "SELECT * FROM sendgrid_events ORDER BY id DESC LIMIT ?"
+            ).bind(limit).all()
+
+        return create_response(
+            {'events': results.results, 'count': len(results.results)},
+            origin=request.headers.get('Origin'),
+        )
+    except Exception as e:
+        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+
 # ===================================
 # Router
 # ===================================
@@ -387,12 +492,14 @@ ROUTES = {
         '/api/bugs': handle_bugs_list,
         '/api/leaderboard': handle_leaderboard,
         '/api/projects': handle_projects,
+        '/api/webhooks/sendgrid/events': handle_sendgrid_events,
     },
     'POST': {
         '/api/auth/login': handle_auth_login,
         '/api/auth/signup': handle_auth_signup,
         '/api/auth/logout': handle_auth_logout,
         '/api/bugs': handle_bugs_list,
+        '/api/webhooks/sendgrid': handle_sendgrid_webhook,
     },
 }
 
