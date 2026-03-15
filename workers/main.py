@@ -134,7 +134,8 @@ async def handle_stats(request, env=None):
         return handle_html_response(html, origin=request.headers.get('Origin'))
     except Exception as e:
         print(f"D1 Query Error: {e}")
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f'Internal error: {e}')
+            return create_response({'error': 'Internal server error. Please try again.'}, status=500, origin=request.headers.get('Origin'))
 
 async def handle_auth_login(request, env=None):
     """Handle /api/auth/login endpoint"""
@@ -165,9 +166,11 @@ async def handle_auth_login(request, env=None):
         }, status=401, origin=request.headers.get('Origin'))
         
     except Exception as e:
+        print(f'Auth error: {e}')
         return create_response({
             'success': False,
-            'error': str(e)
+            'error': 'Internal server error. Please try again.'
+
         }, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_signup(request, env=None):
@@ -210,9 +213,11 @@ async def handle_auth_signup(request, env=None):
         }, status=400, origin=request.headers.get('Origin'))
         
     except Exception as e:
+        print(f'Auth error: {e}')
         return create_response({
             'success': False,
-            'error': str(e)
+            'error': 'Internal server error. Please try again.'
+
         }, status=400, origin=request.headers.get('Origin'))
 
 async def handle_auth_me(request, env=None):
@@ -288,7 +293,8 @@ async def handle_bugs_list(request, env=None):
             """
             return handle_html_response(html, origin=request.headers.get('Origin'))
         except Exception as e:
-            return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+            print(f'Internal error: {e}')
+            return create_response({'error': 'Internal server error. Please try again.'}, status=500, origin=request.headers.get('Origin'))
 
     # GET case (list bugs)
     try:
@@ -296,7 +302,8 @@ async def handle_bugs_list(request, env=None):
         bugs = to_dict(results.results)
         return create_response({'bugs': bugs}, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f'Internal error: {e}')
+            return create_response({'error': 'Internal server error. Please try again.'}, status=500, origin=request.headers.get('Origin'))
 
 async def handle_leaderboard(request, env=None):
     """Handle /api/leaderboard endpoint"""
@@ -336,7 +343,8 @@ async def handle_leaderboard(request, env=None):
         """
         return handle_html_response(html, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f'Internal error: {e}')
+            return create_response({'error': 'Internal server error. Please try again.'}, status=500, origin=request.headers.get('Origin'))
 
 async def handle_projects(request, env=None):
     """Handle /api/projects endpoint"""
@@ -374,7 +382,8 @@ async def handle_projects(request, env=None):
         ])
         return handle_html_response(cards, origin=request.headers.get('Origin'))
     except Exception as e:
-        return create_response({'error': str(e)}, status=500, origin=request.headers.get('Origin'))
+        print(f'Internal error: {e}')
+            return create_response({'error': 'Internal server error. Please try again.'}, status=500, origin=request.headers.get('Origin'))
 
 # ===================================
 # Router
@@ -437,7 +446,8 @@ async def on_fetch(request, env):
     try:
         return await route_request(request, env)
     except Exception as e:
+        print(f'Unhandled error: {e}')
         return create_response({
-            'error': 'Internal server error',
-            'message': str(e)
+            'error': 'Internal server error. Please try again.'
+
         }, status=500, origin=request.headers.get('Origin'))
