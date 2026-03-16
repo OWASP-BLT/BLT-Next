@@ -22,9 +22,11 @@ def get_cors_headers(origin):
     
     # Check if origin is in allowed list, is a github.io sub-domain, 
     # or is ANY localhost port (Recommended flexible approach for Issue #29)
-    if (origin in ALLOWED_ORIGINS or 
-        origin.endswith('.github.io') or 
+        if (origin in ALLOWED_ORIGINS or 
+        origin.endswith('owasp-blt.github.io') or 
+        origin == 'http://localhost' or
         origin.startswith('http://localhost:')):
+
         
         return {
             'Access-Control-Allow-Origin': origin,
