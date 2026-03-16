@@ -19,8 +19,13 @@ def get_cors_headers(origin):
     """Generate CORS headers for the response"""
     if not origin:
         return {}
+    
+    # Check if origin is in allowed list, is a github.io sub-domain, 
+    # or is ANY localhost port (Recommended flexible approach for Issue #29)
+    if (origin in ALLOWED_ORIGINS or 
+        origin.endswith('.github.io') or 
+        origin.startswith('http://localhost:')):
         
-    if origin in ALLOWED_ORIGINS or origin.endswith('.github.io'):
         return {
             'Access-Control-Allow-Origin': origin,
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -28,6 +33,7 @@ def get_cors_headers(origin):
             'Access-Control-Max-Age': '86400',
         }
     return {}
+
 
 def create_response(data, status=200, origin=None):
     """Create a JSON response with CORS headers"""
