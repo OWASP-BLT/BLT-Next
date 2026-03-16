@@ -401,22 +401,37 @@ function updateUIForAuth() {
     const signupBtn = document.getElementById('signupBtn');
 
     if (user && state.isAuthenticated) {
-        // Update buttons to show user menu
+        // Update buttons/links to show user menu
         if (loginBtn) {
             loginBtn.textContent = user.username;
-            loginBtn.onclick = () => {
-                window.location.href = '/pages/profile.html';
-            };
+            loginBtn.href = '/pages/profile.html';
+            loginBtn.onclick = null;
         }
         if (signupBtn) {
             signupBtn.textContent = 'Logout';
+            signupBtn.href = '#';
             signupBtn.classList.remove('btn-primary');
             signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async () => {
+            signupBtn.onclick = async (e) => {
+                e.preventDefault();
                 await auth.logout();
                 UIComponents.showNotification('Logged out successfully', 'success');
                 updateUIForAuth();
             };
+        }
+    } else {
+        // Reset to default unauthenticated state
+        if (loginBtn) {
+            loginBtn.textContent = 'Login';
+            loginBtn.href = 'pages/login.html';
+            loginBtn.onclick = null;
+        }
+        if (signupBtn) {
+            signupBtn.textContent = 'Sign Up';
+            signupBtn.href = 'pages/signup.html';
+            signupBtn.classList.remove('btn-secondary');
+            signupBtn.classList.add('btn-primary');
+            signupBtn.onclick = null;
         }
     }
 }
