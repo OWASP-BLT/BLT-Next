@@ -21,6 +21,7 @@
       </div>
       <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
         <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
+        <i class="fa-solid fa-xmark text-base hidden" aria-hidden="true"></i>
       </button>
     </nav>
     <div id="mobileMenu" class="hidden md:hidden fixed top-16 left-0 w-full h-[calc(100vh-4rem)] z-40 px-4 pb-4 border-t border-[#E5E5E5] dark:border-gray-800 bg-white dark:bg-gray-900 overflow-y-auto">
@@ -83,6 +84,13 @@
         const isExpanded = !isHidden;
         mobileMenuBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
         mobileMenu.setAttribute('aria-hidden', isExpanded ? 'false' : 'true');
+        
+        const barsIcon = mobileMenuBtn.querySelector('.fa-bars');
+        const xmarkIcon = mobileMenuBtn.querySelector('.fa-xmark');
+        if (barsIcon && xmarkIcon) {
+          barsIcon.classList.toggle('hidden', isExpanded);
+          xmarkIcon.classList.toggle('hidden', !isExpanded);
+        }
       });
     }
   })();
