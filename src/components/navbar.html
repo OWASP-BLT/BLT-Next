@@ -43,7 +43,7 @@
 <script>
   (function() {
     const path = window.location.pathname;
-    const isSubdirectory = path.includes('/pages/') || path.includes('/pages');
+    const isSubdirectory = /(^|\/)pages(\/|$)/.test(path);
     const prefix = isSubdirectory ? '../' : '';
     const page = path.split('/').pop().replace('.html', '') || 'index';
     
@@ -91,6 +91,14 @@
           barsIcon.classList.toggle('hidden', isExpanded);
           xmarkIcon.classList.toggle('hidden', !isExpanded);
         }
+      });
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
       });
     }
   })();
