@@ -2,6 +2,7 @@ from js import Response, Headers, URL
 import json
 import hashlib
 from datetime import datetime
+from workers import WorkerEntrypoint #Added this new import to use the modern class-based structure for Cloudflare Workers. 
 
 # ===================================
 # Configuration
@@ -432,12 +433,13 @@ async def route_request(request, env):
 # Main Entry Point
 # ===================================
 
-async def on_fetch(request, env):
-    """Main entry point for Cloudflare Worker"""
-    try:
-        return await route_request(request, env)
-    except Exception as e:
-        return create_response({
-            'error': 'Internal server error',
-            'message': str(e)
-        }, status=500, origin=request.headers.get('Origin'))
+class Default(WorkerEntrypoint):
+    async def fetch(self, request):
+        """Main entry point for Cloudflare Worker"""
+        try:
+            return await route_request(request, self.env)
+        except Exception as e:
+            return create_response({
+                'error': 'Internal server error',
+                'message': str(e)
+            }, status=500, origin=request.headers.get('Origin'))
