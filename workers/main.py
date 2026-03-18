@@ -67,11 +67,11 @@ def handle_html_response(html, origin=None):
 
 def handle_cors_preflight(origin):
     """Handle CORS preflight requests"""
-    return Response.new(
-        '',
-        status=204,
-        headers=Headers.new(get_cors_headers(origin))
-    )
+    js_headers = Headers.new()
+    cors = get_cors_headers(origin)
+    for k, v in cors.items():
+        js_headers.set(k, v)
+    return Response.new('', status=204, headers=js_headers)
 
 # ===================================
 # Helpers
