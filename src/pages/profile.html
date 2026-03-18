@@ -175,36 +175,39 @@
       if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
     })();
 
+    // XSS-safe text escaping
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(String(str || '')));
+      return div.innerHTML;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // Wait for main.js to initialize auth state
+      // Bounded poll: max 50 attempts x 100ms = 5 seconds
+      let attempts = 0;
+      const MAX_ATTEMPTS = 50;
+
       const checkAuth = () => {
+        attempts++;
         if (window.bltApp && window.bltApp.state) {
           const user = window.bltApp.state.getUser();
           if (!user) {
+            // Only redirect after bootstrap is confirmed complete
             window.location.href = '/index.html';
             return;
           }
-          // Populate profile
-          const setEl = (id, val) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = val || '—';
-          };
-          setEl('profileUsername', user.username);
-          setEl('profileEmail', user.email);
-          const initial = document.getElementById('profileAvatarInitial');
-          if (initial) initial.textContent = (user.username || '?')[0].toUpperCase();
-
-          // Show profile, hide spinner
-          document.getElementById('profileAuthGuard').classList.add('hidden');
-          document.getElementById('profileMain').classList.remove('hidden');
-
-          // Load bug reports
-          loadBugReports(user);
-        } else {
+          populateProfile(user);
+        } else if (attempts < MAX_ATTEMPTS) {
           setTimeout(checkAuth, 100);
+        } else {
+          // Bootstrap timed out — redirect to home
+          window.location.href = '/index.html';
         }
       };
-      checkAuth();
+
+      // Delay first check to allow main.js async init to complete
+      setTimeout(checkAuth, 200);
 
       // Logout button
       document.getElementById('logoutBtn')?.addEventListener('click', async () => {
@@ -215,28 +218,101 @@
       });
     });
 
+    function populateProfile(user) {
+      const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || '—';
+      };
+
+      setEl('profileUsername', user.username);
+      setEl('profileEmail', user.email);
+
+      const initial = document.getElementById('profileAvatarInitial');
+      if (initial) initial.textContent = (user.username || '?')[0].toUpperCase();
+
+      // Hydrate stats from user object
+      setEl('statBugs', user.bugs_reported ?? user.bug_count ?? '—');
+      setEl('statPoints', user.total_score ?? user.points ?? '—');
+      setEl('statRank', user.rank != null ? '#' + user.rank : '—');
+
+      // Show profile, hide spinner
+      document.getElementById('profileAuthGuard').classList.add('hidden');
+      document.getElementById('profileMain').classList.remove('hidden');
+
+      loadBugReports(user);
+    }
+
     async function loadBugReports(user) {
       const tbody = document.getElementById('bugReportsTable');
       try {
         const res = await fetch('/api/bugs?reporter=' + (user.id || ''));
         const data = await res.json();
         const bugs = data.bugs || data.data || [];
+
         if (!Array.isArray(bugs) || bugs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500">No bug reports yet. <a href="/pages/report-bug.html" class="text-red-600 dark:text-red-400 hover:underline">Report your first bug</a></td></tr>';
+          const td = document.createElement('td');
+          td.colSpan = 4;
+          td.className = 'px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500';
+          td.textContent = 'No bug reports yet.';
+          const tr = document.createElement('tr');
+          tr.appendChild(td);
+          tbody.innerHTML = '';
+          tbody.appendChild(tr);
           return;
         }
+
         const statusColors = {
           open: 'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300',
           resolved: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300',
           closed: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
         };
-        tbody.innerHTML = bugs.map(bug => {
-          const cls = statusColors[bug.status?.toLowerCase()] || statusColors.open;
-          const date = bug.created_at ? new Date(bug.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
-          return '<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"><td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 max-w-xs truncate">' + (bug.title || 'Untitled') + '</td><td class="px-4 py-3"><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium ' + cls + '">' + (bug.status || 'Open') + '</span></td><td class="px-4 py-3 text-gray-500 dark:text-gray-400">' + (bug.severity || '—') + '</td><td class="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">' + date + '</td></tr>';
-        }).join('');
+
+        tbody.innerHTML = '';
+        bugs.forEach(bug => {
+          const status = (bug.status || 'open').toLowerCase();
+          const cls = statusColors[status] || statusColors.open;
+          const date = bug.created_at
+            ? new Date(bug.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+            : '—';
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors';
+
+          const tdTitle = document.createElement('td');
+          tdTitle.className = 'px-4 py-3 font-medium text-gray-900 dark:text-gray-100 max-w-xs truncate';
+          tdTitle.textContent = bug.title || 'Untitled';
+
+          const tdStatus = document.createElement('td');
+          tdStatus.className = 'px-4 py-3';
+          const span = document.createElement('span');
+          span.className = 'inline-flex px-2 py-0.5 rounded-full text-xs font-medium ' + cls;
+          span.textContent = bug.status || 'Open';
+          tdStatus.appendChild(span);
+
+          const tdSeverity = document.createElement('td');
+          tdSeverity.className = 'px-4 py-3 text-gray-500 dark:text-gray-400';
+          tdSeverity.textContent = bug.severity || '—';
+
+          const tdDate = document.createElement('td');
+          tdDate.className = 'px-4 py-3 text-gray-500 dark:text-gray-400 text-xs';
+          tdDate.textContent = date;
+
+          tr.appendChild(tdTitle);
+          tr.appendChild(tdStatus);
+          tr.appendChild(tdSeverity);
+          tr.appendChild(tdDate);
+          tbody.appendChild(tr);
+        });
+
       } catch {
-        tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500">Could not load bug reports. Please try again later.</td></tr>';
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.className = 'px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500';
+        td.textContent = 'Could not load bug reports. Please try again later.';
+        const tr = document.createElement('tr');
+        tr.appendChild(td);
+        tbody.innerHTML = '';
+        tbody.appendChild(tr);
       }
     }
   </script>
