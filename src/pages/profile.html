@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile &mdash; OWASP BLT</title>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
+    }
+  </script>
+  <script src="/assets/js/main.js" type="module" defer></script>
+  <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased transition-colors">
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-800 transition-colors" role="banner">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
+        <a href="/index.html" class="flex items-center">
+          <img src="/assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
+        </a>
+        <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
+          <li><a href="/index.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
+          <li><a href="/pages/report-bug.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
+          <li><a href="/pages/leaderboard.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
+          <li><a href="/pages/projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
+          <li><a href="/pages/about.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
+        </ul>
+        <div class="hidden md:flex items-center gap-2">
+          <button id="themeToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
+            <i class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
+            <i class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
+          </button>
+          <button id="loginBtn" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="signupBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+        </div>
+        <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" id="mobileMenuBtn" aria-label="Open menu">
+          <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
+        </button>
+      </nav>
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-[#E5E5E5] dark:border-gray-800 dark:bg-gray-900">
+        <ul class="flex flex-col gap-1 pt-3 list-none m-0 p-0">
+          <li><a href="/index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
+          <li><a href="/pages/report-bug.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
+          <li><a href="/pages/leaderboard.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
+          <li><a href="/pages/projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
+          <li><a href="/pages/about.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">About</a></li>
+        </ul>
+        <div class="flex gap-3 mt-3">
+          <button id="mobileLoginBtn" class="flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="mobileSignupBtn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Auth guard spinner -->
+  <div id="profileAuthGuard" class="flex items-center justify-center py-32">
+    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-red-600 dark:text-red-400" aria-hidden="true"></i>
+  </div>
+
+  <main id="profileMain" class="hidden" role="main">
+
+    <!-- PAGE HEADER -->
+    <section class="py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E5E5] dark:border-gray-800 bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mb-4">
+          <a href="/index.html" class="hover:text-red-600 dark:hover:text-red-400 transition-colors">Home</a>
+          <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>
+          <span class="text-gray-600 dark:text-gray-400">Profile</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-2">My Profile</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Manage your account and track your bug reports.</p>
+      </div>
+    </section>
+
+    <!-- PROFILE CONTENT -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-5xl mx-auto space-y-10">
+
+        <!-- User Card -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-6 border border-[#E5E5E5] dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/60">
+          <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0">
+            <span id="profileAvatarInitial" class="text-3xl font-bold text-red-600 dark:text-red-400">?</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h2 id="profileUsername" class="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Loading...</h2>
+            <p id="profileEmail" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">—</p>
+          </div>
+          <button id="logoutBtn" class="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">
+            <i class="fa-solid fa-right-from-bracket text-xs" aria-hidden="true"></i> Logout
+          </button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div class="p-5 border border-[#E5E5E5] dark:border-gray-700 rounded-lg dark:bg-gray-800/50 text-center">
+            <div id="statBugs" class="text-2xl font-bold text-gray-900 dark:text-gray-100">—</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bugs Reported</div>
+          </div>
+          <div class="p-5 border border-[#E5E5E5] dark:border-gray-700 rounded-lg dark:bg-gray-800/50 text-center">
+            <div id="statPoints" class="text-2xl font-bold text-red-600 dark:text-red-400">—</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Points Earned</div>
+          </div>
+          <div class="p-5 border border-[#E5E5E5] dark:border-gray-700 rounded-lg dark:bg-gray-800/50 text-center">
+            <div id="statRank" class="text-2xl font-bold text-gray-900 dark:text-gray-100">—</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Global Rank</div>
+          </div>
+        </div>
+
+        <!-- Bug Reports Table -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400 mb-1">Activity</p>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">My Bug Reports</h2>
+            </div>
+            <a href="/pages/report-bug.html" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Report Bug
+            </a>
+          </div>
+          <div class="border border-[#E5E5E5] dark:border-gray-700 rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-gray-50 dark:bg-gray-800 border-b border-[#E5E5E5] dark:border-gray-700">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Title</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Severity</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="bugReportsTable" class="divide-y divide-[#E5E5E5] dark:divide-gray-700">
+                  <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500">
+                      <i class="fa-solid fa-circle-notch fa-spin mr-2" aria-hidden="true"></i>Loading...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-[#E5E5E5] dark:border-gray-800 py-10 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors" role="contentinfo">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <img src="/assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-6 w-auto">
+      <p class="text-xs text-gray-400 dark:text-gray-500">&copy; 2026 OWASP BLT. Licensed under AGPL-3.0.</p>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/OWASP-BLT/BLT-Next" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-base" aria-hidden="true"></i></a>
+        <a href="https://owasp.org" class="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" aria-label="OWASP"><i class="fa-solid fa-globe text-base" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      const h = document.documentElement;
+      const s = localStorage.getItem('theme');
+      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
+    })();
+
+    // XSS-safe text escaping
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(String(str || '')));
+      return div.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Wait for main.js to initialize auth state
+      // Bounded poll: max 50 attempts x 100ms = 5 seconds
+      let attempts = 0;
+      const MAX_ATTEMPTS = 50;
+
+      const checkAuth = () => {
+        attempts++;
+        if (window.bltApp && window.bltApp.state) {
+          const user = window.bltApp.state.getUser();
+          if (!user) {
+            // Only redirect after bootstrap is confirmed complete
+            window.location.href = '/index.html';
+            return;
+          }
+          populateProfile(user);
+        } else if (attempts < MAX_ATTEMPTS) {
+          setTimeout(checkAuth, 100);
+        } else {
+          // Bootstrap timed out — redirect to home
+          window.location.href = '/index.html';
+        }
+      };
+
+      // Delay first check to allow main.js async init to complete
+      setTimeout(checkAuth, 200);
+
+      // Logout button
+      document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        if (window.bltApp && window.bltApp.auth) {
+          await window.bltApp.auth.logout();
+        }
+        window.location.href = '/index.html';
+      });
+    });
+
+    function populateProfile(user) {
+      // Use null/undefined check to preserve valid zero values
+      const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = (val != null && val !== '') ? val : '—';
+      };
+
+      setEl('profileUsername', user.username);
+      setEl('profileEmail', user.email);
+
+      const initial = document.getElementById('profileAvatarInitial');
+      if (initial) initial.textContent = (user.username || '?')[0].toUpperCase();
+
+      // Hydrate stats from user object
+      setEl('statBugs', user.bugs_reported ?? user.bug_count ?? '—');
+      setEl('statPoints', user.total_score ?? user.points ?? '—');
+      setEl('statRank', user.rank != null ? '#' + user.rank : '—');
+
+      // Show profile, hide spinner
+      document.getElementById('profileAuthGuard').classList.add('hidden');
+      document.getElementById('profileMain').classList.remove('hidden');
+
+      loadBugReports(user);
+    }
+
+    async function loadBugReports(user) {
+      const tbody = document.getElementById('bugReportsTable');
+      try {
+        // Note: server-side reporter scoping is tracked in a separate issue.
+        // This request passes the authenticated user's id as a hint.
+        const res = await fetch('/api/bugs?reporter=' + encodeURIComponent(user.id || ''), {
+          headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('access_token') || '') }
+        });
+        const data = await res.json();
+        const bugs = data.bugs || data.data || [];
+
+        if (!Array.isArray(bugs) || bugs.length === 0) {
+          const td = document.createElement('td');
+          td.colSpan = 4;
+          td.className = 'px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500';
+          td.textContent = 'No bug reports yet.';
+          const tr = document.createElement('tr');
+          tr.appendChild(td);
+          tbody.innerHTML = '';
+          tbody.appendChild(tr);
+          return;
+        }
+
+        const statusColors = {
+          open: 'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300',
+          resolved: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300',
+          closed: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+        };
+
+        tbody.innerHTML = '';
+        bugs.forEach(bug => {
+          const status = (bug.status || 'open').toLowerCase();
+          const cls = statusColors[status] || statusColors.open;
+          const date = bug.created_at
+            ? new Date(bug.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+            : '—';
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors';
+
+          const tdTitle = document.createElement('td');
+          tdTitle.className = 'px-4 py-3 font-medium text-gray-900 dark:text-gray-100 max-w-xs truncate';
+          tdTitle.textContent = bug.title || 'Untitled';
+
+          const tdStatus = document.createElement('td');
+          tdStatus.className = 'px-4 py-3';
+          const span = document.createElement('span');
+          span.className = 'inline-flex px-2 py-0.5 rounded-full text-xs font-medium ' + cls;
+          span.textContent = bug.status || 'Open';
+          tdStatus.appendChild(span);
+
+          const tdSeverity = document.createElement('td');
+          tdSeverity.className = 'px-4 py-3 text-gray-500 dark:text-gray-400';
+          tdSeverity.textContent = bug.severity || '—';
+
+          const tdDate = document.createElement('td');
+          tdDate.className = 'px-4 py-3 text-gray-500 dark:text-gray-400 text-xs';
+          tdDate.textContent = date;
+
+          tr.appendChild(tdTitle);
+          tr.appendChild(tdStatus);
+          tr.appendChild(tdSeverity);
+          tr.appendChild(tdDate);
+          tbody.appendChild(tr);
+        });
+
+      } catch {
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.className = 'px-4 py-8 text-center text-sm text-gray-400 dark:text-gray-500';
+        td.textContent = 'Could not load bug reports. Please try again later.';
+        const tr = document.createElement('tr');
+        tr.appendChild(td);
+        tbody.innerHTML = '';
+        tbody.appendChild(tr);
+      }
+    }
+  </script>
+</body>
+</html>
