@@ -348,6 +348,7 @@ function updateUIForAuth() {
         }
         if (loginBtnMobile) {
             loginBtnMobile.textContent = user.username;
+            loginBtnMobile.href = '/pages/profile.html';
             loginBtnMobile.onclick = () => {
                 window.location.href = '/pages/profile.html';
             };
@@ -356,7 +357,9 @@ function updateUIForAuth() {
             signupBtn.textContent = 'Logout';
             signupBtn.classList.remove('btn-primary');
             signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async () => {
+            signupBtn.href = '#';
+            signupBtn.onclick = async (event) => {
+                event.preventDefault();
                 await auth.logout();
                 UIComponents.showNotification('Logged out successfully', 'success');
                 updateUIForAuth();
@@ -366,7 +369,9 @@ function updateUIForAuth() {
             signupBtnMobile.textContent = 'Logout';
             signupBtnMobile.classList.remove('bg-red-600', 'hover:bg-red-700');
             signupBtnMobile.classList.add('border', 'border-red-600', 'dark:border-red-400', 'text-red-600', 'dark:text-red-400', 'hover:bg-red-600', 'hover:text-white');
-            signupBtnMobile.onclick = async () => {
+            signupBtnMobile.href = '#';
+            signupBtnMobile.onclick = async (event) => {
+                event.preventDefault();
                 await auth.logout();
                 UIComponents.showNotification('Logged out successfully', 'success');
                 updateUIForAuth();
@@ -374,6 +379,8 @@ function updateUIForAuth() {
         }
     }
 }
+
+document.body.addEventListener('htmx:afterSwap', () => updateUIForAuth());
 
 // ===================================
 // Footer Last Updated
