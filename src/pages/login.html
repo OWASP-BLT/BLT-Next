@@ -199,17 +199,6 @@
     })();
     
     document.addEventListener('DOMContentLoaded', () => {
-      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-      const mobileMenu = document.getElementById('mobileMenu');
-      mobileMenuBtn?.addEventListener('click', () => {
-        const isHidden = mobileMenu?.classList.toggle('hidden');
-        const isExpanded = !isHidden;
-        mobileMenuBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-        if (mobileMenu) {
-          mobileMenu.setAttribute('aria-hidden', isExpanded ? 'false' : 'true');
-        }
-      });
-      
       const loginForm = document.getElementById('loginForm');
       if (loginForm) {
         let inFlight = false;
