@@ -24,6 +24,12 @@ FRONTEND_SECURITY_HEADERS = {
     'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 }
 
+def apply_security_headers(js_headers):
+    """Attach the canonical frontend security headers to a Headers object."""
+    for key, value in FRONTEND_SECURITY_HEADERS.items():
+        js_headers.set(key, value)
+    return js_headers
+
 # ===================================
 # CORS Helpers
 # ===================================
@@ -45,10 +51,7 @@ def create_response(data, status=200, origin=None):
     """Create a JSON response with CORS headers"""
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'application/json')
-    js_headers.set('X-Content-Type-Options', 'nosniff')
-    js_headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
-    js_headers.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
-    js_headers.set('X-Frame-Options', 'DENY')
+    apply_security_headers(js_headers)
     
     cors = get_cors_headers(origin)
     for k, v in cors.items():
@@ -65,10 +68,7 @@ def handle_html_response(html, origin=None):
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'text/html')
     js_headers.set('Access-Control-Allow-Origin', '*')
-    js_headers.set('X-Content-Type-Options', 'nosniff')
-    js_headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
-    js_headers.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
-    js_headers.set('X-Frame-Options', 'DENY')
+    apply_security_headers(js_headers)
     
     return Response.new(
         html,
@@ -88,8 +88,7 @@ def handle_cors_preflight(origin):
 def apply_frontend_security_headers(asset_response):
     """Attach security headers to static asset responses served by ASSETS."""
     js_headers = Headers.new(asset_response.headers)
-    for key, value in FRONTEND_SECURITY_HEADERS.items():
-        js_headers.set(key, value)
+    apply_security_headers(js_headers)
 
     return Response.new(
         asset_response.body,
