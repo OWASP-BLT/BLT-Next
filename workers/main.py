@@ -16,6 +16,7 @@ FRONTEND_SECURITY_HEADERS = {
     'X-Content-Type-Options': 'nosniff',
     'Strict-Transport-Security': 'max-age=31536000',
     'X-Frame-Options': 'SAMEORIGIN',
+    'X-XSS-Protection': '0',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
@@ -67,7 +68,10 @@ def handle_html_response(html, origin=None):
     """Create an HTML response with CORS headers"""
     js_headers = Headers.new()
     js_headers.set('Content-Type', 'text/html')
-    js_headers.set('Access-Control-Allow-Origin', '*')
+    # Allowed origins rather than using a wildcard
+    cors = get_cors_headers(origin)
+    for k, v in cors.items():
+        js_headers.set(k, v)
     apply_security_headers(js_headers)
     
     return Response.new(
