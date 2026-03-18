@@ -272,7 +272,7 @@ class UIComponents {
 function setupEventHandlers() {
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
+    if (themeToggle && !themeToggle.dataset.bound) {
         themeToggle.addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -282,6 +282,7 @@ function setupEventHandlers() {
                 window.bltApp.state.emit('theme:changed', isDark ? 'dark' : 'light');
             }
         });
+        themeToggle.dataset.bound = '1';
     }
 
     // Login page handlers (bound in external JS to avoid inline event attributes)
@@ -334,6 +335,8 @@ function updateUIForAuth() {
     const user = state.getUser();
     const loginBtn = document.getElementById('loginBtn');
     const signupBtn = document.getElementById('signupBtn');
+    const loginBtnMobile = document.getElementById('loginBtnMobile');
+    const signupBtnMobile = document.getElementById('signupBtnMobile');
 
     if (user && state.isAuthenticated) {
         // Update buttons to show user menu
@@ -343,11 +346,32 @@ function updateUIForAuth() {
                 window.location.href = '/pages/profile.html';
             };
         }
+        if (loginBtnMobile) {
+            loginBtnMobile.textContent = user.username;
+            loginBtnMobile.href = '/pages/profile.html';
+            loginBtnMobile.onclick = () => {
+                window.location.href = '/pages/profile.html';
+            };
+        }
         if (signupBtn) {
             signupBtn.textContent = 'Logout';
             signupBtn.classList.remove('btn-primary');
             signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async () => {
+            signupBtn.href = '#';
+            signupBtn.onclick = async (event) => {
+                event.preventDefault();
+                await auth.logout();
+                UIComponents.showNotification('Logged out successfully', 'success');
+                updateUIForAuth();
+            };
+        }
+        if (signupBtnMobile) {
+            signupBtnMobile.textContent = 'Logout';
+            signupBtnMobile.classList.remove('bg-red-600', 'hover:bg-red-700');
+            signupBtnMobile.classList.add('border', 'border-red-600', 'dark:border-red-400', 'text-red-600', 'dark:text-red-400', 'hover:bg-red-600', 'hover:text-white');
+            signupBtnMobile.href = '#';
+            signupBtnMobile.onclick = async (event) => {
+                event.preventDefault();
                 await auth.logout();
                 UIComponents.showNotification('Logged out successfully', 'success');
                 updateUIForAuth();
@@ -355,6 +379,8 @@ function updateUIForAuth() {
         }
     }
 }
+
+document.body.addEventListener('htmx:afterSwap', () => updateUIForAuth());
 
 // ===================================
 // Footer Last Updated
