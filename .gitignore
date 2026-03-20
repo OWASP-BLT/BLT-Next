@@ -50,6 +50,7 @@ coverage/
 tmp/
 temp/
 *.tmp
+nul
 
 # Wrangler (Cloudflare Workers)
 .wrangler/
