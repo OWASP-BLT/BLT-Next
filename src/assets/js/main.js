@@ -274,26 +274,32 @@ function setupEventHandlers() {
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn && loginBtn.tagName.toLowerCase() === 'button') {
         loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
+            if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {
+                UIComponents.showModal(UIComponents.createLoginForm());
 
             // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
+                const form = document.getElementById('loginForm');
+                if (form) {
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const email = formData.get('email');
+                        const password = formData.get('password');
 
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
+                        const result = await auth.login(email, password);
+                        if (result.success) {
+                            UIComponents.hideModal();
+                            UIComponents.showNotification('Logged in successfully!', 'success');
+                            updateUIForAuth();
+                        } else {
+                            UIComponents.showNotification(result.error, 'error');
+                        }
+                    });
+                }
+            }
+            else {
+                // If the modal components aren't on this page (About/Leadership/projects/report), redirect
+                window.location.href = '/src/pages/login.html';
             }
         });
     }
@@ -304,29 +310,33 @@ function setupEventHandlers() {
         const btn = document.getElementById(btnId);
         if (btn && btn.tagName.toLowerCase() === 'button') {
             btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
+                if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {  
+                    UIComponents.showModal(UIComponents.createSignupForm());
 
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
+                    // Setup form submission
+                    const form = document.getElementById('signupForm');
+                    if (form) {
+                        form.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(form);
+                            const userData = {
+                                username: formData.get('username'),
+                                email: formData.get('email'),
+                                password: formData.get('password'),
+                            };
 
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
+                            const result = await auth.signup(userData);
+                            if (result.success) {
+                                UIComponents.hideModal();
+                                UIComponents.showNotification('Account created successfully!', 'success');
+                                updateUIForAuth();
+                            } else {
+                                UIComponents.showNotification(result.error, 'error');
+                            }
+                        });
+                    }
+                }else{
+                    window.location.href = '/src/pages/signup.html';
                 }
             });
         }
