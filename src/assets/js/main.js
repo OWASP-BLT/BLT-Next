@@ -411,7 +411,7 @@ function setupEventHandlers() {
                 updateUIForAuth();
                 // Keep user on the site; redirect to home if on the standalone login page
                 if (window.location.pathname.includes('/pages/')) {
-                    window.location.href = '../index.html';
+                    window.location.href = '/index.html';
                 }
             } else {
                 UIComponents.showNotification(result.error, 'error');
@@ -442,7 +442,7 @@ function setupEventHandlers() {
                 UIComponents.showNotification('Account created successfully!', 'success');
                 updateUIForAuth();
                 if (window.location.pathname.includes('/pages/')) {
-                    window.location.href = '../index.html';
+                    window.location.href = '/index.html';
                 }
             } else {
                 UIComponents.showNotification(result.error, 'error');
