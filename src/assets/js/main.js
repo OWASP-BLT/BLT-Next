@@ -271,70 +271,83 @@ class UIComponents {
 // ===================================
 function setupEventHandlers() {
     // Login button (modal only for button elements)
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn && loginBtn.tagName.toLowerCase() === 'button') {
-        loginBtn.addEventListener('click', () => {
-            if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {
-                UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-                const form = document.getElementById('loginForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const email = formData.get('email');
-                        const password = formData.get('password');
-
-                        const result = await auth.login(email, password);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Logged in successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
-                }
-            }
-            else {
-                // If the modal components aren't on this page (About/Leadership/projects/report), redirect
-                window.location.href = '/pages/login.html';
-            }
-        });
-    }
-
-    // Signup buttons (modal only for button elements)
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
+    //const loginBtn = document.getElementById('loginBtn');
+    const loginIds = ['loginBtn', 'mobileLoginBtn'];
+    loginIds.forEach(id => {
+        const btn = document.getElementById(id);
         if (btn && btn.tagName.toLowerCase() === 'button') {
             btn.addEventListener('click', () => {
+                // FIX: If already logged in, stop the modal/redirect logic and let the button's href or onclick take over.
+                if (state.isAuthenticated) return;
+            
+                if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {
+                    UIComponents.showModal(UIComponents.createLoginForm());
+
+                    // Setup form submission
+                    setTimeout(() => {
+                        const form = document.getElementById('loginForm');
+                        if (form) {
+                            form.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(form);
+                                const email = formData.get('email');
+                                const password = formData.get('password');
+
+                                const result = await auth.login(email, password);
+                                if (result.success) {
+                                    UIComponents.hideModal();
+                                    UIComponents.showNotification('Logged in successfully!', 'success');
+                                    updateUIForAuth();
+                                } else {
+                                    UIComponents.showNotification(result.error, 'error');
+                                }
+                            });
+                        }
+                    }, 0);
+                }else {
+                    // If the modal components aren't on this page (About/Leadership/projects/report), redirect
+                    window.location.href = '/pages/login.html';
+                }
+            });
+        }
+    });
+
+    // Signup buttons (modal only for button elements)
+    const signupIds = ['signupBtn', 'ctaSignupBtn', 'mobileSignupBtn'];
+    signupIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn && btn.tagName.toLowerCase() === 'button') {
+            btn.addEventListener('click', () => {
+                // FIX: If already logged in, stop the signup modal logic
+                if (state.isAuthenticated) return;
+                
                 if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {  
                     UIComponents.showModal(UIComponents.createSignupForm());
 
                     // Setup form submission
-                    const form = document.getElementById('signupForm');
-                    if (form) {
-                        form.addEventListener('submit', async (e) => {
-                            e.preventDefault();
-                            const formData = new FormData(form);
-                            const userData = {
-                                username: formData.get('username'),
-                                email: formData.get('email'),
-                                password: formData.get('password'),
-                            };
+                    setTimeout(() => {
+                        const form = document.getElementById('signupForm');
+                        if (form) {
+                            form.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(form);
+                                const userData = {
+                                    username: formData.get('username'),
+                                    email: formData.get('email'),
+                                    password: formData.get('password'),
+                                };
 
-                            const result = await auth.signup(userData);
-                            if (result.success) {
-                                UIComponents.hideModal();
-                                UIComponents.showNotification('Account created successfully!', 'success');
-                                updateUIForAuth();
-                            } else {
-                                UIComponents.showNotification(result.error, 'error');
-                            }
-                        });
-                    }
+                                const result = await auth.signup(userData);
+                                if (result.success) {
+                                    UIComponents.hideModal();
+                                    UIComponents.showNotification('Account created successfully!', 'success');
+                                    updateUIForAuth();
+                                } else {
+                                    UIComponents.showNotification(result.error, 'error');
+                                }
+                            });
+                        }
+                    }, 0);
                 }else{
                     window.location.href = '/pages/signup.html';
                 }
@@ -456,42 +469,58 @@ function setupEventHandlers() {
 // ===================================
 function updateUIForAuth() {
     const user = state.getUser();
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-
+    const loginButtons = [
+        document.getElementById('loginBtn'),
+        document.getElementById('mobileLoginBtn')
+    ] 
+    const signupButtons = [
+        document.getElementById('signupBtn'),
+        document.getElementById('ctaSignupBtn'),
+        document.getElementById('mobileSignupBtn')
+    ]
     if (user && state.isAuthenticated) {
         // Update buttons/links to show user menu
-        if (loginBtn) {
-            loginBtn.textContent = user.username;
-            loginBtn.href = '/pages/profile.html';
-            loginBtn.onclick = null;
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Logout';
-            signupBtn.href = '#';
-            signupBtn.classList.remove('btn-primary');
-            signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async (e) => {
-                e.preventDefault();
-                await auth.logout();
-                UIComponents.showNotification('Logged out successfully', 'success');
-                updateUIForAuth();
-            };
-        }
+        //--LOGGED IN STATE --
+        loginButtons.forEach(btn => {
+            if (btn) {
+                btn.textContent = user.username;
+                btn.href = '/pages/profile.html';
+                btn.onclick = null;
+            }
+        });
+        signupButtons.forEach(btn => {
+            if (btn) {
+                btn.textContent = 'Logout';
+                btn.href = '#';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+                btn.onclick = async (e) => {
+                    e.preventDefault();
+                    await auth.logout();
+                    UIComponents.showNotification('Logged out successfully', 'success');
+                    updateUIForAuth();
+                    window.location.href = '/index.html';
+                };
+            }
+        });
     } else {
         // Reset to default unauthenticated state
-        if (loginBtn) {
-            loginBtn.textContent = 'Login';
-            loginBtn.href = '/pages/login.html';
-            loginBtn.onclick = null;
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Sign Up';
-            signupBtn.href = '/pages/signup.html';
-            signupBtn.classList.remove('btn-secondary');
-            signupBtn.classList.add('btn-primary');
-            signupBtn.onclick = null;
-        }
+        loginButtons.forEach(btn => {
+            if (btn) {
+                btn.textContent = 'Login';
+                btn.href = '/pages/login.html';
+                btn.onclick = null;
+            }
+        });
+        signupButtons.forEach(btn => {
+            if (btn) {
+                btn.textContent = 'Sign Up';
+                btn.href = '/pages/signup.html';
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-primary');
+                btn.onclick = null;
+            }
+        });
     }
 }
 
