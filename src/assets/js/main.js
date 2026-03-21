@@ -482,7 +482,7 @@ function updateUIForAuth() {
         // Reset to default unauthenticated state
         if (loginBtn) {
             loginBtn.textContent = 'Login';
-            loginBtn.href = 'pages/login.html';
+            loginBtn.href = '/src/pages/login.html';
             loginBtn.onclick = null;
         }
         if (signupBtn) {
