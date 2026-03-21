@@ -299,7 +299,7 @@ function setupEventHandlers() {
             }
             else {
                 // If the modal components aren't on this page (About/Leadership/projects/report), redirect
-                window.location.href = '/src/pages/login.html';
+                window.location.href = '/pages/login.html';
             }
         });
     }
@@ -336,7 +336,7 @@ function setupEventHandlers() {
                         });
                     }
                 }else{
-                    window.location.href = '/src/pages/signup.html';
+                    window.location.href = '/pages/signup.html';
                 }
             });
         }
@@ -482,12 +482,12 @@ function updateUIForAuth() {
         // Reset to default unauthenticated state
         if (loginBtn) {
             loginBtn.textContent = 'Login';
-            loginBtn.href = '/src/pages/login.html';
+            loginBtn.href = '/pages/login.html';
             loginBtn.onclick = null;
         }
         if (signupBtn) {
             signupBtn.textContent = 'Sign Up';
-            signupBtn.href = 'pages/signup.html';
+            signupBtn.href = '/pages/signup.html';
             signupBtn.classList.remove('btn-secondary');
             signupBtn.classList.add('btn-primary');
             signupBtn.onclick = null;
