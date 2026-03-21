@@ -226,15 +226,8 @@
 
   </main>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="bg-white dark:bg-gray-900 border-t border-[#E5E5E5] dark:border-gray-800 pt-12 pb-8 transition-colors" role="contentinfo">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-gray-500 dark:text-gray-400 text-sm">
-        &copy; 2026 OWASP Foundation. BLT Project.
-      </p>
-    </div>
-  </footer>
-  
+  <div hx-get="../components/footer.html" hx-trigger="load" hx-swap="outerHTML"></div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
