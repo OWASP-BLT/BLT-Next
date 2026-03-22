@@ -264,6 +264,188 @@ class UIComponents {
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
+
+    /**
+     * Show a modal overlay with the given content.
+     * @param {HTMLElement} content - The DOM element to display inside the modal.
+     */
+    static showModal(content) {
+        // Remove any existing modal first
+        UIComponents.hideModal();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'blt-modal-overlay';
+        overlay.className = 'fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm';
+        overlay.style.cssText = 'animation: fadeIn 0.2s ease-out;';
+
+        const panel = document.createElement('div');
+        panel.className = 'relative w-full max-w-md mx-4 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8';
+        panel.style.cssText = 'animation: slideUp 0.2s ease-out;';
+
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'absolute top-3 right-3 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors';
+        closeBtn.setAttribute('aria-label', 'Close modal');
+        closeBtn.innerHTML = '<i class="fa-solid fa-xmark text-lg"></i>';
+        closeBtn.addEventListener('click', UIComponents.hideModal);
+
+        panel.appendChild(closeBtn);
+        panel.appendChild(content);
+        overlay.appendChild(panel);
+
+        // Close on backdrop click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) UIComponents.hideModal();
+        });
+
+        // Close on Escape key
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                UIComponents.hideModal();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+
+        document.body.appendChild(overlay);
+
+        // Inject keyframe styles if not already present
+        if (!document.getElementById('blt-modal-styles')) {
+            const style = document.createElement('style');
+            style.id = 'blt-modal-styles';
+            style.textContent = `
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    /**
+     * Remove the modal overlay if present.
+     */
+    static hideModal() {
+        const existing = document.getElementById('blt-modal-overlay');
+        if (existing) existing.remove();
+    }
+
+    /**
+     * Create the login form element for use inside a modal.
+     * @returns {HTMLElement}
+     */
+    static createLoginForm() {
+        const wrapper = document.createElement('div');
+
+        const title = document.createElement('div');
+        title.className = 'text-center mb-6';
+        title.innerHTML = `
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h2>
+            <p class="text-gray-500 dark:text-gray-400">Sign in to your account</p>
+        `;
+
+        const form = document.createElement('form');
+        form.id = 'loginForm';
+        form.className = 'space-y-4';
+        form.innerHTML = `
+            <div>
+                <label for="modalLoginEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+                <input id="modalLoginEmail" name="email" type="email" required
+                    class="w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
+                    placeholder="you@example.com" />
+            </div>
+            <div>
+                <label for="modalLoginPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+                <input id="modalLoginPassword" name="password" type="password" required
+                    class="w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
+                    placeholder="••••••••" />
+            </div>
+            <button type="submit"
+                class="w-full py-2.5 px-4 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors">
+                Sign In
+            </button>
+            <p class="text-sm text-center text-gray-600 dark:text-gray-400">
+                Don't have an account?
+                <button type="button" id="switchToSignup" class="font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors">Sign Up</button>
+            </p>
+        `;
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(form);
+
+        // Switch to signup modal
+        requestAnimationFrame(() => {
+            const switchBtn = wrapper.querySelector('#switchToSignup');
+            if (switchBtn) {
+                switchBtn.addEventListener('click', () => {
+                    UIComponents.showModal(UIComponents.createSignupForm());
+                });
+            }
+        });
+
+        return wrapper;
+    }
+
+    /**
+     * Create the signup form element for use inside a modal.
+     * @returns {HTMLElement}
+     */
+    static createSignupForm() {
+        const wrapper = document.createElement('div');
+
+        const title = document.createElement('div');
+        title.className = 'text-center mb-6';
+        title.innerHTML = `
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h2>
+            <p class="text-gray-500 dark:text-gray-400">Join the OWASP BLT community</p>
+        `;
+
+        const form = document.createElement('form');
+        form.id = 'signupForm';
+        form.className = 'space-y-4';
+        form.innerHTML = `
+            <div>
+                <label for="modalSignupUsername" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Username</label>
+                <input id="modalSignupUsername" name="username" type="text" required
+                    class="w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
+                    placeholder="johndoe" />
+            </div>
+            <div>
+                <label for="modalSignupEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+                <input id="modalSignupEmail" name="email" type="email" required
+                    class="w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
+                    placeholder="you@example.com" />
+            </div>
+            <div>
+                <label for="modalSignupPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+                <input id="modalSignupPassword" name="password" type="password" required
+                    class="w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors"
+                    placeholder="••••••••" />
+            </div>
+            <button type="submit"
+                class="w-full py-2.5 px-4 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors">
+                Create Account
+            </button>
+            <p class="text-sm text-center text-gray-600 dark:text-gray-400">
+                Already have an account?
+                <button type="button" id="switchToLogin" class="font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors">Sign In</button>
+            </p>
+        `;
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(form);
+
+        // Switch to login modal
+        requestAnimationFrame(() => {
+            const switchBtn = wrapper.querySelector('#switchToLogin');
+            if (switchBtn) {
+                switchBtn.addEventListener('click', () => {
+                    UIComponents.showModal(UIComponents.createLoginForm());
+                });
+            }
+        });
+
+        return wrapper;
+    }
 }
 
 // ===================================
