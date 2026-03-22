@@ -271,62 +271,85 @@ class UIComponents {
 // ===================================
 function setupEventHandlers() {
     // Login button (modal only for button elements)
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn && loginBtn.tagName.toLowerCase() === 'button') {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
-
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    // Signup buttons (modal only for button elements)
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
+    //const loginBtn = document.getElementById('loginBtn');
+    const loginIds = ['loginBtn', 'mobileLoginBtn'];
+    loginIds.forEach(id => {
+        const btn = document.getElementById(id);
         if (btn && btn.tagName.toLowerCase() === 'button') {
             btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
+                // FIX: If already logged in, stop the modal/redirect logic and let the button's href or onclick take over.
+                if (state.isAuthenticated) return;
+            
+                if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {
+                    UIComponents.showModal(UIComponents.createLoginForm());
 
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
+                    // Setup form submission
+                    setTimeout(() => {
+                        const form = document.getElementById('loginForm');
+                        if (form) {
+                            form.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(form);
+                                const email = formData.get('email');
+                                const password = formData.get('password');
 
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
+                                const result = await auth.login(email, password);
+                                if (result.success) {
+                                    UIComponents.hideModal();
+                                    UIComponents.showNotification('Logged in successfully!', 'success');
+                                    updateUIForAuth();
+                                } else {
+                                    UIComponents.showNotification(result.error, 'error');
+                                }
+                            });
                         }
-                    });
+                    }, 0);
+                }else {
+                    // If the modal components aren't on this page (About/Leadership/projects/report), redirect
+                    window.location.href = '/pages/login.html';
+                }
+            });
+        }
+    });
+
+    // Signup buttons (modal only for button elements)
+    const signupIds = ['signupBtn', 'ctaSignupBtn', 'mobileSignupBtn'];
+    signupIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn && btn.tagName.toLowerCase() === 'button') {
+            btn.addEventListener('click', () => {
+                // FIX: If already logged in, stop the signup modal logic
+                if (state.isAuthenticated) return;
+                
+                if (typeof UIComponents !== 'undefined' && UIComponents.showModal) {  
+                    UIComponents.showModal(UIComponents.createSignupForm());
+
+                    // Setup form submission
+                    setTimeout(() => {
+                        const form = document.getElementById('signupForm');
+                        if (form) {
+                            form.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(form);
+                                const userData = {
+                                    username: formData.get('username'),
+                                    email: formData.get('email'),
+                                    password: formData.get('password'),
+                                };
+
+                                const result = await auth.signup(userData);
+                                if (result.success) {
+                                    UIComponents.hideModal();
+                                    UIComponents.showNotification('Account created successfully!', 'success');
+                                    updateUIForAuth();
+                                } else {
+                                    UIComponents.showNotification(result.error, 'error');
+                                }
+                            });
+                        }
+                    }, 0);
+                }else{
+                    window.location.href = '/pages/signup.html';
                 }
             });
         }
@@ -401,7 +424,7 @@ function setupEventHandlers() {
                 updateUIForAuth();
                 // Keep user on the site; redirect to home if on the standalone login page
                 if (window.location.pathname.includes('/pages/')) {
-                    window.location.href = '../index.html';
+                    window.location.href = '/index.html';
                 }
             } else {
                 UIComponents.showNotification(result.error, 'error');
@@ -422,7 +445,7 @@ function setupEventHandlers() {
             };
             const confirmPassword = formData.get('confirmPassword');
 
-            if (userData.password !== confirmPassword) {
+            if (confirmPassword && userData.password !== confirmPassword) {
                 UIComponents.showNotification('Passwords do not match', 'error');
                 return;
             }
@@ -432,7 +455,7 @@ function setupEventHandlers() {
                 UIComponents.showNotification('Account created successfully!', 'success');
                 updateUIForAuth();
                 if (window.location.pathname.includes('/pages/')) {
-                    window.location.href = '../index.html';
+                    window.location.href = '/index.html';
                 }
             } else {
                 UIComponents.showNotification(result.error, 'error');
@@ -446,45 +469,73 @@ function setupEventHandlers() {
 // ===================================
 function updateUIForAuth() {
     const user = state.getUser();
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-
+    const loginButtons = [
+        document.getElementById('loginBtn'),
+        document.getElementById('mobileLoginBtn')
+    ];
+    const signupButtons = [
+        document.getElementById('signupBtn'),
+        document.getElementById('ctaSignupBtn'),
+        document.getElementById('mobileSignupBtn')
+    ];
     if (user && state.isAuthenticated) {
         // Update buttons/links to show user menu
-        if (loginBtn) {
-            loginBtn.textContent = user.username;
-            loginBtn.href = '/pages/profile.html';
-            loginBtn.onclick = null;
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Logout';
-            signupBtn.href = '#';
-            signupBtn.classList.remove('btn-primary');
-            signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async (e) => {
+        //--LOGGED IN STATE --
+        loginButtons.forEach(btn => {
+            if (!btn) return;
+            // LOGGED IN STATE
+            btn.onclick=null;
+            btn.textContent = user.username;
+            if (btn.tagName.toLowerCase() === 'a') {
+                btn.href = '/pages/profile.html';
+            }else{
+                btn.addEventListener('click', () => {
+                    window.location.assign('/pages/profile.html');
+                });
+            }
+        });
+        signupButtons.forEach(btn => {
+            if (!btn) return;
+            btn.onclick = null;
+            btn.textContent = 'Logout';
+            if (btn.classList.contains('btn-primary')) {
+                btn.classList.replace('btn-primary', 'btn-secondary');
+            }    
+            btn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 await auth.logout();
                 UIComponents.showNotification('Logged out successfully', 'success');
                 updateUIForAuth();
-            };
-        }
-    } else {
-        // Reset to default unauthenticated state
-        if (loginBtn) {
-            loginBtn.textContent = 'Login';
-            loginBtn.href = 'pages/login.html';
-            loginBtn.onclick = null;
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Sign Up';
-            signupBtn.href = 'pages/signup.html';
-            signupBtn.classList.remove('btn-secondary');
-            signupBtn.classList.add('btn-primary');
-            signupBtn.onclick = null;
-        }
+                window.location.href = '/index.html';
+            });
+        });
+    }else{
+        // LOGGED OUT STATE
+        loginButtons.forEach(btn => {
+            if (!btn) return;
+            btn.textContent = 'Login';
+            if (btn.tagName.toLowerCase() === 'a') {
+                btn.href = '/pages/login.html';
+            } else {
+                btn.onclick = () => window.location.href = '/pages/login.html';
+            }
+        });
+        signupButtons.forEach(btn => {
+            if (!btn) return;
+            btn.textContent = 'Sign Up';
+            // Revert styles
+            if (btn.classList.contains('btn-secondary')) {
+                btn.classList.replace('btn-secondary', 'btn-primary');
+            }
+            
+            if (btn.tagName.toLowerCase() === 'a') {
+                btn.href = '/pages/signup.html';
+            } else {
+                btn.onclick = () => window.location.href = '/pages/signup.html';
+            }
+        });
     }
 }
-
 // ===================================
 // Footer Last Updated
 // ===================================

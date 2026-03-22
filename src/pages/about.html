@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About &mdash; OWASP BLT</title>
-  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
-  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,9 +18,9 @@
       theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }, colors: { primary: { DEFAULT: '#E10101', dark: '#BC0000' } } } }
     }
   </script>
-  <script src="../assets/js/theme-init.js"></script>
+  <script src="/assets/js/theme-init.js"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-  <script src="../assets/js/main.js" type="module" defer></script>
+  <script src="/assets/js/main.js" type="module" defer></script>
   <style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
 </head>
 
@@ -30,23 +30,23 @@
   <header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-800 transition-colors" role="banner">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="flex items-center justify-between h-16" role="navigation" aria-label="Main navigation">
-        <a href="../index.html" class="flex items-center">
-          <img src="../assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
+        <a href="/index.html" class="flex items-center">
+          <img src="/assets/img/logo-lg.png" alt="OWASP BLT Logo" class="h-8 w-auto">
         </a>
         <ul class="hidden md:flex items-center gap-1 list-none m-0 p-0">
-          <li><a href="../index.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
-          <li><a href="report-bug.html" class="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
-          <li><a href="leaderboard.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
-          <li><a href="projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
-          <li><a href="about.html" class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">About</a></li>
+          <li><a href="/index.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
+          <li><a href="/pages/report-bug.html" class="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
+          <li><a href="/pages/leaderboard.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
+          <li><a href="/pages/projects.html" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
+          <li><a href="/pages/about.html" class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">About</a></li>
         </ul>
         <div class="hidden md:flex items-center gap-2">
           <button id="themeToggle" class="p-2 text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
             <i class="fa-solid fa-sun dark:hidden text-sm" aria-hidden="true"></i>
             <i class="fa-solid fa-moon hidden dark:block text-sm" aria-hidden="true"></i>
           </button>
-          <button id="loginBtn" class="whitespace-nowrap flex-shrink-0 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button id="signupBtn" class="whitespace-nowrap flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button id="loginBtn" type="button" class="whitespace-nowrap flex-shrink-0 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
+          <button id="signupBtn" type="button" class="whitespace-nowrap flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
         <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" id="mobileMenuBtn" aria-label="Open menu">
           <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
@@ -54,15 +54,15 @@
       </nav>
       <div id="mobileMenu" class="hidden md:hidden fixed top-16 left-0 w-full h-[calc(100vh-4rem)] z-40 px-4 pb-4 border-t border-[#E5E5E5] dark:border-gray-800 dark:bg-gray-900">
         <ul class="flex flex-col gap-1 pt-3 list-none m-0 p-0">
-          <li><a href="../index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
-          <li><a href="report-bug.html" class="block whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
-          <li><a href="leaderboard.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
-          <li><a href="projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
-          <li><a href="about.html" class="block px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">About</a></li>
+          <li><a href="/index.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Home</a></li>
+          <li><a href="/pages/report-bug.html" class="block whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Report Bug</a></li>
+          <li><a href="/pages/leaderboard.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Leaderboard</a></li>
+          <li><a href="/pages/projects.html" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-md hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 transition-colors">Projects</a></li>
+          <li><a href="/pages/about.html" class="block px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-gray-800">About</a></li>
         </ul>
         <div class="flex gap-3 mt-3">
-          <button class="whitespace-nowrap flex-shrink-0 flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">Login</button>
-          <button class="whitespace-nowrap flex-shrink-0 flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
+          <button id="mobileLoginBtn" class="whitespace-nowrap flex-shrink-0 flex-1 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors ">Login</button>
+          <button id="mobileSignupBtn" class="whitespace-nowrap flex-shrink-0 flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Sign Up</button>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
     <section class="py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E5E5] dark:border-gray-800 bg-gray-50 dark:bg-gray-900 transition-colors">
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mb-4">
-          <a href="../index.html" class="hover:text-red-600 dark:hover:text-red-400 transition-colors">Home</a>
+          <a href="/index.html" class="hover:text-red-600 dark:hover:text-red-400 transition-colors">Home</a>
           <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>
           <span class="text-gray-600 dark:text-gray-400">About</span>
         </div>
@@ -199,7 +199,7 @@
             <a href="https://github.com/OWASP-BLT/BLT-Next" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
               <i class="fa-brands fa-github" aria-hidden="true"></i> View on GitHub
             </a>
-            <a href="report-bug.html" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">
+            <a href="/pages/report-bug.html" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded-md hover:bg-red-600 hover:text-white transition-colors">
               <i class="fa-solid fa-bug" aria-hidden="true"></i> Report Your First Bug
             </a>
           </div>
@@ -211,7 +211,7 @@
   </main>
 
   <!-- ===== FOOTER ===== -->
-  <div hx-get="../components/footer.html"  hx-trigger="load" hx-swap="outerHTML"> </div>
+  <div hx-get="/components/footer.html"  hx-trigger="load" hx-swap="outerHTML"> </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
