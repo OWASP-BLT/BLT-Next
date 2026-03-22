@@ -445,7 +445,7 @@ function setupEventHandlers() {
             };
             const confirmPassword = formData.get('confirmPassword');
 
-            if (userData.password !== confirmPassword) {
+            if (confirmPassword && userData.password !== confirmPassword) {
                 UIComponents.showNotification('Passwords do not match', 'error');
                 return;
             }
@@ -472,58 +472,70 @@ function updateUIForAuth() {
     const loginButtons = [
         document.getElementById('loginBtn'),
         document.getElementById('mobileLoginBtn')
-    ] 
+    ];
     const signupButtons = [
         document.getElementById('signupBtn'),
         document.getElementById('ctaSignupBtn'),
         document.getElementById('mobileSignupBtn')
-    ]
+    ];
     if (user && state.isAuthenticated) {
         // Update buttons/links to show user menu
         //--LOGGED IN STATE --
         loginButtons.forEach(btn => {
-            if (btn) {
-                btn.textContent = user.username;
+            if (!btn) return;
+            // LOGGED IN STATE
+            btn.onclick=null;
+            btn.textContent = user.username;
+            if (btn.tagName.toLowerCase() === 'a') {
                 btn.href = '/pages/profile.html';
-                btn.onclick = null;
+            }else{
+                btn.addEventListener('click', () => {
+                    window.location.assign('/pages/profile.html');
+                });
             }
         });
         signupButtons.forEach(btn => {
-            if (btn) {
-                btn.textContent = 'Logout';
-                btn.href = '#';
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-secondary');
-                btn.onclick = async (e) => {
-                    e.preventDefault();
-                    await auth.logout();
-                    UIComponents.showNotification('Logged out successfully', 'success');
-                    updateUIForAuth();
-                    window.location.href = '/index.html';
-                };
-            }
+            if (!btn) return;
+            btn.onclick = null;
+            btn.textContent = 'Logout';
+            if (btn.classList.contains('btn-primary')) {
+                btn.classList.replace('btn-primary', 'btn-secondary');
+            }    
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await auth.logout();
+                UIComponents.showNotification('Logged out successfully', 'success');
+                updateUIForAuth();
+                window.location.href = '/index.html';
+            });
         });
-    } else {
-        // Reset to default unauthenticated state
+    }else{
+        // LOGGED OUT STATE
         loginButtons.forEach(btn => {
-            if (btn) {
-                btn.textContent = 'Login';
+            if (!btn) return;
+            btn.textContent = 'Login';
+            if (btn.tagName.toLowerCase() === 'a') {
                 btn.href = '/pages/login.html';
-                btn.onclick = null;
+            } else {
+                btn.onclick = () => window.location.href = '/pages/login.html';
             }
         });
         signupButtons.forEach(btn => {
-            if (btn) {
-                btn.textContent = 'Sign Up';
+            if (!btn) return;
+            btn.textContent = 'Sign Up';
+            // Revert styles
+            if (btn.classList.contains('btn-secondary')) {
+                btn.classList.replace('btn-secondary', 'btn-primary');
+            }
+            
+            if (btn.tagName.toLowerCase() === 'a') {
                 btn.href = '/pages/signup.html';
-                btn.classList.remove('btn-secondary');
-                btn.classList.add('btn-primary');
-                btn.onclick = null;
+            } else {
+                btn.onclick = () => window.location.href = '/pages/signup.html';
             }
         });
     }
 }
-
 // ===================================
 // Footer Last Updated
 // ===================================
