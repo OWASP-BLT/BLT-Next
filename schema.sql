@@ -39,6 +39,18 @@ CREATE TABLE IF NOT EXISTS stats (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- SendGrid email event log
+CREATE TABLE IF NOT EXISTS sendgrid_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_type TEXT NOT NULL,
+    email TEXT,
+    sg_event_id TEXT UNIQUE,
+    sg_message_id TEXT,
+    timestamp INTEGER,
+    raw_payload TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert initial stats
 INSERT OR IGNORE INTO stats (key, value) VALUES ('bugs_reported', '15234');
 INSERT OR IGNORE INTO stats (key, value) VALUES ('active_researchers', '3421');
